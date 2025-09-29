@@ -10,6 +10,7 @@ import com.example.user_service.domain.enums.Role;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +24,9 @@ public class UserServiceImpl implements UserService{
     private final UserMapper mapper;
 
     @Override
-    public Object registerClientUser(ClientRegisterRequest request) {
+    public Object registerClientUser(ClientRegisterRequest request) throws BadRequestException {
         if(userRepository.existsByPhone(request.getPhone())) {
-            throw new RuntimeException(String.format("Phone %s is already taken", request.getPhone()));
+            throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
         }
         User newUser = mapper.map(request);
         userRepository.save(newUser);
@@ -33,9 +34,9 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public OperatorUserDTO registerOperatorUser(OperatorRegisterRequest request) {
+    public OperatorUserDTO registerOperatorUser(OperatorRegisterRequest request) throws BadRequestException {
         if(userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException(String.format("Username %s is already taken", request.getUsername()));
+            throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
         User newUser = mapper.map(request);
         userRepository.save(newUser);
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Response changePassword(ExchangePasswordRequest request) {
+        //TODO: получение данных о пользователе из контекста
         return null;
     }
 

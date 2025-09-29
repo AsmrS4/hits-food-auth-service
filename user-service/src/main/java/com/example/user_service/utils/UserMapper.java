@@ -2,7 +2,6 @@ package com.example.user_service.utils;
 
 import com.example.user_service.domain.dto.ClientRegisterRequest;
 import com.example.user_service.domain.dto.OperatorRegisterRequest;
-import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.OperatorUserDTO;
 import com.example.user_service.domain.entities.User;
 import com.example.user_service.domain.enums.Role;
@@ -17,6 +16,7 @@ public class UserMapper {
     public OperatorUserDTO map(User user) {
         OperatorUserDTO dto = new OperatorUserDTO();
         dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
         dto.setRole(user.getRole());
         dto.setCreateTime(user.getCreateTime());
         return dto;

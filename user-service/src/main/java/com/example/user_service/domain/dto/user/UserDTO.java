@@ -9,6 +9,6 @@ import java.util.UUID;
 @Data
 public abstract class UserDTO {
     private UUID id;
-    private LocalDateTime createTime;
     private Role role;
+    private LocalDateTime createTime;
 }
