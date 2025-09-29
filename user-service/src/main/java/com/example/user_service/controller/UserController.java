@@ -5,6 +5,7 @@ import com.example.user_service.domain.dto.ExchangePasswordRequest;
 import com.example.user_service.domain.dto.OperatorRegisterRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    public UserController(@Autowired UserService userService) {
-        this.userService = userService;
-    }
-    @PatchMapping("/password/exchange")
+    @PostMapping("/password/exchange")
     public ResponseEntity<?> changePassword(@RequestBody ExchangePasswordRequest request) {
         return ResponseEntity.ok(null);
     }

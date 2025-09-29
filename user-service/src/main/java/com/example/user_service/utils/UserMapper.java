@@ -6,11 +6,13 @@ import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.OperatorUserDTO;
 import com.example.user_service.domain.entities.User;
 import com.example.user_service.domain.enums.Role;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Component
 public class UserMapper {
     public OperatorUserDTO map(User user) {
         OperatorUserDTO dto = new OperatorUserDTO();
