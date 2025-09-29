@@ -1,0 +1,10 @@
+server:
+  port: 8911
+
+spring:
+  application:
+    name: auth-service
+
+jwt:
+  secret: hits2025972303hits2025972303hits20259723032025hits
+  lifetime: 30m
