@@ -16,6 +16,7 @@ import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,11 +25,12 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final UserMapper mapper;
+    private final PasswordEncoder passwordEncoder;
     @Override
     public AuthResponse loginClientUser(LoginRequest request) throws BadRequestException {
         User user = userRepository.findUserByPhone(request.getPhone())
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
-        if(!user.getPassword().equals(request.getPassword())) {
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }
         String accessToken = tokenService.getAccessToken(user);
@@ -40,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse loginStaffUser(StaffLoginRequest request) throws BadRequestException {
         User user = userRepository.findUserByUsername(request.getUsername())
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
-        if(!user.getPassword().equals(request.getPassword())) {
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }
         String accessToken = tokenService.getAccessToken(user);
