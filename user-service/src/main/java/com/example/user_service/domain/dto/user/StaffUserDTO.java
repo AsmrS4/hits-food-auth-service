@@ -5,6 +5,6 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AdminUserDTO extends UserDTO{
+public class StaffUserDTO extends UserDTO{
     private String username;
 }
