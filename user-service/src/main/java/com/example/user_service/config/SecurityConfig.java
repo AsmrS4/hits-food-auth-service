@@ -2,6 +2,7 @@ package com.example.user_service.config;
 
 import com.example.user_service.config.filters.JwtAuthFilter;
 import com.example.user_service.services.interfaces.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,14 +24,12 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter authFilter;
     private final UserService userService;
-    @Autowired
-    public SecurityConfig(JwtAuthFilter authFilter, UserService userService) {
-        this.authFilter = authFilter;
-        this.userService = userService;
-    }
+    private final PasswordEncoder passwordEncoder;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -47,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/staff/sign-in").permitAll()
                         .requestMatchers("/api/v1/auth/logout").authenticated()
                         .requestMatchers("/api/v1/users/registration/client").permitAll()
+                        .requestMatchers("/api/v1/users/registration/admin").permitAll()
                         .requestMatchers("/api/v1/users/registration/operator").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/operators").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/operators/*").hasAuthority("ADMIN")
@@ -58,16 +58,12 @@ public class SecurityConfig {
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userService.userDetailsService());
-//        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 

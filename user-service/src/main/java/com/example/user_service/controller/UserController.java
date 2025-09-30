@@ -33,6 +33,10 @@ public class UserController {
     public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid OperatorRegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(userService.registerOperatorUser(request));
     }
+    @PostMapping("/registration/admin")
+    public ResponseEntity<StaffUserDTO> registerAdminUser(@RequestBody @Valid OperatorRegisterRequest request) throws BadRequestException {
+        return ResponseEntity.ok(userService.registerAdminUser(request));
+    }
     @DeleteMapping("/operators/{operatorId}")
     public ResponseEntity<Response> deleteOperator(@PathVariable UUID operatorId) {
         return ResponseEntity.ok(userService.deleteOperator(operatorId));

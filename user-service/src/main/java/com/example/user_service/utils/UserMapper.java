@@ -41,7 +41,6 @@ public class UserMapper {
         user.setFullName(request.getFullName());
         user.setRole(Role.CLIENT);
         user.setPhone(request.getPhone());
-        user.setPassword(request.getPassword());
         return user;
     }
     public User map(OperatorRegisterRequest request) {
@@ -49,7 +48,6 @@ public class UserMapper {
         user.setId(UUID.randomUUID());
         user.setUsername(request.getUsername());
         user.setRole(Role.OPERATOR);
-        user.setPassword(request.getPassword());
         return user;
     }
 }

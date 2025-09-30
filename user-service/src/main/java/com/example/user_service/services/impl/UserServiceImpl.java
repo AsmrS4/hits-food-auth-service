@@ -1,12 +1,16 @@
 package com.example.user_service.services.impl;
 
+import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
+import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
 import com.example.user_service.domain.dto.registration.OperatorRegisterRequest;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
+import com.example.user_service.domain.enums.Role;
 import com.example.user_service.repository.UserRepository;
+import com.example.user_service.services.interfaces.TokenService;
 import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,26 +19,31 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
     private final UserMapper mapper;
 
     @Override
-    public Object registerClientUser(ClientRegisterRequest request) throws BadRequestException {
+    public AuthResponse registerClientUser(ClientRegisterRequest request) throws BadRequestException {
         if(userRepository.existsByPhone(request.getPhone())) {
             throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
         }
         User newUser = mapper.map(request);
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newUser);
-        return null;
+        String accessToken = tokenService.getAccessToken(newUser);
+        ClientUserDTO profile = mapper.mapClient(newUser);
+        return new AuthResponse(accessToken, profile);
     }
 
     @Override
@@ -43,9 +52,23 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
         User newUser = mapper.map(request);
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newUser);
-
         return mapper.map(newUser);
+    }
+
+    @Override
+    @Deprecated//используется для хеширования пароля для админской учетной записи
+    public StaffUserDTO registerAdminUser(OperatorRegisterRequest request) throws BadRequestException {
+        if(userRepository.existsByUsername(request.getUsername())) {
+            throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
+        }
+        User newAdminUser = mapper.map(request);
+        newAdminUser.setRole(Role.ADMIN);
+        newAdminUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(newAdminUser);
+
+        return mapper.map(newAdminUser);
     }
 
     @Override
