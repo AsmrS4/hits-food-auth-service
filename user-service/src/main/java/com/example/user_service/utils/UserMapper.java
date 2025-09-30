@@ -1,9 +1,9 @@
 package com.example.user_service.utils;
 
-import com.example.user_service.domain.dto.ClientRegisterRequest;
-import com.example.user_service.domain.dto.OperatorRegisterRequest;
+import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
+import com.example.user_service.domain.dto.registration.OperatorRegisterRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
-import com.example.user_service.domain.dto.user.OperatorUserDTO;
+import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
 import com.example.user_service.domain.enums.Role;
 import org.springframework.stereotype.Component;
@@ -14,14 +14,24 @@ import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
-    public OperatorUserDTO map(User user) {
-        OperatorUserDTO dto = new OperatorUserDTO();
+    public StaffUserDTO map(User user) {
+        StaffUserDTO dto = new StaffUserDTO();
         dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
         dto.setRole(user.getRole());
         dto.setCreateTime(user.getCreateTime());
         return dto;
     }
-    public List<OperatorUserDTO> map(List<User> users) {
+    public ClientUserDTO mapClient(User user) {
+        ClientUserDTO dto = new ClientUserDTO();
+        dto.setId(user.getId());
+        dto.setFullName(user.getFullName());
+        dto.setPhone(user.getPhone());
+        dto.setRole(user.getRole());
+        dto.setCreateTime(user.getCreateTime());
+        return dto;
+    }
+    public List<StaffUserDTO> map(List<User> users) {
         return users.stream().map(this::map).collect(Collectors.toList());
     }
 
