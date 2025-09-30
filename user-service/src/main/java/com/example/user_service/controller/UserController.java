@@ -2,7 +2,7 @@ package com.example.user_service.controller;
 
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
-import com.example.user_service.domain.dto.registration.OperatorRegisterRequest;
+import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.services.interfaces.UserService;
@@ -29,11 +29,11 @@ public class UserController {
         return ResponseEntity.ok(userService.registerClientUser(request));
     }
     @PostMapping("/registration/operator")
-    public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid OperatorRegisterRequest request) throws BadRequestException {
+    public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid StaffRegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(userService.registerOperatorUser(request));
     }
     @PostMapping("/registration/admin")
-    public ResponseEntity<StaffUserDTO> registerAdminUser(@RequestBody @Valid OperatorRegisterRequest request) throws BadRequestException {
+    public ResponseEntity<StaffUserDTO> registerAdminUser(@RequestBody @Valid StaffRegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(userService.registerAdminUser(request));
     }
     @DeleteMapping("/operators/{operatorId}")
