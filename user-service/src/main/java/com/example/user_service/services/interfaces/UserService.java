@@ -19,7 +19,7 @@ public interface UserService {
     List<StaffUserDTO> getOperators();
     AuthResponse registerClientUser(ClientRegisterRequest request) throws BadRequestException;
 
-    Response changePassword(ExchangePasswordRequest request);
+    Response changePassword(ExchangePasswordRequest request) throws BadRequestException;
     UserDetailsService userDetailsService();
     User getCurrentUser();
     Response deleteOperator(UUID operatorId);

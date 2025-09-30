@@ -72,9 +72,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response changePassword(ExchangePasswordRequest request) {
-        //TODO: получение данных о пользователе из контекста
-        return null;
+    public Response changePassword(ExchangePasswordRequest request) throws BadRequestException {
+        User currentUser = getCurrentUser();
+        if(!passwordEncoder.matches(request.getPassword(), currentUser.getPassword())) {
+            throw new BadRequestException("Incorrect password");
+        }
+        if(request.getPassword().equals(request.getNewPassword())) {
+            throw new BadRequestException("Previous password and new password mustn't be equals");
+        }
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(currentUser);
+        return new Response(HttpStatus.OK, 200, "Password was changed successfully");
     }
     @Override
     public User getCurrentUser(){

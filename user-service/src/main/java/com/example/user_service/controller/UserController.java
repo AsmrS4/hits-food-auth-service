@@ -20,15 +20,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    @PostMapping("/password/exchange")
-    public ResponseEntity<Response> changePassword(@RequestBody @Valid ExchangePasswordRequest request) {
+    @PutMapping("/password/change")
+    public ResponseEntity<Response> changePassword(@RequestBody @Valid ExchangePasswordRequest request) throws BadRequestException {
         return ResponseEntity.ok(userService.changePassword(request));
     }
     @PostMapping("/registration/client")
     public ResponseEntity<?> registerClientUser(@RequestBody @Valid ClientRegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(userService.registerClientUser(request));
     }
-
     @PostMapping("/registration/operator")
     public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid OperatorRegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(userService.registerOperatorUser(request));
@@ -41,7 +40,6 @@ public class UserController {
     public ResponseEntity<Response> deleteOperator(@PathVariable UUID operatorId) {
         return ResponseEntity.ok(userService.deleteOperator(operatorId));
     }
-
     @GetMapping("/operators")
     public  ResponseEntity<List<StaffUserDTO>> getOperators() {
         return ResponseEntity.ok(userService.getOperators());

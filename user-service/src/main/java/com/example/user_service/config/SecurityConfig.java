@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/registration/operator").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/operators").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/operators/*").hasAuthority("ADMIN")
-                        .requestMatchers("/api/v1/users/password/exchange").authenticated()
+                        .requestMatchers("/api/v1/users/password/change").authenticated()
                         .anyRequest().denyAll()
                 )
                 .sessionManagement(c->c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
