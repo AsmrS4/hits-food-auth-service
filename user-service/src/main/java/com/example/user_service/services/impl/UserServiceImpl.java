@@ -11,8 +11,8 @@ import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -58,10 +58,18 @@ public class UserServiceImpl implements UserService {
         var userId = SecurityContextHolder.getContext().getAuthentication().getName();
         return getByUsername(userId);
     }
+
+    @Override
+    public Response deleteOperator(UUID operatorId) {
+        User user = userRepository.findUserById(operatorId)
+                .orElseThrow(()-> new UsernameNotFoundException(String.format("Operator with id %s not found", operatorId)));
+        userRepository.delete(user);
+        return new Response(HttpStatus.OK, 200, String.format("Operator with id %s was deleted", operatorId));
+    }
+
     private User getByUsername(String username) {
         return userRepository.findById(UUID.fromString(username))
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
-
     }
 
     @Override

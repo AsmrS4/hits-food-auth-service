@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -31,6 +32,10 @@ public class UserController {
     @PostMapping("/registration/operator")
     public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid OperatorRegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(userService.registerOperatorUser(request));
+    }
+    @DeleteMapping("/operators/{operatorId}")
+    public ResponseEntity<Response> deleteOperator(@PathVariable UUID operatorId) {
+        return ResponseEntity.ok(userService.deleteOperator(operatorId));
     }
 
     @GetMapping("/operators")

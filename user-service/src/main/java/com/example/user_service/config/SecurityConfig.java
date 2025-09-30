@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/registration/client").permitAll()
                         .requestMatchers("/api/v1/users/registration/operator").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/operators").hasAuthority("ADMIN")
+                        .requestMatchers("/api/v1/users/operators/*").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/password/exchange").authenticated()
                         .anyRequest().denyAll()
                 )

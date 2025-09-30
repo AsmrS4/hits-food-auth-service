@@ -17,7 +17,7 @@ public class UserMapper {
     public StaffUserDTO map(User user) {
         StaffUserDTO dto = new StaffUserDTO();
         dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
+        dto.setUsername(user.getLoginName());
         dto.setRole(user.getRole());
         dto.setCreateTime(user.getCreateTime());
         return dto;

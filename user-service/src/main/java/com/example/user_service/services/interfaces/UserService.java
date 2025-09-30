@@ -10,6 +10,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
     StaffUserDTO registerOperatorUser(OperatorRegisterRequest request) throws BadRequestException;
@@ -21,4 +22,6 @@ public interface UserService {
     Response changePassword(ExchangePasswordRequest request);
     UserDetailsService userDetailsService();
     User getCurrentUser();
+
+    Response deleteOperator(UUID operatorId);
 }
