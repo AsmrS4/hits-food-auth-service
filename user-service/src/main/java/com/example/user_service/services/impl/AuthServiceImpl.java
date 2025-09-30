@@ -28,7 +28,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     @Override
     public AuthResponse loginClientUser(LoginRequest request) throws BadRequestException {
-        User user = userRepository.findUserByPhone(request.getPhone())
+        String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
+        User user = userRepository.findUserByPhone(phoneNumber)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
