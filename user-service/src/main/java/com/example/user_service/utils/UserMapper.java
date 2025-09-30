@@ -17,7 +17,7 @@ public class UserMapper {
     public StaffUserDTO map(User user) {
         StaffUserDTO dto = new StaffUserDTO();
         dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
+        dto.setUsername(user.getLoginName());
         dto.setRole(user.getRole());
         dto.setCreateTime(user.getCreateTime());
         return dto;
@@ -41,7 +41,6 @@ public class UserMapper {
         user.setFullName(request.getFullName());
         user.setRole(Role.CLIENT);
         user.setPhone(request.getPhone());
-        user.setPassword(request.getPassword());
         return user;
     }
     public User map(OperatorRegisterRequest request) {
@@ -49,7 +48,6 @@ public class UserMapper {
         user.setId(UUID.randomUUID());
         user.setUsername(request.getUsername());
         user.setRole(Role.OPERATOR);
-        user.setPassword(request.getPassword());
         return user;
     }
 }

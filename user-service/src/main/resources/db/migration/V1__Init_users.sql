@@ -11,7 +11,5 @@ CREATE TABLE users (
 
 INSERT INTO users(id, username, role, password)
 VALUES
-('d15e48c8-1783-47b7-9051-45f7a5d0f113','admin@test1',1,'password123'),
-('27160085-2429-4dd7-8619-bcf1d1f387cf','operator@test2',2,'password123'),
-('1ab4e243-652d-4b61-851f-1ea03454aadb','operator@test3',2,'password123'),
-('fb647f39-7fbf-416d-8e2f-99d3697cd58b','operator@test4',2,'password123');
+('d15e48c8-1783-47b7-9051-45f7a5d0f113','admin@newtest',1,'$2a$10$pJwqzM42Ivl36g0/q3XDxe.PauuibyP.68/ydEz4seEtxfZ97GPhy'),
+('27160085-2429-4dd7-8619-bcf1d1f387cf','test@operator1',2,'$2a$10$TJWi7Gm5fXXKjSG6WvR6GucDQeVTLS77vnefmOCCBJmQ3Ja1dM.ge');
