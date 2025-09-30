@@ -11,9 +11,15 @@ import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +48,25 @@ public class UserServiceImpl implements UserService {
         return mapper.map(newUser);
     }
 
-
     @Override
     public Response changePassword(ExchangePasswordRequest request) {
         //TODO: получение данных о пользователе из контекста
         return null;
+    }
+    @Override
+    public User getCurrentUser(){
+        var userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return getByUsername(userId);
+    }
+    private User getByUsername(String username) {
+        return userRepository.findById(UUID.fromString(username))
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+
+    }
+
+    @Override
+    public UserDetailsService userDetailsService() {
+        return this::getByUsername;
     }
 
     @Override
@@ -54,4 +74,6 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAllOperators();
         return mapper.map(users);
     }
+
+
 }
