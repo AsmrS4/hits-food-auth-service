@@ -35,7 +35,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public UUID getUserId(String token) {
-        return null;
+        return UUID.fromString(getClaims(token).getSubject());
     }
     private boolean isTokenExpired(String token) {
         var expiration = getClaims(token).getExpiration();
