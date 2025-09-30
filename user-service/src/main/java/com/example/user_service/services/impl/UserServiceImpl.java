@@ -4,7 +4,7 @@ import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
-import com.example.user_service.domain.dto.registration.OperatorRegisterRequest;
+import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
@@ -35,11 +35,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponse registerClientUser(ClientRegisterRequest request) throws BadRequestException {
-        if(userRepository.existsByPhone(request.getPhone())) {
+        String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
+        if(userRepository.existsByPhone(phoneNumber)) {
             throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
         }
         User newUser = mapper.map(request);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setPhone(phoneNumber);
         userRepository.save(newUser);
         String accessToken = tokenService.getAccessToken(newUser);
         ClientUserDTO profile = mapper.mapClient(newUser);
@@ -47,11 +49,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public StaffUserDTO registerOperatorUser(OperatorRegisterRequest request) throws BadRequestException {
+    public StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException {
         if(userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
+        String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
+        if(userRepository.existsByPhone(phoneNumber)) {
+            throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
+        }
         User newUser = mapper.map(request);
+        newUser.setPhone(phoneNumber);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newUser);
         return mapper.map(newUser);
@@ -59,12 +66,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Deprecated//используется для хеширования пароля для админской учетной записи
-    public StaffUserDTO registerAdminUser(OperatorRegisterRequest request) throws BadRequestException {
+    public StaffUserDTO registerAdminUser(StaffRegisterRequest request) throws BadRequestException {
         if(userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
+        String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
+        if(userRepository.existsByPhone(phoneNumber)) {
+            throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
+        }
         User newAdminUser = mapper.map(request);
         newAdminUser.setRole(Role.ADMIN);
+        newAdminUser.setPhone(phoneNumber);
         newAdminUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newAdminUser);
 
