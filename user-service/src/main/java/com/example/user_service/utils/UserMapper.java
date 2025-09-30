@@ -1,7 +1,7 @@
 package com.example.user_service.utils;
 
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
-import com.example.user_service.domain.dto.registration.OperatorRegisterRequest;
+import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
@@ -19,6 +19,8 @@ public class UserMapper {
         dto.setId(user.getId());
         dto.setUsername(user.getLoginName());
         dto.setRole(user.getRole());
+        dto.setFullName(user.getFullName());
+        dto.setPhone(user.getPhone());
         dto.setCreateTime(user.getCreateTime());
         return dto;
     }
@@ -40,14 +42,14 @@ public class UserMapper {
         user.setId(UUID.randomUUID());
         user.setFullName(request.getFullName());
         user.setRole(Role.CLIENT);
-        user.setPhone(request.getPhone());
         return user;
     }
-    public User map(OperatorRegisterRequest request) {
+    public User map(StaffRegisterRequest request) {
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setUsername(request.getUsername());
         user.setRole(Role.OPERATOR);
+        user.setFullName(request.getFullName());
         return user;
     }
 }
