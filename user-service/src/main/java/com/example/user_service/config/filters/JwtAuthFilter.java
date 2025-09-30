@@ -7,8 +7,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,6 +23,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final String BEARER_PREFIX;
@@ -32,18 +39,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var authHeader = request.getHeader(HEADER_NAME);
-        if(authHeader.isEmpty() || !authHeader.startsWith(BEARER_PREFIX)) {
-            filterChain.doFilter(request, response);
+        logger.info(String.format("Authorization {%s}", authHeader));
+        if(authHeader!=null && authHeader.startsWith(BEARER_PREFIX)) {
+            var jsonWebToken = authHeader.substring(BEARER_PREFIX.length());
+            var userId = tokenService.getUserId(jsonWebToken);
+            logger.info(String.format("Current user id {%s}", userId));
+            if(!userId.toString().isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userService
+                        .userDetailsService()
+                        .loadUserByUsername(String.valueOf(userId));
+                if(tokenService.isTokenValid(jsonWebToken, userDetails)) {
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    context.setAuthentication(authenticationToken);
+                    SecurityContextHolder.setContext(context);
+                }
+            }
         }
-        var jsonWebToken = authHeader.substring(BEARER_PREFIX.length());
-        var userId = tokenService.getUserId(jsonWebToken);
-        if(!userId.toString().isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-        }
+        filterChain.doFilter(request, response);
     }
 }
