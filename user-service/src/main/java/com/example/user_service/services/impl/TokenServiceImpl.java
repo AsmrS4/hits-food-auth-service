@@ -37,8 +37,10 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         var userId = getClaims(token).getSubject();
-        //TODO: В username хранить userId
-        return userId.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        var isValid = tokenRepository.findByToken(token)
+                .map(t -> !t.isExpired() && !t.isRevoked())
+                .orElse(false);
+        return userId.equals(userDetails.getUsername()) && !isTokenExpired(token) && isValid;
     }
 
     @Override
