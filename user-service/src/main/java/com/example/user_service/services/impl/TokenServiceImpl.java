@@ -2,10 +2,12 @@ package com.example.user_service.services.impl;
 
 import com.example.user_service.services.interfaces.TokenService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.micrometer.common.lang.NonNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -63,5 +65,4 @@ public class TokenServiceImpl implements TokenService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
 }
