@@ -43,17 +43,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var authHeader = request.getHeader(HEADER_NAME);
-        logger.info(String.format("Authorization {%s}", authHeader));
+
         if(authHeader!=null && authHeader.startsWith(BEARER_PREFIX)) {
             var jsonWebToken = authHeader.substring(BEARER_PREFIX.length());
             var userId = tokenService.getUserId(jsonWebToken);
-            logger.info(String.format("Current user id {%s}", userId));
-            if(!userId.toString().isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            if(userId!=null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userService
                         .userDetailsService()
                         .loadUserByUsername(String.valueOf(userId));
+
                 if(tokenService.isTokenValid(jsonWebToken, userDetails)) {
-                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    SecurityContext context = SecurityContextHolder.getContext();
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities()
                     );

@@ -27,7 +27,8 @@ public class User implements UserDetails {
     private String username;
     private Role role;
     private final LocalDateTime createTime = LocalDateTime.now();
-    @OneToMany(mappedBy = "user")
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Token> tokens;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
