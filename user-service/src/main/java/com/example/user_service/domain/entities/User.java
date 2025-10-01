@@ -1,10 +1,7 @@
 package com.example.user_service.domain.entities;
 
 import com.example.user_service.domain.enums.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,7 +27,8 @@ public class User implements UserDetails {
     private String username;
     private Role role;
     private final LocalDateTime createTime = LocalDateTime.now();
-
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
