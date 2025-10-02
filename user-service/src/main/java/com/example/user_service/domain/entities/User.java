@@ -30,7 +30,6 @@ public class User implements UserDetails {
     private String username;
     private Role role;
     private final LocalDateTime createTime = LocalDateTime.now();
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

@@ -1,14 +1,13 @@
 package com.example.user_service.services.impl;
 
+import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
+import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
-import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
-import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
-import com.example.user_service.domain.enums.Role;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.interfaces.TokenService;
 import com.example.user_service.services.interfaces.UserService;
@@ -43,8 +42,11 @@ public class UserServiceImpl implements UserService {
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setPhone(phoneNumber);
         userRepository.save(newUser);
+
         String accessToken = tokenService.getAccessToken(newUser);
         ClientUserDTO profile = mapper.mapClient(newUser);
+        tokenService.saveToken(accessToken, newUser);
+
         return new AuthResponse(accessToken, profile);
     }
 
@@ -61,26 +63,8 @@ public class UserServiceImpl implements UserService {
         newUser.setPhone(phoneNumber);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newUser);
+
         return mapper.map(newUser);
-    }
-
-    @Override
-    @Deprecated//используется для хеширования пароля для админской учетной записи
-    public StaffUserDTO registerAdminUser(StaffRegisterRequest request) throws BadRequestException {
-        if(userRepository.existsByUsername(request.getUsername())) {
-            throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
-        }
-        String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
-        if(userRepository.existsByPhone(phoneNumber)) {
-            throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
-        }
-        User newAdminUser = mapper.map(request);
-        newAdminUser.setRole(Role.ADMIN);
-        newAdminUser.setPhone(phoneNumber);
-        newAdminUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(newAdminUser);
-
-        return mapper.map(newAdminUser);
     }
 
     @Override
@@ -125,6 +109,4 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAllOperators();
         return mapper.map(users);
     }
-
-
 }
