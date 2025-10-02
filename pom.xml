@@ -28,6 +28,7 @@
         <spring-boot-validation.version>3.5.5</spring-boot-validation.version>
         <postgresql.version>42.7.1</postgresql.version>
         <flyway.version>9.5.1</flyway.version>
+        <swagger.verison>2.6.0</swagger.verison>
         <jakarta-servlet.version>6.0.0</jakarta-servlet.version>
     </properties>
 
@@ -67,6 +68,11 @@
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>${jakarta-servlet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${swagger.verison}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
