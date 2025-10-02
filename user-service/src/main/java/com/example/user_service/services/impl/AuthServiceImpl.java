@@ -3,14 +3,10 @@ package com.example.user_service.services.impl;
 
 import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.auth.LoginRequest;
-import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.auth.StaffLoginRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
-import com.example.user_service.domain.dto.user.UserDTO;
-import com.example.user_service.domain.entities.Token;
 import com.example.user_service.domain.entities.User;
-import com.example.user_service.repository.TokenRepository;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.interfaces.AuthService;
 import com.example.user_service.services.interfaces.TokenService;
@@ -20,8 +16,6 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
