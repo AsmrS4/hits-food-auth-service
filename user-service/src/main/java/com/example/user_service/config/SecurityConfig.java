@@ -56,6 +56,13 @@ public class SecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(authorizeHttpRequest -> authorizeHttpRequest
+                        .requestMatchers(
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/webjars/**",
+                                "/swagger-ui.html")
+                        .permitAll()
                         .requestMatchers("/api/v1/auth/user/sign-in").permitAll()
                         .requestMatchers("/api/v1/auth/staff/sign-in").permitAll()
                         .requestMatchers("/api/v1/auth/logout").authenticated()
