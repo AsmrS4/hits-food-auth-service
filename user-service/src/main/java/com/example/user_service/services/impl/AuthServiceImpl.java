@@ -8,7 +8,9 @@ import com.example.user_service.domain.dto.auth.StaffLoginRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.dto.user.UserDTO;
+import com.example.user_service.domain.entities.Token;
 import com.example.user_service.domain.entities.User;
+import com.example.user_service.repository.TokenRepository;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.interfaces.AuthService;
 import com.example.user_service.services.interfaces.TokenService;
@@ -18,6 +20,8 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +38,10 @@ public class AuthServiceImpl implements AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }
+        tokenService.revokeAllTokens(user);
         String accessToken = tokenService.getAccessToken(user);
         ClientUserDTO userProfile = mapper.mapClient(user);
+        tokenService.saveToken(accessToken, user);
         return new AuthResponse(accessToken, userProfile);
     }
 
@@ -46,13 +52,10 @@ public class AuthServiceImpl implements AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }
+        tokenService.revokeAllTokens(user);
         String accessToken = tokenService.getAccessToken(user);
         StaffUserDTO userProfile = mapper.map(user);
+        tokenService.saveToken(accessToken, user);
         return new AuthResponse(accessToken, userProfile);
-    }
-
-    @Override
-    public Response logoutUser() {
-        return null;
     }
 }

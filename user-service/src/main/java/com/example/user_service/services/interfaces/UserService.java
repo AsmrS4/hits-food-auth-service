@@ -15,7 +15,6 @@ import java.util.UUID;
 
 public interface UserService {
     StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException;
-    StaffUserDTO registerAdminUser(StaffRegisterRequest request) throws BadRequestException;
     List<StaffUserDTO> getOperators();
     AuthResponse registerClientUser(ClientRegisterRequest request) throws BadRequestException;
 
