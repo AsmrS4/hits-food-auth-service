@@ -4,11 +4,14 @@ import com.example.user_service.config.filters.ContentTypeFilter;
 import com.example.user_service.config.filters.JwtAuthFilter;
 import com.example.user_service.handler.AccessDeniedHandlerImpl;
 import com.example.user_service.handler.AuthenticationEntryPointImpl;
+import com.example.user_service.handler.CustomLogoutHandler;
 import com.example.user_service.services.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,11 +20,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
@@ -33,8 +39,8 @@ public class SecurityConfig {
     private final ContentTypeFilter contentTypeFilter;
     private final JwtAuthFilter authFilter;
     private final UserService userService;
+    private final LogoutHandler logoutHandler;
     private final PasswordEncoder passwordEncoder;
-
     @Bean
     AccessDeniedHandler accessDeniedHandler() {
         return new AccessDeniedHandlerImpl();
@@ -73,7 +79,14 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler())
                 )
                 .addFilterBefore(contentTypeFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/auth/logout")
+                        .addLogoutHandler(logoutHandler)
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpStatus.OK.value());
+                        })
+                );
         return http.build();
     }
 

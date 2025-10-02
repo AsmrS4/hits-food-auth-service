@@ -28,8 +28,4 @@ public class AuthController {
     public ResponseEntity<?> loginStaffUser(@RequestBody @Valid StaffLoginRequest request) throws BadRequestException {
         return ResponseEntity.ok(authService.loginStaffUser(request));
     }
-    @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser() {
-        return ResponseEntity.ok(authService.logoutUser());
-    }
 }
