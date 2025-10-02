@@ -58,10 +58,4 @@ public class AuthServiceImpl implements AuthService {
         tokenService.saveToken(accessToken, user);
         return new AuthResponse(accessToken, userProfile);
     }
-
-    @Override
-    public Response logoutUser() {
-        return null;
-    }
-
 }

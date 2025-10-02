@@ -12,8 +12,8 @@ import java.util.UUID;
 
 @Repository
 public interface TokenRepository extends JpaRepository<Token, Long> {
-    @Query("SELECT t FROM Token t INNER JOIN User u ON t.user.id = u.id" +
-            " WHERE t.user.id = :userId AND (t.isExpired = FALSE or t.isRevoked = FALSE)")
+    @Query("SELECT t FROM Token t INNER JOIN User u ON t.userId = u.id" +
+            " WHERE t.userId = :userId AND (t.isExpired = FALSE or t.isRevoked = FALSE)")
     List<Token> findAllValidToken(@Param("userId")UUID userId);
     Optional<Token> findByToken(String token);
 }

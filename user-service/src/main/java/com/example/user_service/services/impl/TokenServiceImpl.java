@@ -64,7 +64,7 @@ public class TokenServiceImpl implements TokenService {
     public void saveToken(String newAccessToken, User user) {
         var tokenEntity = Token
                 .builder()
-                .user(user)
+                .userId(user.getId())
                 .token(newAccessToken)
                 .isExpired(false)
                 .isRevoked(false)

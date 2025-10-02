@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Entity
 @Builder
@@ -19,7 +21,5 @@ public class Token {
     private String token;
     private boolean isExpired;
     private boolean isRevoked;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private UUID userId;
 }
