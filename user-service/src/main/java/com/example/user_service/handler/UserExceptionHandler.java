@@ -1,6 +1,7 @@
 package com.example.user_service.handler;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.ServletException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,5 +74,12 @@ public class UserExceptionHandler {
         errors.put("status: ", HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
         errors.put("error: ", "Unsupported media type. Required type is application/json");
         return new ResponseEntity<>(errors, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(ServletException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("status: ", HttpStatus.NOT_FOUND.value());
+        errors.put("error: ", "Resource not found");
+        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
 }
