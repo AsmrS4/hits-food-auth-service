@@ -5,6 +5,7 @@ import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
+import com.example.user_service.domain.dto.user.UserDTO;
 import com.example.user_service.services.interfaces.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +26,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getProfile() {
+        return ResponseEntity.ok(userService.getUserProfile());
+    }
 
     @PutMapping("/password/change")
     @Operation(

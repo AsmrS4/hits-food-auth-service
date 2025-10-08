@@ -72,6 +72,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/operators").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/operators/*").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/users/password/change").authenticated()
+                        .requestMatchers("/api/v1/users/me").authenticated()
                         .anyRequest().denyAll()
                 )
                 .sessionManagement(c->c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -7,7 +7,9 @@ import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
+import com.example.user_service.domain.dto.user.UserDTO;
 import com.example.user_service.domain.entities.User;
+import com.example.user_service.domain.enums.Role;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.interfaces.TokenService;
 import com.example.user_service.services.interfaces.UserService;
@@ -87,6 +89,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO getUserProfile() {
+        User user = getCurrentUser();
+        if(user.getRole().equals(Role.CLIENT)) {
+            return mapper.mapClient(user);
+        }else {
+            return mapper.map(user);
+        }
+    }
+
+    @Override
     public Response deleteOperator(UUID operatorId) {
         User user = userRepository.findUserById(operatorId)
                 .orElseThrow(()-> new UsernameNotFoundException(String.format("Operator with id %s not found", operatorId)));
@@ -96,7 +108,7 @@ public class UserServiceImpl implements UserService {
 
     private User getByUsername(String username) {
         return userRepository.findById(UUID.fromString(username))
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
