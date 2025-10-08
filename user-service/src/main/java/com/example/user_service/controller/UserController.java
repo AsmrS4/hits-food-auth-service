@@ -3,9 +3,7 @@ package com.example.user_service.controller;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
-import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
-import com.example.user_service.domain.dto.user.StaffUserDTO;
-import com.example.user_service.domain.dto.user.UserDTO;
+import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.services.interfaces.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,7 +29,14 @@ public class UserController {
     public ResponseEntity<UserDTO> getProfile() {
         return ResponseEntity.ok(userService.getUserProfile());
     }
-
+    @PutMapping("/me")
+    public ResponseEntity<UserDTO> updateClientUser(@RequestBody @Valid EditClientDTO dto) throws BadRequestException {
+        return ResponseEntity.ok(userService.editClientProfile(dto));
+    }
+    @PutMapping("/me/staff")
+    public ResponseEntity<UserDTO> updateStaffUser(@RequestBody @Valid EditStaffDTO dto) throws BadRequestException {
+        return ResponseEntity.ok(userService.editStaffProfile(dto));
+    }
     @PutMapping("/password/change")
     @Operation(
             description = "Change password endpoint",
