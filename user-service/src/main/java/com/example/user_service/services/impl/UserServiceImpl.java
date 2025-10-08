@@ -4,10 +4,9 @@ import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
-import com.example.user_service.domain.dto.user.ClientUserDTO;
-import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
-import com.example.user_service.domain.dto.user.StaffUserDTO;
+import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
+import com.example.user_service.domain.enums.Role;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.interfaces.TokenService;
 import com.example.user_service.services.interfaces.UserService;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -34,10 +34,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponse registerClientUser(ClientRegisterRequest request) throws BadRequestException {
-        String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
-        if(userRepository.existsByPhone(phoneNumber)) {
-            throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
-        }
+        String phoneNumber = validatePhoneNumber(request.getPhone());
+
         User newUser = mapper.map(request);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setPhone(phoneNumber);
@@ -55,10 +53,9 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
-        String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
-        if(userRepository.existsByPhone(phoneNumber)) {
-            throw new BadRequestException(String.format("Phone %s is already taken", request.getPhone()));
-        }
+
+        String phoneNumber = validatePhoneNumber(request.getPhone());
+
         User newUser = mapper.map(request);
         newUser.setPhone(phoneNumber);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -87,6 +84,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO getUserProfile() {
+        User user = getCurrentUser();
+        if(user.getRole().equals(Role.CLIENT)) {
+            return mapper.mapClient(user);
+        }else {
+            return mapper.map(user);
+        }
+    }
+
+    @Override
+    public UserDTO editClientProfile(EditClientDTO dto) throws BadRequestException {
+        User user = getCurrentUser();
+        String validatedPhone = dto.getPhone().replaceFirst("^(?:\\+?)7", "8");
+        if(userRepository.existsByPhone(validatedPhone)) {
+            if(!Objects.equals(user.getPhone(), validatedPhone)) {
+                throw new BadRequestException(String.format("Phone %s is already taken", dto.getPhone()));
+            }
+        }
+
+        dto.setPhone(validatedPhone);
+        User updatedUser = mapper.updateUser(user, dto);
+        updatedUser = userRepository.save(updatedUser);
+        return mapper.mapClient(updatedUser);
+    }
+
+    @Override
+    public UserDTO editStaffProfile(EditStaffDTO dto) throws BadRequestException {
+        User user = getCurrentUser();
+        if(userRepository.existsByUsername(dto.getUsername())) {
+            if(!Objects.equals(user.getLoginName(), dto.getUsername())) {
+                throw new BadRequestException(String.format("Username %s is already taken", dto.getUsername()));
+            }
+        }
+        if(dto.getPhone()!=null) {
+            String validatedPhone = dto.getPhone().replaceFirst("^(?:\\+?)7", "8");
+            if(userRepository.existsByPhone(validatedPhone)) {
+                if(!Objects.equals(user.getPhone(), validatedPhone)) {
+                    throw new BadRequestException(String.format("Phone %s is already taken", dto.getPhone()));
+                }
+            }
+            dto.setPhone(validatedPhone);
+        }
+        User updatedUser = mapper.updateUser(user, dto);
+        updatedUser = userRepository.save(updatedUser);
+        return mapper.map(updatedUser);
+    }
+
+    @Override
     public Response deleteOperator(UUID operatorId) {
         User user = userRepository.findUserById(operatorId)
                 .orElseThrow(()-> new UsernameNotFoundException(String.format("Operator with id %s not found", operatorId)));
@@ -96,7 +141,7 @@ public class UserServiceImpl implements UserService {
 
     private User getByUsername(String username) {
         return userRepository.findById(UUID.fromString(username))
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
@@ -108,5 +153,12 @@ public class UserServiceImpl implements UserService {
     public List<StaffUserDTO> getOperators() {
         List<User> users = userRepository.findAllOperators();
         return mapper.map(users);
+    }
+    private String validatePhoneNumber(String phoneNumber) throws BadRequestException {
+        String validatedPhone = phoneNumber.replaceFirst("^(?:\\+?)7", "8");
+        if(userRepository.existsByPhone(validatedPhone)) {
+            throw new BadRequestException(String.format("Phone %s is already taken", phoneNumber));
+        }
+        return validatedPhone;
     }
 }

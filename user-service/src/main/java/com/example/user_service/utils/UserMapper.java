@@ -3,9 +3,12 @@ package com.example.user_service.utils;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
+import com.example.user_service.domain.dto.user.EditClientDTO;
+import com.example.user_service.domain.dto.user.EditStaffDTO;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
 import com.example.user_service.domain.enums.Role;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -50,6 +53,21 @@ public class UserMapper {
         user.setUsername(request.getUsername());
         user.setRole(Role.OPERATOR);
         user.setFullName(request.getFullName());
+        return user;
+    }
+    public User updateUser(User user, EditClientDTO userDTO) {
+        user.setPhone(userDTO.getPhone());
+        user.setFullName(userDTO.getFullName());
+        return user;
+    }
+    public User updateUser(User user, EditStaffDTO staffDTO) {
+        if(staffDTO.getFullName() != null) {
+            user.setFullName(staffDTO.getFullName());
+        }
+        if(staffDTO.getPhone() !=null) {
+            user.setPhone(staffDTO.getPhone());
+        }
+        user.setUsername(staffDTO.getUsername());
         return user;
     }
 }
