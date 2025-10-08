@@ -1,8 +1,11 @@
 package com.example.user_service.domain.dto.registration;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class StaffRegisterRequest extends ClientRegisterRequest {
     @NotBlank(message = "Username is required")
