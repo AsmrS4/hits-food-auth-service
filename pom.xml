@@ -24,12 +24,16 @@
         <java.version>21</java.version>
         <lombok.version>1.18.30</lombok.version>
         <spring-boot.version>3.5.3</spring-boot.version>
+        <spring-boot-starter-test.version>3.5.3</spring-boot-starter-test.version>
         <spring-boot-starter-web.version>3.5.5</spring-boot-starter-web.version>
         <spring-boot-validation.version>3.5.5</spring-boot-validation.version>
         <postgresql.version>42.7.1</postgresql.version>
         <flyway.version>9.5.1</flyway.version>
         <swagger.verison>2.6.0</swagger.verison>
         <jakarta-servlet.version>6.0.0</jakarta-servlet.version>
+        <junit.version>5.13.4</junit.version>
+        <mockito.version>5.18.0</mockito.version>
+        <mockito-extention.version>2.17.0</mockito-extention.version>
     </properties>
 
     <dependencyManagement>
@@ -73,6 +77,38 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${swagger.verison}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>5.9.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.9.2</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito-extention.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot-starter-test.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
