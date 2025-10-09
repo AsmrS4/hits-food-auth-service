@@ -18,6 +18,8 @@
 
     <modules>
         <module>user-service</module>
+        <module>discovery-service</module>
+        <module>config-service</module>
         <module>gateway</module>
     </modules>
 
@@ -78,6 +80,16 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${swagger.verison}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+                <version>4.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-config-server</artifactId>
+                <version>4.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
