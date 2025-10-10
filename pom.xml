@@ -20,6 +20,7 @@
         <module>user-service</module>
         <module>discovery-service</module>
         <module>config-service</module>
+        <module>common-module</module>
         <module>gateway</module>
     </modules>
 
