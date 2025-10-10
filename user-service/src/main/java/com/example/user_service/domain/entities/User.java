@@ -1,6 +1,6 @@
 package com.example.user_service.domain.entities;
 
-import com.example.user_service.domain.enums.Role;
+import com.example.common_module.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
