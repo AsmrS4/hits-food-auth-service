@@ -12,6 +12,7 @@
         <module name="config-service" />
         <module name="gateway" />
         <module name="discovery-service" />
+        <module name="common-module" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -23,6 +24,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-service" options="-parameters" />
       <module name="common" options="-parameters" />
+      <module name="common-module" options="-parameters" />
       <module name="config-service" options="-parameters" />
       <module name="discovery-service" options="-parameters" />
       <module name="gateway" options="-parameters" />
