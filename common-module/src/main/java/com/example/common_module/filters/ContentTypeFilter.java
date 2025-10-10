@@ -1,4 +1,4 @@
-package com.example.user_service.config.filters;
+package com.example.common_module.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;

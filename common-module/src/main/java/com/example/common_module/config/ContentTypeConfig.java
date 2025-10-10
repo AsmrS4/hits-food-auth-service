@@ -1,4 +1,4 @@
-package com.example.user_service.config;
+package com.example.common_module.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;

@@ -1,4 +1,4 @@
-package com.example.user_service.handler;
+package com.example.common_module.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

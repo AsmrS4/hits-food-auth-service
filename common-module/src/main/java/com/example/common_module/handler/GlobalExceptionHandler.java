@@ -1,4 +1,4 @@
-package com.example.user_service.handler;
+package com.example.common_module.handler;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.ServletException;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class UserExceptionHandler {
+public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     ResponseEntity<Map<String, Object>> handleUserNotFoundException(UsernameNotFoundException ex) {
         Map<String, Object> errors = new HashMap<>();

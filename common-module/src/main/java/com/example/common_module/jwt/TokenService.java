@@ -1,9 +1,5 @@
-package com.example.user_service.services.impl;
+package com.example.common_module.jwt;
 
-import com.example.user_service.domain.entities.Token;
-import com.example.user_service.domain.entities.User;
-import com.example.user_service.repository.TokenRepository;
-import com.example.user_service.services.interfaces.TokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,53 +17,26 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class TokenServiceImpl implements TokenService {
-    private final TokenRepository tokenRepository;
+public class TokenService {
+
     @Value("${jwt.secret}")
     private String SECRET_KEY;
     @Value("${jwt.lifetime}")
     private Duration LIFE_TIME;
-    @Override
     public String getAccessToken(UserDetails userDetails) {
         return generateAccessToken(userDetails);
     }
 
-    @Override
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        var userId = getClaims(token).getSubject();
-        var isValid = tokenRepository.findByToken(token)
-                .map(t -> !t.isExpired() && !t.isRevoked())
-                .orElse(false);
-        return userId.equals(userDetails.getUsername()) && !isTokenExpired(token) && isValid;
+    public boolean isTokenValid(String token, UUID userId) {
+        UUID user = UUID.fromString(getClaims(token).getSubject());
+        return user.equals(userId) && !isTokenExpired(token);
+    }
+    public List<?> getUserRoles(String token) {
+        return getClaims(token).get("role", List.class);
     }
 
-    @Override
     public UUID getUserId(String token) {
         return UUID.fromString(getClaims(token).getSubject());
-    }
-
-    @Override
-    public void revokeAllTokens(User user) {
-        List<Token> tokens = tokenRepository.findAllValidToken(user.getId());
-        if(!tokens.isEmpty()) {
-            tokens.forEach(token -> {
-                token.setExpired(true);
-                token.setRevoked(true);
-            });
-            tokenRepository.saveAll(tokens);
-        }
-    }
-
-    @Override
-    public void saveToken(String newAccessToken, User user) {
-        var tokenEntity = Token
-                .builder()
-                .userId(user.getId())
-                .token(newAccessToken)
-                .isExpired(false)
-                .isRevoked(false)
-                .build();
-        tokenRepository.save(tokenEntity);
     }
 
     private boolean isTokenExpired(String token) {

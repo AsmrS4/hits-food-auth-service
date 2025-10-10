@@ -11,6 +11,7 @@
         <module name="config-service" />
         <module name="gateway" />
         <module name="discovery-service" />
+        <module name="common-module" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
