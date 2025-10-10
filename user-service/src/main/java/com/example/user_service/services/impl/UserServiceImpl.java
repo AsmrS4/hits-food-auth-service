@@ -7,7 +7,7 @@ import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
-import com.example.user_service.domain.enums.Role;
+import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.utils.UserMapper;
