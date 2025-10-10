@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: orders-service
+jwt:
+  secret: hits2025972303hits2025972303hits20259723032025hits
