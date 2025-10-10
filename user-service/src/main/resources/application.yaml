@@ -36,6 +36,11 @@ jwt:
   secret: hits2025972303hits2025972303hits20259723032025hits
   lifetime: 30m
 
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka/
+
 logging:
   level:
     org.springframework.security: trace
