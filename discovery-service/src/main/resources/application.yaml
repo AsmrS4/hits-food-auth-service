@@ -9,4 +9,3 @@ eureka:
 spring:
   application:
     name: discovery-service
-

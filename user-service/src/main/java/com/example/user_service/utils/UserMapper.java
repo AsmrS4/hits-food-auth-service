@@ -7,8 +7,7 @@ import com.example.user_service.domain.dto.user.EditClientDTO;
 import com.example.user_service.domain.dto.user.EditStaffDTO;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
-import com.example.user_service.domain.enums.Role;
-import org.springframework.security.core.parameters.P;
+import com.example.common_module.enums.Role;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

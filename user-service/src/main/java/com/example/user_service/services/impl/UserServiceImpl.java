@@ -1,17 +1,18 @@
 package com.example.user_service.services.impl;
 
+import com.example.common_module.jwt.TokenService;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
-import com.example.user_service.domain.enums.Role;
+import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
-import com.example.user_service.services.interfaces.TokenService;
 import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -43,7 +45,6 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = tokenService.getAccessToken(newUser);
         ClientUserDTO profile = mapper.mapClient(newUser);
-        tokenService.saveToken(accessToken, newUser);
 
         return new AuthResponse(accessToken, profile);
     }
@@ -79,7 +80,8 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public User getCurrentUser(){
-        var userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        var userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+
         return getByUsername(userId);
     }
 

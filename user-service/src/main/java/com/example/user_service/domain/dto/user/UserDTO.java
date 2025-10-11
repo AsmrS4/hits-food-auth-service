@@ -1,6 +1,6 @@
 package com.example.user_service.domain.dto.user;
 
-import com.example.user_service.domain.enums.Role;
+import com.example.common_module.enums.Role;
 import lombok.Data;
 
 import java.time.LocalDateTime;

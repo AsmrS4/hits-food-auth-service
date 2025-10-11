@@ -1,14 +1,14 @@
 package com.example.user_service.services;
 
+import com.example.common_module.jwt.TokenService;
 import com.example.user_service.domain.dto.auth.LoginRequest;
 import com.example.user_service.domain.dto.auth.StaffLoginRequest;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
-import com.example.user_service.domain.enums.Role;
+import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.impl.AuthServiceImpl;
-import com.example.user_service.services.impl.TokenServiceImpl;
 import com.example.user_service.utils.UserMapper;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,7 +40,7 @@ public class AuthServiceImplTest {
     @InjectMocks
     private AuthServiceImpl authService;
     @Mock
-    private TokenServiceImpl tokenService;
+    private TokenService tokenService;
 
     @Nested
     @DisplayName("Test suit for client login check")
