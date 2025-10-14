@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/foods/**").permitAll()
                         .requestMatchers("/api/bin/**").authenticated()
+                        .requestMatchers("/api/order/**").hasAuthority("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(c->c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

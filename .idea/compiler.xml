@@ -12,6 +12,7 @@
         <module name="gateway" />
         <module name="discovery-service" />
         <module name="common-module" />
+        <module name="orderservice" />
       </profile>
       <profile name="Annotation profile for backend" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -44,6 +45,7 @@
       <module name="gateway" options="-parameters" />
       <module name="menu-service" options="-parameters" />
       <module name="orders-service" options="-parameters" />
+      <module name="orderservice" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>
