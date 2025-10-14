@@ -1,6 +1,7 @@
 package com.example.user_service.services.impl;
 
 
+import com.example.common_module.jwt.TokenService;
 import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.auth.LoginRequest;
 import com.example.user_service.domain.dto.auth.StaffLoginRequest;
@@ -9,7 +10,6 @@ import com.example.user_service.domain.dto.user.StaffUserDTO;
 import com.example.user_service.domain.entities.User;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.interfaces.AuthService;
-import com.example.user_service.services.interfaces.TokenService;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -32,10 +32,10 @@ public class AuthServiceImpl implements AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }
-        tokenService.revokeAllTokens(user);
+
         String accessToken = tokenService.getAccessToken(user);
         ClientUserDTO userProfile = mapper.mapClient(user);
-        tokenService.saveToken(accessToken, user);
+
         return new AuthResponse(accessToken, userProfile);
     }
 
@@ -46,10 +46,10 @@ public class AuthServiceImpl implements AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }
-        tokenService.revokeAllTokens(user);
+
         String accessToken = tokenService.getAccessToken(user);
         StaffUserDTO userProfile = mapper.map(user);
-        tokenService.saveToken(accessToken, user);
+
         return new AuthResponse(accessToken, userProfile);
     }
 }
