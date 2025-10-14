@@ -8,6 +8,7 @@ import com.example.demo.mappers.FoodMapper;
 import com.example.demo.repositories.FoodRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -85,6 +86,6 @@ public class FoodService {
     public FoodDetailsDto getFoodDetails(UUID id) {
         return foodRepository.findById(id)
                 .map(foodMapper::toDetailsDto)
-                .orElseThrow(() -> new RuntimeException("Food not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
     }
 }
