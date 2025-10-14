@@ -11,6 +11,7 @@
       <set>
         <option value="$PROJECT_DIR$/auth-service/pom.xml" />
         <option value="$PROJECT_DIR$/common/pom.xml" />
+        <option value="$PROJECT_DIR$/menu-service/pom.xml" />
         <option value="$PROJECT_DIR$/orders-service/pom.xml" />
       </set>
     </option>
