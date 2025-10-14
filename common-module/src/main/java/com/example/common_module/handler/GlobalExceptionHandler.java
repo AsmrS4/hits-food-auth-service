@@ -1,6 +1,12 @@
 package com.example.common_module.handler;
 
+
+import com.example.common_module.errors.CustomJwtException;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.IncorrectClaimException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.ServletException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -32,6 +38,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleException(Exception ex) {
         return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @ExceptionHandler(CustomJwtException.class)
+    ResponseEntity<Map<String, Object>> handleCustomJwtException(CustomJwtException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("status: ", HttpStatus.UNAUTHORIZED.value());
+        errors.put("error: ", ex.getMessage());
+        return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(BadRequestException.class)
     ResponseEntity<Map<String, Object>> handleBadRequestException(BadRequestException ex) {
         Map<String, Object> errors = new HashMap<>();
@@ -49,13 +63,6 @@ public class GlobalExceptionHandler {
         response.put("status:", HttpStatus.BAD_REQUEST.value());
         response.put("errors", errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-    @ExceptionHandler(ExpiredJwtException.class)
-    ResponseEntity<Map<String, Object>> handleExpiredFwtException(ExpiredJwtException ex) {
-        Map<String, Object> errors = new HashMap<>();
-        errors.put("status: ", HttpStatus.UNAUTHORIZED.value());
-        errors.put("error: ", "Token is expired");
-        return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
