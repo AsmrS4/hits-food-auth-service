@@ -1,8 +1,9 @@
 package com.example.common_module.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.example.common_module.errors.CustomJwtException;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.DecodingException;
+import io.jsonwebtoken.security.SignatureException;
 import io.micrometer.common.lang.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,19 +28,19 @@ public class TokenService {
         return generateAccessToken(userDetails);
     }
 
-    public boolean isTokenValid(String token, UUID userId) {
+    public boolean isTokenValid(String token, UUID userId) throws CustomJwtException {
         UUID user = UUID.fromString(getClaims(token).getSubject());
         return user.equals(userId) && !isTokenExpired(token);
     }
-    public List<?> getUserRoles(String token) {
+    public List<?> getUserRoles(String token) throws CustomJwtException {
         return getClaims(token).get("role", List.class);
     }
 
-    public UUID getUserId(String token) {
+    public UUID getUserId(String token) throws CustomJwtException {
         return UUID.fromString(getClaims(token).getSubject());
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) throws CustomJwtException {
         var expiration = getClaims(token).getExpiration();
         return expiration.before(new Date());
     }
@@ -59,10 +60,15 @@ public class TokenService {
                 .compact();
     }
 
-    private Claims getClaims(@NonNull String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody();
+    private Claims getClaims(@NonNull String token) throws CustomJwtException {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException | DecodingException | MalformedJwtException | UnsupportedJwtException | SignatureException | IncorrectClaimException e) {
+            throw new CustomJwtException(e.getMessage());
+        }
+
     }
 }
