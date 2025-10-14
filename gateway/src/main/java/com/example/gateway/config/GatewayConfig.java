@@ -22,6 +22,15 @@ public class GatewayConfig {
                 .route("user-service", r -> r.path("/api/auth/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://user-service"))
+                .route("orders-service", r -> r.path("/api/orders/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://orders-service"))
+                .route("foodchain", r -> r.path("/api/foods/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://foodchain"))
+                .route("foodchain", r -> r.path("/api/bin/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://foodchain"))
                 .build();
     }
 }

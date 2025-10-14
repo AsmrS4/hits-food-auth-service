@@ -1,6 +1,7 @@
 package com.example.gateway.config;
 
 import com.example.gateway.service.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 @RefreshScope
 @Component
+@Slf4j
 public class AuthenticationFilter implements GatewayFilter {
 
     @Autowired
@@ -24,14 +26,14 @@ public class AuthenticationFilter implements GatewayFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-
+        log.warn(String.format("RECEIVED REQUEST IN GATEWAY AUTH FILTER: {%s}", request));
         if (validator.isSecured.test(request)) {
             if (authMissing(request)) {
                 return onError(exchange, HttpStatus.UNAUTHORIZED);
             }
-
-            final String token = request.getHeaders().getOrEmpty("Authorization").getFirst();
-
+            String token = request.getHeaders().getOrEmpty("Authorization").getFirst();
+            token = token.substring(7);
+            log.warn(String.format("TOKEN: {%s}", token));
             if (jwtUtils.isTokenExpired(token)) {
                 return onError(exchange, HttpStatus.UNAUTHORIZED);
             }
