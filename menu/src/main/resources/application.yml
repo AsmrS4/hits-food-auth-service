@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: foodchain
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/foodservice
+    username: postgres
+    password: V
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: false
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+    servlet:
+      path: /
+
+jwt:
+  secret: hits2025972303hits2025972303hits20259723032025hits
+  lifetime: 30m
+
+logging:
+  level:
+    org.springframework.security: trace
