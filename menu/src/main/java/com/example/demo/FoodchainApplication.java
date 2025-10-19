@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.common_module.config.ClientConfig;
 import com.example.common_module.config.ContentTypeConfig;
 import com.example.common_module.config.SecurityConfig;
 import com.example.common_module.filters.ContentTypeFilter;

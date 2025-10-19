@@ -24,6 +24,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/unknown/lombok-mapstruct-binding-unknown.jar" />
         </processorPath>
+        <module name="menu" />
         <module name="menu-service" />
       </profile>
     </annotationProcessing>
@@ -43,6 +44,7 @@
       <module name="config-service" options="-parameters" />
       <module name="discovery-service" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="menu" options="-parameters" />
       <module name="menu-service" options="-parameters" />
       <module name="orders-service" options="-parameters" />
       <module name="orderservice" options="-parameters" />
