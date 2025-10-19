@@ -6,7 +6,7 @@ import orderservice.data.OperatorOrderAmount;
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.data.StatusHistory;
-import orderservice.dto.OperatorDto;
+import com.example.common_module.dto.OperatorDto;
 import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
 import orderservice.mapper.OrderMapper;
@@ -98,12 +98,12 @@ public class OrderController {
         return filterService.findAllWithFilters(orderFilter, pageable);
     }
 
-    @PostMapping("/save-operator")
+    @PostMapping("/order/save-operator")
     public void saveOperator(@RequestBody OperatorDto dto) {
         operatorService.saveOperator(dto);
     }
-    @DeleteMapping("/delete-operator/{id}")
-    public void deleteOperator(@RequestParam UUID operatorId) {
+    @DeleteMapping("/order/delete-operator/{operatorId}")
+    public void deleteOperator(@PathVariable UUID operatorId) {
         operatorService.deleteOperator(operatorId);
     }
 }
