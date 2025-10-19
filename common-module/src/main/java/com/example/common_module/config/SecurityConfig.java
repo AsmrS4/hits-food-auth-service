@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(c -> c.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
                     return config;
@@ -57,16 +57,18 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/swagger-ui.html")
                         .permitAll()
-                        .requestMatchers("/api/auth/user/sign-in").permitAll()
-                        .requestMatchers("/api/auth/staff/sign-in").permitAll()
                         .requestMatchers("/api/auth/logout").authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/registration/client").permitAll()
-                        .requestMatchers("/api/users/registration/admin").permitAll()
                         .requestMatchers("/api/users/registration/operator").hasAuthority("ADMIN")
                         .requestMatchers("/api/users/operators").hasAuthority("ADMIN")
                         .requestMatchers("/api/users/operators/*").hasAuthority("ADMIN")
                         .requestMatchers("/api/users/**").authenticated()
-                        .requestMatchers("/api/foods/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/foods/filter").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/foods/{id}").permitAll()
+                        .requestMatchers("/api/foods/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/categories/*").permitAll()
+                        .requestMatchers("/api/categories/*").hasAuthority("ADMIN")
                         .requestMatchers("/api/bin/**").authenticated()
                         .requestMatchers(HttpMethod.PUT,"/api/about").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/about").permitAll()

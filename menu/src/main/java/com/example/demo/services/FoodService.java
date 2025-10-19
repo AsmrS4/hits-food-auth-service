@@ -84,19 +84,19 @@ public class FoodService {
         FoodEntity entity = foodMapper.toEntity(dto);
         entity.setIsAvailable(true);
         entity.setCategory(categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found")));
+                .orElseThrow(() -> new UsernameNotFoundException("Category not found")));
         return foodMapper.toDetailsDto(foodRepository.save(entity));
     }
 
     @Transactional
     public FoodDetailsDto updateFood(UUID id, FoodUpdateDto dto) {
         FoodEntity entity = foodRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Food not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
         foodMapper.updateEntityFromDto(dto, entity);
 
         if (dto.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new UsernameNotFoundException("Category not found"));
             entity.setCategory(category);
         }
 
@@ -108,14 +108,14 @@ public class FoodService {
 
     public void deleteFood(UUID id) {
         if (!foodRepository.existsById(id))
-            throw new RuntimeException("Food not found");
+            throw new UsernameNotFoundException("Food not found");
         foodRepository.deleteById(id);
     }
 
     @Transactional
     public FoodDetailsDto setAvailability(UUID id, boolean available) {
         FoodEntity entity = foodRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Food not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
         entity.setIsAvailable(available);
         return foodMapper.toDetailsDto(foodRepository.save(entity));
     }

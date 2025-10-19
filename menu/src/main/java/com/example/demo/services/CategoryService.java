@@ -6,6 +6,8 @@ import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.repositories.FoodRepository;
 import com.example.demo.mappers.CategoryMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +28,7 @@ public class CategoryService {
 
     public Category getCategory(UUID id) {
         CategoryEntity entity = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Category not found"));
         return categoryMapper.toDto(entity);
     }
 
@@ -39,18 +41,18 @@ public class CategoryService {
     @Transactional
     public Category updateCategory(UUID id, CategoryUpdateDto dto) {
         CategoryEntity entity = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Category not found"));
         categoryMapper.updateEntityFromDto(dto, entity);
         return categoryMapper.toDto(categoryRepository.save(entity));
     }
 
     @Transactional
-    public void deleteCategory(UUID id) {
+    public void deleteCategory(UUID id) throws BadRequestException {
         CategoryEntity entity = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Category not found"));
         boolean hasFoods = foodRepository.existsByCategory(entity);
         if (hasFoods) {
-            throw new RuntimeException("Cannot delete category with associated foods");
+            throw new BadRequestException("Cannot delete category with associated foods");
         }
         categoryRepository.delete(entity);
     }

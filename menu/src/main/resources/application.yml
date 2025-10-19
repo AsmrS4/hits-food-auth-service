@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/foodservice
     username: postgres
-    password: V
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   flyway:
