@@ -2,6 +2,7 @@ package orderservice.repository;
 
 import orderservice.data.OperatorOrderAmount;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface AmountRepository extends JpaRepository<OperatorOrderAmount, UUI
     List<OperatorOrderAmount> findByOperatorId(UUID operatorId);
 
     OperatorOrderAmount findFirstByOperatorId(UUID operatorId);
+    @Query("SELECT o from OperatorOrderAmount o LEFT JOIN Operator op ON o.operatorId = op.id")
+    List< OperatorOrderAmount> findAllOrderAmount();
 }
