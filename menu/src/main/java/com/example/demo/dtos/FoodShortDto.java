@@ -17,5 +17,6 @@ public class FoodShortDto {
     Double rate;
     String description;
     UUID categoryId;
+    Boolean isAvailable;
 }
 
