@@ -6,13 +6,11 @@ import orderservice.data.OperatorOrderAmount;
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.data.StatusHistory;
+import orderservice.dto.OperatorDto;
 import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
 import orderservice.mapper.OrderMapper;
-import orderservice.service.AmountService;
-import orderservice.service.FilterService;
-import orderservice.service.OrderService;
-import orderservice.service.StatusService;
+import orderservice.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,6 +25,7 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OperatorService operatorService;
     private final StatusService statusService;
     private final FilterService filterService;
     private final AmountService amountService;
@@ -99,5 +98,12 @@ public class OrderController {
         return filterService.findAllWithFilters(orderFilter, pageable);
     }
 
-
+    @PostMapping("/save-operator")
+    public void saveOperator(@RequestBody OperatorDto dto) {
+        operatorService.saveOperator(dto);
+    }
+    @DeleteMapping("/delete-operator/{id}")
+    public void deleteOperator(@RequestParam UUID operatorId) {
+        operatorService.deleteOperator(operatorId);
+    }
 }
