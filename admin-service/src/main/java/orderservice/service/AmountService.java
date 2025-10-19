@@ -1,8 +1,11 @@
 package orderservice.service;
 
 import lombok.RequiredArgsConstructor;
+import orderservice.data.Operator;
 import orderservice.data.OperatorOrderAmount;
+import orderservice.data.OperatorOrderAmountDto;
 import orderservice.repository.AmountRepository;
+import orderservice.repository.OperatorRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,8 +29,7 @@ public class AmountService {
         }
     }
 
-    public List<OperatorOrderAmount> getOperatorOrderAmounts() {
-        return amountRepository.findAll();
+    public List<OperatorOrderAmountDto> getOperatorOrderAmounts() {
+        return amountRepository.findAllOrderAmount();
     }
-
 }
