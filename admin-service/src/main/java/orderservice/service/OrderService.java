@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -51,5 +52,9 @@ public class OrderService {
         Reservation order = findById(orderId);
         order.setDeclineReason(reason);
         orderRepository.save(order);
+    }
+
+    public List<Reservation> findByUserId(UUID userId) {
+        return orderRepository.findByClientId(userId);
     }
 }

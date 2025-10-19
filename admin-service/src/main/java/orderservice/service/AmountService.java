@@ -11,6 +11,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AmountService {
+
     private final AmountRepository amountRepository;
 
     public void changeAmount(UUID operatorId) {

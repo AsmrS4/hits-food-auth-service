@@ -1,11 +1,14 @@
 package orderservice.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import orderservice.data.OperatorOrderAmount;
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.data.StatusHistory;
+import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
+import orderservice.mapper.OrderMapper;
 import orderservice.service.AmountService;
 import orderservice.service.FilterService;
 import orderservice.service.OrderService;
@@ -20,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@SecurityRequirement(name = "bearerAuth")
 public class OrderController {
 
     private final OrderService orderService;
@@ -33,19 +36,24 @@ public class OrderController {
         return orderService.findById(orderId);
     }
 
+    @GetMapping("/order/find-by-userId/{userId}")
+    public List<Reservation> findByUserId(@PathVariable UUID userId) {
+        return orderService.findByUserId(userId);
+    }
+
     @GetMapping("/order/find-by-operator/{operatorId}")
     public Page<Reservation> findOrderByOperatorId(@PathVariable UUID operatorId,@PageableDefault(size = 20) Pageable pageable) {
         return orderService.findByOperatorId(operatorId, pageable);
     }
 
     @GetMapping("/order/find-without-operator")
-    public Page<Reservation> findOrderByOperatorId(@PageableDefault(size = 20) Pageable pageable) {
+    public Page<Reservation> findOrderWithoutOperatorId(@PageableDefault(size = 20) Pageable pageable) {
         return orderService.findWithoutOperator(pageable);
     }
 
     @PostMapping("/order/create")
-    public void createOrder(@RequestBody Reservation order) {
-        orderService.save(order);
+    public void createOrder(@RequestBody OrderDto order) {
+        orderService.save(OrderMapper.mapOrderDtoToOrder(order));
     }
 
     @PutMapping("/order/change-order-status/{orderId}")
@@ -86,7 +94,8 @@ public class OrderController {
     }
 
     @GetMapping("/order/get-with-filters")
-    public Page<Reservation> getWithFilters(@RequestParam OrderFilter orderFilter, Pageable pageable) {
+    public Page<Reservation> getWithFilters(@RequestParam String status, @RequestParam String operatorName,@PageableDefault(size = 20) Pageable pageable) {
+        OrderFilter orderFilter = new OrderFilter(operatorName,Status.valueOf(status));
         return filterService.findAllWithFilters(orderFilter, pageable);
     }
 

@@ -13,4 +13,6 @@ public class Meal {
     private UUID id;
     private String name;
     private Double price;
+    private String ImageUrl;
+    public int Quantity;
 }

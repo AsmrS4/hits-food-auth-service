@@ -25,10 +25,10 @@ import org.springframework.context.annotation.Import;
         AccessDeniedHandlerImpl.class,
         GlobalExceptionHandler.class
 })
-public class OrderServiceApplication {
+public class OrderserviceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OrderServiceApplication.class, args);
+        SpringApplication.run(OrderserviceApplication.class, args);
     }
 
 }
