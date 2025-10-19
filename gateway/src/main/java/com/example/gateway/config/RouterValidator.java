@@ -13,7 +13,8 @@ public class RouterValidator {
             "/api/auth",
             "/api/users",
             "/api/foods",
-            "/api/about"
+            "/api/about",
+            "/api/categories"
     );
 
     public Predicate<ServerHttpRequest> isSecured =

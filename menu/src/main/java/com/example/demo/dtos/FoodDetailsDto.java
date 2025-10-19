@@ -17,6 +17,7 @@ public class FoodDetailsDto {
     String photo;
     Double price;
     Double rate;
+    Boolean isAvailable;
     String description;
     List<Ingredient> ingredients;
     UUID categoryId;
