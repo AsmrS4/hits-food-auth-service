@@ -77,7 +77,12 @@ public class FoodService {
                                     ? Comparator.reverseOrder() : Comparator.naturalOrder()))
                     .toList();
         }
-        return foodMapper.toShortDtoList(foods);
+        List<FoodShortDto> foodShortDtos = foodMapper.toShortDtoList(foods);
+        return foodShortDtos.stream().map(dto -> {
+            double amountRating = ratingService.countRatingAmountForConcreteFood(dto.getId());
+            dto.setRate(amountRating);
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     public FoodDetailsResponse getFoodDetails(UUID id) {

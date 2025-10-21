@@ -84,7 +84,6 @@ public class RatingService {
             BigDecimal bg = new BigDecimal(Double.toString(amount));
             amount = Double.parseDouble(bg.setScale(1, RoundingMode.HALF_UP).toString());
             return amount;
-
         } catch (Exception ex) {
             log.error("RECEIVED SQL EXCEPTION: " + ex.getMessage());
             return 0;
