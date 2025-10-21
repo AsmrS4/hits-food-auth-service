@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/foods/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/categories/*").permitAll()
                         .requestMatchers("/api/categories/*").hasAuthority("ADMIN")
+                        .requestMatchers("/api/rate/**").hasAnyAuthority("CLIENT")
                         .requestMatchers("/api/bin/**").authenticated()
                         .requestMatchers(HttpMethod.PUT,"/api/about").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/about").permitAll()
