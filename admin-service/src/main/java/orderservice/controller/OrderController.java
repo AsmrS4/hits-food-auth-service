@@ -11,6 +11,7 @@ import orderservice.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -103,5 +104,9 @@ public class OrderController {
     @DeleteMapping("/delete-operator/{operatorId}")
     public void deleteOperator(@PathVariable UUID operatorId) {
         operatorService.deleteOperator(operatorId);
+    }
+    @GetMapping("/check-has-ordered/{foodId}")
+    public ResponseEntity<?> checkHasOrderedFood(@PathVariable UUID foodId) {
+        return ResponseEntity.ok(orderService.hasOrdered(foodId));
     }
 }

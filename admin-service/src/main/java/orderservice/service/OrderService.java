@@ -5,6 +5,7 @@ import orderservice.data.Reservation;
 import orderservice.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,5 +57,22 @@ public class OrderService {
 
     public List<Reservation> findByUserId(UUID userId) {
         return orderRepository.findByClientId(userId);
+    }
+
+    public boolean hasOrdered(UUID foodId) {
+        UUID userId = getUserIdFromContext();
+        if(userId == null) {
+            return false;
+        }
+        return orderRepository.hasOrderedFood(foodId, userId);
+    }
+
+    private UUID getUserIdFromContext() {
+        var id = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        try {
+            return UUID.fromString(id);
+        } catch (Exception ex) {
+            return null;
+        }
     }
 }

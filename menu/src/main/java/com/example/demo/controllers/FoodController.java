@@ -35,7 +35,7 @@ public class FoodController {
             description = "Get dish details",
             summary = "This is summary for getting details about dish from menu"
     )
-    public ResponseEntity<FoodDetailsDto> getDetails(@PathVariable UUID id) {
+    public ResponseEntity<FoodDetailsResponse> getDetails(@PathVariable UUID id) {
         return ResponseEntity.ok(foodService.getFoodDetails(id));
     }
 
