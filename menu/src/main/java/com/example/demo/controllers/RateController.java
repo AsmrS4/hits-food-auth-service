@@ -1,12 +1,11 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.FoodRating;
-import com.example.demo.dtos.Response;
+import com.example.demo.dtos.RatingResponse;
 import com.example.demo.services.RatingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +25,7 @@ public class RateController {
             description = "Creating rate",
             summary = "This is summary for rate ordered food"
     )
-    public ResponseEntity<Response> rateOrderedFood(@PathVariable UUID foodId, @RequestBody FoodRating rating) throws BadRequestException {
+    public ResponseEntity<RatingResponse> rateOrderedFood(@PathVariable UUID foodId, @RequestBody FoodRating rating) throws BadRequestException {
         return ResponseEntity.ok(ratingService.rateFood(foodId, rating));
     }
     @PutMapping("/{foodId}")
@@ -34,7 +33,7 @@ public class RateController {
             description = "Creating rate",
             summary = "This is summary for change rating for ordered food"
     )
-    public ResponseEntity<Response> changeRateForOrderedFood(@PathVariable UUID foodId, @RequestBody FoodRating newRating) throws BadRequestException {
+    public ResponseEntity<RatingResponse> changeRateForOrderedFood(@PathVariable UUID foodId, @RequestBody FoodRating newRating) throws BadRequestException {
         return ResponseEntity.ok(ratingService.editRating(foodId, newRating));
     }
 }

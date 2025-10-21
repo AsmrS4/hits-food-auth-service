@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Response {
-    private HttpStatus status;
-    private int code;
-    private String message;
+public class RatingResponse {
+    private double amount;
 }

@@ -2,7 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.client.OrderClient;
 import com.example.demo.dtos.FoodRating;
-import com.example.demo.dtos.Response;
+import com.example.demo.dtos.RatingResponse;
 import com.example.demo.entities.RatingEntity;
 import com.example.demo.repositories.RatingRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.UUID;
 public class RatingService {
     private final RatingRepository repository;
     private final OrderClient client;
-    public Response rateFood(UUID foodId, FoodRating foodRating) throws BadRequestException {
+    public RatingResponse rateFood(UUID foodId, FoodRating foodRating) throws BadRequestException {
         UUID userId = getUserIdFromContext();
         if(!couldRateConcreteFood(foodId)) {
             throw new BadRequestException("You haven't ordered this food before");
@@ -42,10 +42,11 @@ public class RatingService {
                 .rating(foodRating.getRating())
                 .build();
         repository.save(ratingEntity);
-        return new Response(HttpStatus.CREATED, 201, "Your rate was created and saved successfully");
+
+        return new RatingResponse(this.countRatingAmountForConcreteFood(foodId));
     }
 
-    public Response editRating(UUID foodId, FoodRating newRating) throws BadRequestException {
+    public RatingResponse editRating(UUID foodId, FoodRating newRating) throws BadRequestException {
         UUID userId = getUserIdFromContext();
         if(!couldRateConcreteFood(foodId)) {
             throw new BadRequestException("You haven't ordered this food before");
@@ -61,7 +62,7 @@ public class RatingService {
             entity.setRating(newRating.getRating());
             repository.save(entity);
         });
-        return new Response(HttpStatus.OK, 200, "Your rate was changed successfully");
+        return new RatingResponse(this.countRatingAmountForConcreteFood(foodId));
     }
 
     public void deleteRatingByFood(UUID foodId) {
