@@ -1,13 +1,15 @@
 package com.example.demo.services;
 
+import com.example.demo.client.OrderClient;
 import com.example.demo.dtos.FoodRating;
 import com.example.demo.dtos.Response;
 import com.example.demo.entities.RatingEntity;
 import com.example.demo.repositories.RatingRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +20,10 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RatingService {
-    @Autowired
-    private RatingRepository repository;
+    private final RatingRepository repository;
+    private final OrderClient client;
     public Response rateFood(UUID foodId, FoodRating foodRating) throws BadRequestException {
         UUID userId = getUserIdFromContext();
         if(!couldRateConcreteFood(foodId)) {
@@ -105,8 +108,13 @@ public class RatingService {
         return this.hasOrderedConcreteFood(foodId);
     }
     private boolean hasOrderedConcreteFood(UUID foodId) {
-        //TODO:запрос в order-service
-        return true;
+        try {
+            ResponseEntity<?> response = client.checkHasOrdered(foodId);
+            return (boolean) response.getBody();
+        }catch (Exception ex) {
+            log.error("RECEIVED EXCEPTION: " + ex.getMessage());
+            return false;
+        }
     }
 
     private UUID getUserIdFromContext() {
