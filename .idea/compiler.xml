@@ -24,8 +24,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/unknown/lombok-mapstruct-binding-unknown.jar" />
         </processorPath>
-        <module name="menu" />
         <module name="menu-service" />
+        <module name="menu" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
