@@ -10,6 +10,7 @@ import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
 import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
+import com.example.user_service.services.RefreshTokenService;
 import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.client.OrdersClient;
 import com.example.user_service.utils.UserMapper;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
     private final UserMapper mapper;
     private final OrdersClient client;
 
@@ -49,9 +51,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(newUser);
 
         String accessToken = tokenService.getAccessToken(newUser);
+        String refreshToken = refreshTokenService.createNewRefresh(newUser);
         ClientUserDTO profile = mapper.mapClient(newUser);
 
-        return new AuthResponse(accessToken, profile);
+        return new AuthResponse(accessToken, refreshToken, profile);
     }
 
     @Override
@@ -92,7 +95,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser(){
         var userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-
         return getByUsername(userId);
     }
 
