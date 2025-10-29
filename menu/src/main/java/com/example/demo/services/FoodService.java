@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,13 +20,18 @@ public class FoodService {
     private final FoodRepository foodRepository;
     private final CategoryRepository categoryRepository;
     private final FoodMapper foodMapper;
+    private final RatingService ratingService;
 
     public List<FoodShortDto> getAllFoods(FoodFilterRequest filter) {
         List<FoodEntity> foods = foodRepository.findAll();
         if (filter == null) {
-            return foodMapper.toShortDtoList(foods);
+            List<FoodShortDto> foodShortDtos = foodMapper.toShortDtoList(foods);
+            return foodShortDtos.stream().map(dto -> {
+                double amountRating = ratingService.countRatingAmountForConcreteFood(dto.getId());
+                dto.setRate(amountRating);
+                return dto;
+            }).collect(Collectors.toList());
         }
-        log.warn(String.format("RECEIVED FILTERS: {%s}", filter));
         if (filter.getCategoryId() != null) {
             foods = foods.stream()
                     .filter(f -> f.getCategory().getId().equals(filter.getCategoryId()))
@@ -71,13 +77,29 @@ public class FoodService {
                                     ? Comparator.reverseOrder() : Comparator.naturalOrder()))
                     .toList();
         }
-        return foodMapper.toShortDtoList(foods);
+        List<FoodShortDto> foodShortDtos = foodMapper.toShortDtoList(foods);
+        return foodShortDtos.stream().map(dto -> {
+            double amountRating = ratingService.countRatingAmountForConcreteFood(dto.getId());
+            dto.setRate(amountRating);
+            return dto;
+        }).collect(Collectors.toList());
     }
 
-    public FoodDetailsDto getFoodDetails(UUID id) {
-        return foodRepository.findById(id)
+    public FoodDetailsResponse getFoodDetails(UUID id) {
+        FoodDetailsDto foodDetailsDto = foodRepository.findById(id)
                 .map(foodMapper::toDetailsDto)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+        double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
+        boolean couldRate = ratingService.couldRateConcreteFood(id);
+        boolean hasRate = ratingService.hasRateFromConcreteUser(id);
+        int userRating = ratingService.getUsersRating(id);
+        foodDetailsDto.setRate(rateAmount);
+        return FoodDetailsResponse.builder()
+                .foodDetails(foodDetailsDto)
+                .couldRate(couldRate)
+                .hasRate(hasRate)
+                .userRating(userRating)
+                .build();
     }
 
     public FoodDetailsDto createFood(FoodCreateDto dto) {
@@ -103,13 +125,17 @@ public class FoodService {
         if (dto.getIsAvailable() != null)
             entity.setIsAvailable(dto.getIsAvailable());
 
-        return foodMapper.toDetailsDto(foodRepository.save(entity));
+        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
+        double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
+        foodDetailsDto.setRate(rateAmount);
+        return foodDetailsDto;
     }
 
     public void deleteFood(UUID id) {
         if (!foodRepository.existsById(id))
             throw new UsernameNotFoundException("Food not found");
         foodRepository.deleteById(id);
+        ratingService.deleteRatingByFood(id);
     }
 
     @Transactional
@@ -117,6 +143,9 @@ public class FoodService {
         FoodEntity entity = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
         entity.setIsAvailable(available);
-        return foodMapper.toDetailsDto(foodRepository.save(entity));
+        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
+        double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
+        foodDetailsDto.setRate(rateAmount);
+        return foodDetailsDto;
     }
 }

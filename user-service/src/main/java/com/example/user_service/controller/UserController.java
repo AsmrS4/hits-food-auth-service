@@ -1,16 +1,14 @@
 package com.example.user_service.controller;
 
 import com.example.user_service.domain.dto.Response;
-import com.example.user_service.domain.dto.about.AboutDTO;
-import com.example.user_service.domain.dto.about.EditAbout;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.*;
-import com.example.user_service.services.interfaces.AboutService;
 import com.example.user_service.services.interfaces.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.UnavailableException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -27,17 +25,36 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final AboutService aboutService;
 
+    @GetMapping("/users/{userId}")
+    @Operation(
+            description = "Get information about user endpoint",
+            summary = "This is summary for getting information about user"
+    )
+    public ResponseEntity<ClientUserDTO> getUserDetails(@PathVariable UUID userId) {
+        return ResponseEntity.ok(userService.getUserDetails(userId));
+    }
     @GetMapping("/users/me")
+    @Operation(
+            description = "Get user profile endpoint",
+            summary = "This is summary for getting user's profile"
+    )
     public ResponseEntity<UserDTO> getProfile() {
         return ResponseEntity.ok(userService.getUserProfile());
     }
     @PutMapping("/users/me")
+    @Operation(
+            description = "Get user profile endpoint",
+            summary = "This is summary for edit client user's profile"
+    )
     public ResponseEntity<UserDTO> updateClientUser(@RequestBody @Valid EditClientDTO dto) throws BadRequestException {
         return ResponseEntity.ok(userService.editClientProfile(dto));
     }
     @PutMapping("/users/me/staff")
+    @Operation(
+            description = "Get user profile endpoint",
+            summary = "This is summary for edit staff user's profile"
+    )
     public ResponseEntity<UserDTO> updateStaffUser(@RequestBody @Valid EditStaffDTO dto) throws BadRequestException {
         return ResponseEntity.ok(userService.editStaffProfile(dto));
     }
@@ -62,7 +79,7 @@ public class UserController {
             description = "Register operator account",
             summary = "This is summary for create account for operator"
     )
-    public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid StaffRegisterRequest request) throws BadRequestException {
+    public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid StaffRegisterRequest request) throws BadRequestException, UnavailableException {
         return ResponseEntity.ok(userService.registerOperatorUser(request));
     }
     @DeleteMapping("/users/operators/{operatorId}")
@@ -82,12 +99,4 @@ public class UserController {
         return ResponseEntity.ok(userService.getOperators());
     }
 
-    @GetMapping("/about")
-    public ResponseEntity<AboutDTO> getAboutInfo()  {
-        return ResponseEntity.ok(aboutService.getAboutInfo());
-    }
-    @PutMapping("/about")
-    public ResponseEntity<AboutDTO> editAbout(@RequestBody @Valid EditAbout editAbout) {
-        return ResponseEntity.ok(aboutService.editAboutInfo(editAbout));
-    }
 }

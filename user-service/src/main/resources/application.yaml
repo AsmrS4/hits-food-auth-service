@@ -36,7 +36,12 @@ spring:
 jwt:
   secret: hits2025972303hits2025972303hits20259723032025hits
   lifetime: 30m
+  refresh-lifetime: 7d
+
+url:
+  order-service-url: http://localhost:8096
 
 logging:
   level:
     org.springframework.security: trace
+    org.apache.http: DEBUG

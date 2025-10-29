@@ -3,6 +3,7 @@ package orderservice.data;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -13,4 +14,6 @@ public class Meal {
     private UUID id;
     private String name;
     private Double price;
+    private List<String> ImageUrl;
+    public int Quantity;
 }

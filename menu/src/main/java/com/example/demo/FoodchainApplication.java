@@ -12,6 +12,7 @@ import com.example.common_module.handler.GlobalExceptionHandler;
 import com.example.common_module.jwt.TokenService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
@@ -24,8 +25,10 @@ import org.springframework.context.annotation.Import;
 		CustomLogoutHandler.class,
 		AuthenticationEntryPointImpl.class,
 		AccessDeniedHandlerImpl.class,
-		GlobalExceptionHandler.class
+		GlobalExceptionHandler.class,
+		ClientConfig.class
 })
+@EnableFeignClients(basePackages = {"com.example.demo.client"})
 public class FoodchainApplication {
 
 	public static void main(String[] args) {

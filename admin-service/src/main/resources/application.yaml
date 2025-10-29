@@ -1,25 +1,29 @@
 server:
-  port: 8094
-
+  port: 8096
 spring:
   application:
-    name: admin-service
+    name: order-service
   datasource:
     url: jdbc:postgresql://localhost:5432/mydatabase
     username: postgres
     password: postgres
-  flyway:
-    enabled: false
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     generate-ddl: true
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-
+#  autoconfigure:
+#    exclude:
+#      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+#security:
+#  enabled: false
+logging:
+  level:
+    org.springframework.security: trace
 jwt:
   secret: hits2025972303hits2025972303hits20259723032025hits
   lifetime: 30m

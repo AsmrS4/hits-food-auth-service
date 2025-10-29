@@ -1,5 +1,6 @@
 package com.example.user_service.services.impl;
 
+import com.example.common_module.dto.OperatorDto;
 import com.example.common_module.jwt.TokenService;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.auth.AuthResponse;
@@ -9,12 +10,17 @@ import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
 import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
+import com.example.user_service.services.RefreshTokenService;
 import com.example.user_service.services.interfaces.UserService;
+import com.example.user_service.client.OrdersClient;
 import com.example.user_service.utils.UserMapper;
+import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,7 +38,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
     private final UserMapper mapper;
+    private final OrdersClient client;
 
     @Override
     public AuthResponse registerClientUser(ClientRegisterRequest request) throws BadRequestException {
@@ -44,13 +52,14 @@ public class UserServiceImpl implements UserService {
         userRepository.save(newUser);
 
         String accessToken = tokenService.getAccessToken(newUser);
+        String refreshToken = refreshTokenService.createNewRefresh(newUser);
         ClientUserDTO profile = mapper.mapClient(newUser);
 
-        return new AuthResponse(accessToken, profile);
+        return new AuthResponse(accessToken, refreshToken, profile);
     }
 
     @Override
-    public StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException {
+    public StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException, UnavailableException {
         if(userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
@@ -60,8 +69,18 @@ public class UserServiceImpl implements UserService {
         User newUser = mapper.map(request);
         newUser.setPhone(phoneNumber);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(newUser);
 
+
+        OperatorDto dto = new OperatorDto();
+        dto.setId(newUser.getId());
+        dto.setFullName(newUser.getFullName());
+        dto.setPhone(newUser.getPhone());
+        try {
+            client.saveOperator(dto);
+        } catch (Exception ex) {
+            throw new UnavailableException("Couldn't process request. Order service is unavailable");
+        }
+        userRepository.save(newUser);
         return mapper.map(newUser);
     }
 
@@ -81,7 +100,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser(){
         var userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-
         return getByUsername(userId);
     }
 
@@ -138,7 +156,19 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findUserById(operatorId)
                 .orElseThrow(()-> new UsernameNotFoundException(String.format("Operator with id %s not found", operatorId)));
         userRepository.delete(user);
+        ResponseEntity<?> response = client.deleteOperator(operatorId);
         return new Response(HttpStatus.OK, 200, String.format("Operator with id %s was deleted", operatorId));
+    }
+
+    @Override
+    public ClientUserDTO getUserDetails(UUID userId) {
+        User user  = userRepository.findUserById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("User not found")
+        );
+        if(user.getRole().equals(Role.ADMIN)) {
+            throw new AccessDeniedException("This information is secured");
+        }
+        return mapper.mapClient(user);
     }
 
     private User getByUsername(String username) {

@@ -8,9 +8,11 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.UnavailableException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -88,5 +90,20 @@ public class GlobalExceptionHandler {
         errors.put("status: ", HttpStatus.NOT_FOUND.value());
         errors.put("error: ", "Resource not found");
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("status: ", HttpStatus.FORBIDDEN.value());
+        errors.put("error: ", ex.getMessage());
+        return new ResponseEntity<>(errors, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler({UnavailableException.class})
+    public ResponseEntity<Map<String, Object>> handleUnavailableException(UnavailableException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("status: ", HttpStatus.SERVICE_UNAVAILABLE.value());
+        errors.put("error: ", ex.getMessage());
+        return new ResponseEntity<>(errors, HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

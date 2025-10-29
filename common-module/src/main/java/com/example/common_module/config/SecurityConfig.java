@@ -46,6 +46,7 @@ public class SecurityConfig {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
+                    config.addAllowedOriginPattern("*");
                     config.setAllowCredentials(true);
                     return config;
                 }))
@@ -69,9 +70,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/foods/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/categories/*").permitAll()
                         .requestMatchers("/api/categories/*").hasAuthority("ADMIN")
+                        .requestMatchers("/api/rate/**").hasAuthority("CLIENT")
                         .requestMatchers("/api/bin/**").authenticated()
                         .requestMatchers(HttpMethod.PUT,"/api/about").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/about").permitAll()
+                        .requestMatchers("/order/find-by-userId/*").authenticated()
+                        .requestMatchers("/order/get-status-history/*").authenticated()
+                        .requestMatchers("/order/check-has-ordered/*").hasAuthority("CLIENT")
+                        .requestMatchers("/order/create").authenticated()
+                        .requestMatchers("/order/**").hasAnyAuthority("OPERATOR","ADMIN")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(c->c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
