@@ -1,7 +1,9 @@
 package com.example.user_service.controller;
 
 import com.example.user_service.domain.dto.auth.LoginRequest;
+import com.example.user_service.domain.dto.auth.RefreshRequest;
 import com.example.user_service.domain.dto.auth.StaffLoginRequest;
+import com.example.user_service.domain.dto.auth.TokenPair;
 import com.example.user_service.services.interfaces.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,5 +40,14 @@ public class AuthController {
     )
     public ResponseEntity<?> loginStaffUser(@RequestBody @Valid StaffLoginRequest request) throws BadRequestException {
         return ResponseEntity.ok(authService.loginStaffUser(request));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(
+            description = "Refresh and access token pair",
+            summary = "This is summary for getting pair of token"
+    )
+    public ResponseEntity<TokenPair> getNewTokenPair(@RequestBody @Valid RefreshRequest request) {
+        return ResponseEntity.ok(authService.getNewPair(request));
     }
 }
