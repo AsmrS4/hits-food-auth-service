@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -88,5 +89,12 @@ public class GlobalExceptionHandler {
         errors.put("status: ", HttpStatus.NOT_FOUND.value());
         errors.put("error: ", "Resource not found");
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("status: ", HttpStatus.FORBIDDEN.value());
+        errors.put("error: ", ex.getMessage());
+        return new ResponseEntity<>(errors, HttpStatus.FORBIDDEN);
     }
 }

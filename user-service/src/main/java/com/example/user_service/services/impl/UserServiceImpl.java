@@ -10,6 +10,7 @@ import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
 import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
+import com.example.user_service.services.RefreshTokenService;
 import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.client.OrdersClient;
 import com.example.user_service.utils.UserMapper;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
     private final UserMapper mapper;
     private final OrdersClient client;
 
@@ -48,9 +51,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(newUser);
 
         String accessToken = tokenService.getAccessToken(newUser);
+        String refreshToken = refreshTokenService.createNewRefresh(newUser);
         ClientUserDTO profile = mapper.mapClient(newUser);
 
-        return new AuthResponse(accessToken, profile);
+        return new AuthResponse(accessToken, refreshToken, profile);
     }
 
     @Override
@@ -91,7 +95,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser(){
         var userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-
         return getByUsername(userId);
     }
 
@@ -150,6 +153,17 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
         ResponseEntity<?> response = client.deleteOperator(operatorId);
         return new Response(HttpStatus.OK, 200, String.format("Operator with id %s was deleted", operatorId));
+    }
+
+    @Override
+    public ClientUserDTO getUserDetails(UUID userId) {
+        User user  = userRepository.findUserById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("User not found")
+        );
+        if(user.getRole().equals(Role.ADMIN)) {
+            throw new AccessDeniedException("This information is secured");
+        }
+        return mapper.mapClient(user);
     }
 
     private User getByUsername(String username) {
