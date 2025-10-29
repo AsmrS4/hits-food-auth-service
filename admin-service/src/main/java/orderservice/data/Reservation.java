@@ -18,6 +18,8 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long orderNumber;
     @NotNull
     private UUID clientId;
     @NotBlank
