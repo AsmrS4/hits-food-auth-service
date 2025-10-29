@@ -31,7 +31,7 @@ public class UserController {
             description = "Get information about user endpoint",
             summary = "This is summary for getting information about user"
     )
-    public ResponseEntity<ClientUserDTO> getUserDetails(@PathVariable UUID userId) {
+    public ResponseEntity<UserDTO> getUserDetails(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.getUserDetails(userId));
     }
 
@@ -40,7 +40,7 @@ public class UserController {
             description = "Get information about user endpoint by phone number",
             summary = "This is summary for getting information about user"
     )
-    public ResponseEntity<ClientUserDTO> getUserByPhone(@RequestParam(name = "phone") String phone) throws BadRequestException {
+    public ResponseEntity<UserDTO> getUserByPhone(@RequestParam(name = "phone") String phone) throws BadRequestException {
         return ResponseEntity.ok(userService.getUserByPhone(phone));
     }
     @GetMapping("/users/me")

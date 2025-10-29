@@ -163,18 +163,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ClientUserDTO getUserDetails(UUID userId) {
+    public UserDTO getUserDetails(UUID userId) {
         User user  = userRepository.findUserById(userId).orElseThrow(
                 () -> new UsernameNotFoundException("User not found")
         );
         if(user.getRole().equals(Role.ADMIN)) {
             throw new AccessDeniedException("This information is secured");
         }
+        if(user.getRole().equals(Role.OPERATOR)) {
+            return mapper.map(user);
+        }
         return mapper.mapClient(user);
     }
 
     @Override
-    public ClientUserDTO getUserByPhone(String phone) throws BadRequestException {
+    public UserDTO getUserByPhone(String phone) throws BadRequestException {
         if(phone == null || phone.trim().isEmpty()) {
             throw new BadRequestException("Phone is required");
         }
@@ -186,7 +189,7 @@ public class UserServiceImpl implements UserService {
         String validatedPhone = phone.replaceFirst("^(?:\\+?)7", "8");
         User user = userRepository.findUserByPhone(validatedPhone)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        if(!user.getRole().equals(Role.CLIENT)) {
+        if(user.getRole().equals(Role.ADMIN)) {
             throw new AccessDeniedException("This information is secured");
         }
         return mapper.mapClient(user);
