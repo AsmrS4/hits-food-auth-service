@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -166,6 +168,25 @@ public class UserServiceImpl implements UserService {
                 () -> new UsernameNotFoundException("User not found")
         );
         if(user.getRole().equals(Role.ADMIN)) {
+            throw new AccessDeniedException("This information is secured");
+        }
+        return mapper.mapClient(user);
+    }
+
+    @Override
+    public ClientUserDTO getUserByPhone(String phone) throws BadRequestException {
+        if(phone == null || phone.trim().isEmpty()) {
+            throw new BadRequestException("Phone is required");
+        }
+        Pattern pattern = Pattern.compile("^(?:\\+?7|8)\\d{10}$");
+        Matcher matcher = pattern.matcher(phone);
+        if(!matcher.matches()) {
+            throw new BadRequestException("Invalid phone format");
+        }
+        String validatedPhone = phone.replaceFirst("^(?:\\+?)7", "8");
+        User user = userRepository.findUserByPhone(validatedPhone)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if(!user.getRole().equals(Role.CLIENT)) {
             throw new AccessDeniedException("This information is secured");
         }
         return mapper.mapClient(user);
