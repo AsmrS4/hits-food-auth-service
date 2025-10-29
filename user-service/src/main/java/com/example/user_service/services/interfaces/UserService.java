@@ -23,4 +23,5 @@ public interface UserService {
     UserDTO editClientProfile(EditClientDTO dto) throws BadRequestException;
     UserDTO editStaffProfile(EditStaffDTO dto) throws BadRequestException;
     Response deleteOperator(UUID operatorId);
+    ClientUserDTO getUserDetails(UUID userId);
 }
