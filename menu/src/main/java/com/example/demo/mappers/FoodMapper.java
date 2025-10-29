@@ -31,6 +31,8 @@ public interface FoodMapper {
     List<FoodShortDto> toShortDtoList(List<FoodEntity> entities);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "photo", ignore = true)
+    @Mapping(target = "category", ignore = true)
     void updateEntityFromDto(FoodUpdateDto dto, @MappingTarget FoodEntity entity);
 
 

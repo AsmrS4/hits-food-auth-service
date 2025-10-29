@@ -21,6 +21,7 @@ public class FoodService {
     private final CategoryRepository categoryRepository;
     private final FoodMapper foodMapper;
     private final RatingService ratingService;
+    private final FileService fileService;
 
     public List<FoodShortDto> getAllFoods(FoodFilterRequest filter) {
         List<FoodEntity> foods = foodRepository.findAll();
@@ -110,10 +111,20 @@ public class FoodService {
         return foodMapper.toDetailsDto(foodRepository.save(entity));
     }
 
-    @Transactional
     public FoodDetailsDto updateFood(UUID id, FoodUpdateDto dto) {
         FoodEntity entity = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+
+        if (dto.getPhoto() != null && !dto.getPhoto().isEmpty()) {
+
+            if (entity.getPhoto() != null) {
+                fileService.deleteFile(entity.getPhoto());
+            }
+
+            String fileUrl = fileService.storeFile(dto.getPhoto());
+            entity.setPhoto(fileUrl);
+        }
+
         foodMapper.updateEntityFromDto(dto, entity);
 
         if (dto.getCategoryId() != null) {
@@ -122,13 +133,16 @@ public class FoodService {
             entity.setCategory(category);
         }
 
-        if (dto.getIsAvailable() != null)
-            entity.setIsAvailable(dto.getIsAvailable());
+        if (dto.getIngredients() != null) {
+            entity.setIngredientIds(dto.getIngredients());
+        }
 
-        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
-        double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
-        foodDetailsDto.setRate(rateAmount);
-        return foodDetailsDto;
+        if (dto.getIsAvailable() != null) {
+            entity.setIsAvailable(dto.getIsAvailable());
+        }
+
+        FoodEntity savedEntity = foodRepository.save(entity);
+        return foodMapper.toDetailsDto(savedEntity);
     }
 
     public void deleteFood(UUID id) {

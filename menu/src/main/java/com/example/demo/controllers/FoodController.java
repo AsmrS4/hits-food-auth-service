@@ -1,12 +1,14 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.*;
+import com.example.demo.services.FileService;
 import com.example.demo.services.FoodService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,7 @@ import java.util.*;
 public class FoodController {
 
     private final FoodService foodService;
+    private final FileService fileService;
 
     @PostMapping("/filter")
     @Operation(
@@ -48,13 +51,13 @@ public class FoodController {
         return ResponseEntity.ok(foodService.createFood(dto));
     }
 
-    @PutMapping("/{id}")
-    @Operation(
-            description = "Edit a dish",
-            summary = "This is summary for edit an existing dish"
-    )
-    public ResponseEntity<FoodDetailsDto> updateFood(@PathVariable UUID id, @RequestBody @Valid FoodUpdateDto dto) {
-        return ResponseEntity.ok(foodService.updateFood(id, dto));
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FoodDetailsDto> updateFood(
+            @PathVariable UUID id,
+            @ModelAttribute FoodUpdateDto dto) {
+
+        FoodDetailsDto updatedFood = foodService.updateFood(id, dto);
+        return ResponseEntity.ok(updatedFood);
     }
 
     @DeleteMapping("/{id}")
@@ -74,6 +77,31 @@ public class FoodController {
     )
     public ResponseEntity<FoodDetailsDto> setAvailability(@PathVariable UUID id, @RequestParam boolean available) {
         return ResponseEntity.ok(foodService.setAvailability(id, available));
+    }
+
+    @GetMapping("/photo/{fileName}")
+    public ResponseEntity<byte[]> getFoodPhoto(@PathVariable String fileName) {
+        try {
+            byte[] photoBytes = fileService.loadFile(fileName);
+            String contentType = determineContentType(fileName);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(photoBytes);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private String determineContentType(String fileName) {
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        return switch (extension) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            case "webp" -> "image/webp";
+            default -> "application/octet-stream";
+        };
     }
 }
 
