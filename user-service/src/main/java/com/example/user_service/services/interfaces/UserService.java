@@ -25,4 +25,5 @@ public interface UserService {
     UserDTO editStaffProfile(EditStaffDTO dto) throws BadRequestException;
     Response deleteOperator(UUID operatorId);
     ClientUserDTO getUserDetails(UUID userId);
+    ClientUserDTO getUserByPhone(String phone) throws BadRequestException;
 }
