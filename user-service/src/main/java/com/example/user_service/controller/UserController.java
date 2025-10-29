@@ -8,6 +8,7 @@ import com.example.user_service.services.interfaces.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.UnavailableException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -78,7 +79,7 @@ public class UserController {
             description = "Register operator account",
             summary = "This is summary for create account for operator"
     )
-    public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid StaffRegisterRequest request) throws BadRequestException {
+    public ResponseEntity<StaffUserDTO> registerOperatorUser(@RequestBody @Valid StaffRegisterRequest request) throws BadRequestException, UnavailableException {
         return ResponseEntity.ok(userService.registerOperatorUser(request));
     }
     @DeleteMapping("/users/operators/{operatorId}")

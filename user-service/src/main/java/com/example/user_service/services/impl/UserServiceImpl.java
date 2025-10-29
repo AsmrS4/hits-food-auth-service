@@ -14,6 +14,7 @@ import com.example.user_service.services.RefreshTokenService;
 import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.client.OrdersClient;
 import com.example.user_service.utils.UserMapper;
+import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException {
+    public StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException, UnavailableException {
         if(userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
@@ -68,14 +69,18 @@ public class UserServiceImpl implements UserService {
         User newUser = mapper.map(request);
         newUser.setPhone(phoneNumber);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(newUser);
+
 
         OperatorDto dto = new OperatorDto();
         dto.setId(newUser.getId());
         dto.setFullName(newUser.getFullName());
         dto.setPhone(newUser.getPhone());
-        ResponseEntity<?> response = client.saveOperator(dto);
-
+        try {
+            client.saveOperator(dto);
+        } catch (Exception ex) {
+            throw new UnavailableException("Couldn't process request. Order service is unavailable");
+        }
+        userRepository.save(newUser);
         return mapper.map(newUser);
     }
 
