@@ -1,13 +1,11 @@
 package orderservice.data;
 
-import ch.qos.logback.classic.spi.LoggingEventVO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,7 +19,7 @@ public class Meal {
     private UUID id;
     private String name;
     private Double price;
-    private String ImageUrl;
-    public int Quantity;
+    private String imageUrl;
+    public int quantity;
 
 }
