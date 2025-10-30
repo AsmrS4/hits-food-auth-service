@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Reservation, UUID>, JpaSpecificationExecutor<Reservation> {
-    List<Reservation> findByOperatorId(UUID operatorId, Pageable pageable);
+    Page<Reservation> findByOperatorId(UUID operatorId, Pageable pageable);
 
     Long countOrdersByOperatorId(UUID operatorId);
 

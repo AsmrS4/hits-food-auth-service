@@ -44,12 +44,12 @@ public class OrderController {
     }
 
     @GetMapping("/find-by-operator/{operatorId}")
-    public List<Reservation> findOrderByOperatorId(@PathVariable UUID operatorId, @PageableDefault(size = 20) Pageable pageable) {
+    public Page<Reservation> findOrderByOperatorId(@PathVariable UUID operatorId, @PageableDefault(size = 20) Pageable pageable) {
         return orderService.findByOperatorId(operatorId, pageable);
     }
 
     @GetMapping("/find-without-operator")
-    public List<Reservation> findOrderWithoutOperatorId(@PageableDefault(size = 20) Pageable pageable) {
+    public Page<Reservation> findOrderWithoutOperatorId(@PageableDefault(size = 20) Pageable pageable) {
         return orderService.findWithoutOperator(pageable);
     }
 

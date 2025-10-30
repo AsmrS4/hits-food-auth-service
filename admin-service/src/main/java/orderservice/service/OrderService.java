@@ -21,11 +21,11 @@ public class OrderService {
         return orderRepository.findById(id).orElse(null);
     }
 
-    public List<Reservation> findByOperatorId(UUID id, Pageable pageable) {
+    public Page<Reservation> findByOperatorId(UUID id, Pageable pageable) {
         return orderRepository.findByOperatorId(id, pageable);
     }
 
-    public List<Reservation> findWithoutOperator(Pageable pageable) {
+    public Page<Reservation> findWithoutOperator(Pageable pageable) {
         return orderRepository.findByOperatorId(null, pageable);
     }
 
