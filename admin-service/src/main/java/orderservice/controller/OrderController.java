@@ -1,6 +1,8 @@
 package orderservice.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.ws.rs.DefaultValue;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import orderservice.data.*;
 import com.example.common_module.dto.OperatorDto;
@@ -109,7 +111,7 @@ public class OrderController {
     }
 
     @GetMapping("/get-with-filters")
-    public Page<Reservation> getWithFilters(@RequestParam String status, @RequestParam String operatorName, @PageableDefault(size = 20) Pageable pageable) {
+    public Page<Reservation> getWithFilters(@RequestParam(required = false) String status, @RequestParam(required = false) String operatorName, @PageableDefault(size = 20) Pageable pageable) {
         OrderFilter orderFilter = new OrderFilter(operatorName, Status.valueOf(status));
         return filterService.findAllWithFilters(orderFilter, pageable);
     }
