@@ -2,6 +2,7 @@ package orderservice.service;
 
 import lombok.RequiredArgsConstructor;
 import orderservice.data.Reservation;
+import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OperatorRepository operatorRepository;
 
     public Reservation findById(UUID id) {
         return orderRepository.findById(id).orElse(null);
@@ -30,12 +32,18 @@ public class OrderService {
     }
 
     public void save(Reservation order) {
+        if(order.getOperatorId() != null){
+            order.setOperatorName(operatorRepository.findById(order.getOperatorId()).get().getFullName());
+        }
         orderRepository.save(order);
     }
 
     public void changeOperatorId(UUID orderId, UUID operatorId) {
         Reservation order = findById(orderId);
         order.setOperatorId(operatorId);
+        if(operatorRepository.findById(operatorId).isPresent()){
+            order.setOperatorName(operatorRepository.findById(operatorId).get().getFullName());
+        }
         orderRepository.save(order);
     }
 
