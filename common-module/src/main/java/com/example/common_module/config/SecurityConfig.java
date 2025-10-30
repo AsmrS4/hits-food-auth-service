@@ -74,6 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/bin/**").authenticated()
                         .requestMatchers(HttpMethod.PUT,"/api/about").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/about").permitAll()
+                        .requestMatchers("/order/create").permitAll()
                         .requestMatchers("/order/**").authenticated()
                         .anyRequest().permitAll()
                 )
