@@ -1,6 +1,5 @@
 package orderservice.dto;
 
-import com.example.demo.dtos.FoodDetailsDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
