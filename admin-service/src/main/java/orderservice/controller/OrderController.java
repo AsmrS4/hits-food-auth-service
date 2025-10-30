@@ -10,6 +10,7 @@ import orderservice.mapper.OrderMapper;
 import orderservice.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @SecurityRequirement(name = "bearerAuth")
 public class OrderController {
 
+    private final EditOrderService editOrderService;
     private final OrderService orderService;
     private final OperatorService operatorService;
     private final StatusService statusService;
@@ -40,7 +42,7 @@ public class OrderController {
     }
 
     @GetMapping("/find-by-operator/{operatorId}")
-    public Page<Reservation> findOrderByOperatorId(@PathVariable UUID operatorId,@PageableDefault(size = 20) Pageable pageable) {
+    public Page<Reservation> findOrderByOperatorId(@PathVariable UUID operatorId, @PageableDefault(size = 20) Pageable pageable) {
         return orderService.findByOperatorId(operatorId, pageable);
     }
 
@@ -91,9 +93,24 @@ public class OrderController {
         orderService.setDeclineReason(orderId, declineReason);
     }
 
+    @PutMapping("/add-dish/{orderId}/{dishId}")
+    public void addDishToOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
+        editOrderService.addDish(dishId, orderId);
+    }
+
+    @DeleteMapping("/delete-dish/{orderId}/{dishId}")
+    public void deleteDishFromOrderOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
+        editOrderService.deleteDish(dishId, orderId);
+    }
+
+    @PutMapping("/change/quantity/{orderId}/{dishId}")
+    public void changeDishQuantity(@PathVariable UUID orderId, @PathVariable UUID dishId, @RequestParam Integer amount) {
+        editOrderService.changeDishAmount(dishId, orderId, amount);
+    }
+
     @GetMapping("/get-with-filters")
-    public Page<Reservation> getWithFilters(@RequestParam String status, @RequestParam String operatorName,@PageableDefault(size = 20) Pageable pageable) {
-        OrderFilter orderFilter = new OrderFilter(operatorName,Status.valueOf(status));
+    public Page<Reservation> getWithFilters(@RequestParam String status, @RequestParam String operatorName, @PageableDefault(size = 20) Pageable pageable) {
+        OrderFilter orderFilter = new OrderFilter(operatorName, Status.valueOf(status));
         return filterService.findAllWithFilters(orderFilter, pageable);
     }
 
@@ -101,10 +118,12 @@ public class OrderController {
     public void saveOperator(@RequestBody OperatorDto dto) {
         operatorService.saveOperator(dto);
     }
+
     @DeleteMapping("/delete-operator/{operatorId}")
     public void deleteOperator(@PathVariable UUID operatorId) {
         operatorService.deleteOperator(operatorId);
     }
+
     @GetMapping("/check-has-ordered/{foodId}")
     public ResponseEntity<?> checkHasOrderedFood(@PathVariable UUID foodId) {
         return ResponseEntity.ok(orderService.hasOrdered(foodId));
