@@ -1,18 +1,20 @@
 package orderservice.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.ws.rs.DefaultValue;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
-import orderservice.data.*;
 import com.example.common_module.dto.OperatorDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.UnavailableException;
+import lombok.RequiredArgsConstructor;
+import orderservice.data.OperatorOrderAmountDto;
+import orderservice.data.Reservation;
+import orderservice.data.Status;
+import orderservice.data.StatusHistory;
 import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
 import orderservice.mapper.OrderMapper;
 import orderservice.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -129,5 +131,15 @@ public class OrderController {
     @GetMapping("/check-has-ordered/{foodId}")
     public ResponseEntity<?> checkHasOrderedFood(@PathVariable UUID foodId) {
         return ResponseEntity.ok(orderService.hasOrdered(foodId));
+    }
+
+    @GetMapping("/test/get-operator/{operatorId}")
+    @Operation(
+            description = "Fetch operator details from user-service",
+            summary = "Тестовый метод для провреки взаимодействия сервисов друг с другом. Не использовать в проде"
+    )
+    @Deprecated
+    public ResponseEntity<OperatorDto> getOperatorDetailsById(@PathVariable UUID operatorId) throws UnavailableException {
+        return ResponseEntity.ok(operatorService.getOperatorDetails(operatorId));
     }
 }

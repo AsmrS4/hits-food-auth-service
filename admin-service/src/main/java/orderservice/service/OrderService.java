@@ -1,11 +1,16 @@
 package orderservice.service;
 
+import com.example.common_module.dto.OperatorDto;
+import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
+import orderservice.client.UserClient;
+import orderservice.data.Operator;
 import orderservice.data.Reservation;
 import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

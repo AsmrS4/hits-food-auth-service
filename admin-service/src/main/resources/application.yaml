@@ -24,6 +24,10 @@ spring:
 logging:
   level:
     org.springframework.security: trace
+
+url:
+  user-service-url: http://localhost:8910
+
 jwt:
   secret: hits2025972303hits2025972303hits20259723032025hits
   lifetime: 30m
