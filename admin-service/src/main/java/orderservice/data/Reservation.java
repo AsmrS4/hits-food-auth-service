@@ -32,6 +32,7 @@ public class Reservation {
     private double price;
     private String declineReason;
     private UUID operatorId;
+    private String operatorName;
     private LocalDate date;
     private Status status;
     private PayWay payWay;
