@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,6 @@ public class Meal {
     private UUID id;
     private String name;
     private Double price;
-    private String imageUrl;
+    private List<String> imageUrl;
     public int quantity;
-
 }

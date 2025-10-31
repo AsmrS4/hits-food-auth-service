@@ -14,7 +14,7 @@ import java.util.UUID;
 public class FoodDetailsDto {
     UUID id;
     String name;
-    String photo;
+    List<String> photo;
     Double price;
     Double rate;
     Boolean isAvailable;
