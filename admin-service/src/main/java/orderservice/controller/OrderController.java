@@ -113,9 +113,8 @@ public class OrderController {
     }
 
     @GetMapping("/get-with-filters")
-    public Page<Reservation> getWithFilters(@RequestParam(required = false) String status, @RequestParam(required = false) String operatorName, @PageableDefault(size = 20) Pageable pageable) {
-        Status statusEnum = status != null ? Status.valueOf(status) : null;
-        OrderFilter orderFilter = new OrderFilter(operatorName, statusEnum);
+    public Page<Reservation> getWithFilters(@RequestParam(required = false) Status status, @RequestParam(required = false) String operatorName, @PageableDefault(size = 20) Pageable pageable) {
+        OrderFilter orderFilter = new OrderFilter(operatorName, status);
         return filterService.findAllWithFilters(orderFilter, pageable);
     }
 
