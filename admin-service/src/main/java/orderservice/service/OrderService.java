@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import orderservice.client.UserClient;
 import orderservice.data.Operator;
 import orderservice.data.Reservation;
+import orderservice.data.Status;
+import orderservice.dto.AmountDto;
 import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
 import org.springframework.data.domain.Page;
@@ -87,5 +89,9 @@ public class OrderService {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public AmountDto getOrderAmountByUser(UUID userId) {
+        return new AmountDto(orderRepository.countByClientIdAndStatus(userId, Status.CONFIRMED),orderRepository.countByClientIdAndStatusNot(userId, Status.CONFIRMED));
     }
 }

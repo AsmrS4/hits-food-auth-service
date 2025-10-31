@@ -1,6 +1,7 @@
 package orderservice.repository;
 
 import orderservice.data.Reservation;
+import orderservice.data.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,8 @@ public interface OrderRepository extends JpaRepository<Reservation, UUID>, JpaSp
 
     @Query("SELECT EXISTS (SELECT 1 FROM Reservation r JOIN r.meals m WHERE r.clientId=:clientId AND m.id =:foodId)")
     boolean hasOrderedFood(@Param("foodId") UUID foodId, @Param("clientId") UUID clientId);
+
+    int countByClientIdAndStatus(UUID userId, Status status);
+
+    int countByClientIdAndStatusNot(UUID userId, Status status);
 }
