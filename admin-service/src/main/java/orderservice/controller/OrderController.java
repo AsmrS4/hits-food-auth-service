@@ -9,6 +9,7 @@ import orderservice.data.OperatorOrderAmountDto;
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.data.StatusHistory;
+import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
 import orderservice.mapper.OrderMapper;
@@ -69,6 +70,11 @@ public class OrderController {
     public void changeOperatorForOrder(@RequestParam UUID orderId, @RequestParam UUID operatorId) {
         orderService.changeOperatorId(orderId, operatorId);
         amountService.changeAmount(operatorId);
+    }
+
+    @GetMapping("/get-order-amount-by-user/{userId}")
+    public AmountDto getOrderAmountByUser(@PathVariable UUID userId){
+        return orderService.getOrderAmountByUser(userId);
     }
 
     @GetMapping("/stat/{operatorId}")
