@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.*;
-import com.example.demo.services.FileService;
 import com.example.demo.services.FoodService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,7 +21,6 @@ import java.util.*;
 public class FoodController {
 
     private final FoodService foodService;
-    private final FileService fileService;
 
     @PostMapping("/filter")
     @Operation(
@@ -77,31 +75,6 @@ public class FoodController {
     )
     public ResponseEntity<FoodDetailsDto> setAvailability(@PathVariable UUID id, @RequestParam boolean available) {
         return ResponseEntity.ok(foodService.setAvailability(id, available));
-    }
-
-    @GetMapping("/photo/{fileName}")
-    public ResponseEntity<byte[]> getFoodPhoto(@PathVariable String fileName) {
-        try {
-            byte[] photoBytes = fileService.loadFile(fileName);
-            String contentType = determineContentType(fileName);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(photoBytes);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    private String determineContentType(String fileName) {
-        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-        return switch (extension) {
-            case "jpg", "jpeg" -> "image/jpeg";
-            case "png" -> "image/png";
-            case "gif" -> "image/gif";
-            case "webp" -> "image/webp";
-            default -> "application/octet-stream";
-        };
     }
 }
 
