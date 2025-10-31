@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/registration/client").permitAll()
+                        .requestMatchers("/api/users/find-by-phone").permitAll()
                         .requestMatchers("/api/users/registration/operator").hasAuthority("ADMIN")
                         .requestMatchers("/api/users/operators").hasAuthority("ADMIN")
                         .requestMatchers("/api/users/operators/*").hasAuthority("ADMIN")
