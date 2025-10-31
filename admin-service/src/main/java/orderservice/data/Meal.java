@@ -20,6 +20,9 @@ public class Meal {
     private UUID id;
     private String name;
     private Double price;
+    @ElementCollection
+    @CollectionTable(name = "meal_images", joinColumns = @JoinColumn(name = "meal_id"))
+    @Column(name = "image_url")
     private List<String> imageUrl;
     public int quantity;
 }
