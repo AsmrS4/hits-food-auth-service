@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Menu controller")
+@Slf4j
 public class FoodController {
 
     private final FoodService foodService;
@@ -49,11 +51,10 @@ public class FoodController {
         return ResponseEntity.ok(foodService.createFood(dto));
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<FoodDetailsDto> updateFood(
             @PathVariable UUID id,
-            @ModelAttribute FoodUpdateDto dto) {
-
+            @RequestBody FoodUpdateDto dto) {
         FoodDetailsDto updatedFood = foodService.updateFood(id, dto);
         return ResponseEntity.ok(updatedFood);
     }

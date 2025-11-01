@@ -120,11 +120,11 @@ public class FoodService {
         FoodEntity entity = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
 
+        foodMapper.updateEntityFromDto(dto, entity);
+
         if (dto.getPhotos() != null) {
             entity.setPhotos(dto.getPhotos());
         }
-
-        foodMapper.updateEntityFromDto(dto, entity);
 
         if (dto.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
@@ -132,12 +132,14 @@ public class FoodService {
             entity.setCategory(category);
         }
 
-        if (dto.getIsAvailable() != null)
-            entity.setIsAvailable(dto.getIsAvailable());
+        if (dto.getIngredients() != null) {
+            entity.setIngredientIds(dto.getIngredients());
+        }
 
-        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
+        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(entity);
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
         foodDetailsDto.setRate(rateAmount);
+
         return foodDetailsDto;
     }
 
