@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.UUID;
@@ -93,6 +95,8 @@ public class OrderService {
             return null;
         }
     }
+
+
 
     public AmountDto getOrderAmountByUser(UUID userId) {
         return new AmountDto(orderRepository.countByClientIdAndStatus(userId, Status.CONFIRMED),orderRepository.countByClientIdAndStatusNot(userId, Status.CONFIRMED));
