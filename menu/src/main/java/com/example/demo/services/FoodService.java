@@ -107,6 +107,11 @@ public class FoodService {
         entity.setIsAvailable(true);
         entity.setCategory(categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new UsernameNotFoundException("Category not found")));
+
+        if (entity.getPhotos() == null) {
+            entity.setPhotos(new ArrayList<>());
+        }
+
         return foodMapper.toDetailsDto(foodRepository.save(entity));
     }
 
@@ -114,6 +119,11 @@ public class FoodService {
     public FoodDetailsDto updateFood(UUID id, FoodUpdateDto dto) {
         FoodEntity entity = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+
+        if (dto.getPhotos() != null) {
+            entity.setPhotos(dto.getPhotos());
+        }
+
         foodMapper.updateEntityFromDto(dto, entity);
 
         if (dto.getCategoryId() != null) {
@@ -130,6 +140,7 @@ public class FoodService {
         foodDetailsDto.setRate(rateAmount);
         return foodDetailsDto;
     }
+
 
     public void deleteFood(UUID id) {
         if (!foodRepository.existsById(id))
