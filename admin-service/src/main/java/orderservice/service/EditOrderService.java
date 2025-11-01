@@ -1,6 +1,7 @@
 package orderservice.service;
 
 import lombok.RequiredArgsConstructor;
+import orderservice.client.DishClient;
 import orderservice.data.Meal;
 import orderservice.data.Reservation;
 import orderservice.mapper.MealMapper;
@@ -15,7 +16,7 @@ import java.util.UUID;
 public class EditOrderService {
 
     private final OrderRepository orderRepository;
-    private final MenuExternalService menuExternalService;
+    private final DishClient dishClient;
 
     public void addDish(UUID dishId, UUID orderId) {
         boolean increase = false;
@@ -23,7 +24,7 @@ public class EditOrderService {
         for (int i = 0; i < order.getMeals().toArray().length; i++) {
             if (order.getMeals().get(i).getId().equals(dishId)) {
                 order.getMeals().get(i).setQuantity(order.getMeals().get(i).getQuantity() + 1);
-                Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(menuExternalService.getMealById(dishId).block()));
+                Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
                 order.setPrice(order.getPrice() + meal.getPrice());
                 increase = true;
                 orderRepository.save(order);
@@ -31,7 +32,7 @@ public class EditOrderService {
             }
         }
         if (!increase) {
-            Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(menuExternalService.getMealById(dishId).block()));
+            Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
             order.getMeals().add(meal);
             order.setPrice(order.getPrice() + meal.getPrice());
             orderRepository.save(order);
@@ -43,7 +44,7 @@ public class EditOrderService {
         for (int i = 0; i < order.getMeals().toArray().length; i++) {
             if (order.getMeals().get(i).getId().equals(dishId)) {
                 order.getMeals().remove(i);
-                Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(menuExternalService.getMealById(dishId).block()));
+                Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
                 order.setPrice(order.getPrice() - meal.getPrice());
                 orderRepository.save(order);
                 break;
