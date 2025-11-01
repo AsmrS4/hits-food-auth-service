@@ -12,6 +12,7 @@ import orderservice.data.PayWay; // ДОБАВЬТЕ ЭТОТ ИМПОРТ
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.data.StatusHistory;
+import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
 import orderservice.mapper.OrderMapper;
@@ -226,6 +227,11 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error getting stats: " + e.getMessage()));
         }
+    }
+
+    @GetMapping("/get-order-amount-by-user")
+    public AmountDto getOrderAmountByUser(UUID userId){
+        return orderService.getOrderAmountByUser(userId);
     }
 
     @PutMapping("/comment/{orderId}")
