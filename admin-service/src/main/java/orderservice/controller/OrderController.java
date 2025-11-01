@@ -1,15 +1,17 @@
 package orderservice.controller;
 
 import com.example.common_module.dto.OperatorDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import orderservice.data.OperatorOrderAmountDto;
+import orderservice.data.PayWay; // ДОБАВЬТЕ ЭТОТ ИМПОРТ
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.data.StatusHistory;
-import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
 import orderservice.mapper.OrderMapper;
@@ -17,12 +19,16 @@ import orderservice.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/order")
@@ -35,108 +41,327 @@ public class OrderController {
     private final StatusService statusService;
     private final FilterService filterService;
     private final AmountService amountService;
+    private final ObjectMapper objectMapper;
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> request) {
+        try {
+            log.info("ORDER CONTROLLER - Creating new order");
+
+            log.info("ORDER CONTROLLER - PaymentMethod: '{}'", request.get("paymentMethod"));
+            log.info("ORDER CONTROLLER - UserId: '{}'", request.get("userId"));
+            log.info("ORDER CONTROLLER - Total: '{}'", request.get("total"));
+
+            if (!request.containsKey("userId")) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "UserId is required"
+                ));
+            }
+
+            if (!request.containsKey("paymentMethod")) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "PaymentMethod is required"
+                ));
+            }
+
+            String paymentMethod = (String) request.get("paymentMethod");
+            try {
+                PayWay payWay = PayWay.valueOf(paymentMethod.toUpperCase());
+                log.info("ORDER CONTROLLER - Valid payment method: {}", payWay);
+            } catch (IllegalArgumentException e) {
+                log.error("ORDER CONTROLLER - Invalid payment method: '{}'", paymentMethod);
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "Некорректный способ оплаты: " + paymentMethod,
+                        "validMethods", List.of("CARD_COURIER", "CARD_ONLINE", "CASH_COURIER")
+                ));
+            }
+
+            if (!request.containsKey("items") || ((List<?>) request.get("items")).isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "Cart is empty"
+                ));
+            }
+
+            OrderDto orderDto = convertToOrderDto(request);
+            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto));
+
+            return ResponseEntity.ok(orderDto);
+
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error creating order: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "success", false,
+                            "error", "Internal server error: " + e.getMessage()
+                    ));
+        }
+    }
+
+    private OrderDto convertToOrderDto(Map<String, Object> request) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            OrderDto dto = mapper.convertValue(request, OrderDto.class);
+
+            if (dto.getUserId() == null) {
+                throw new IllegalArgumentException("UserId is required");
+            }
+            if (dto.getPaymentMethod() == null || dto.getPaymentMethod().trim().isEmpty()) {
+                throw new IllegalArgumentException("PaymentMethod is required");
+            }
+
+            return dto;
+
+        } catch (Exception e) {
+            log.error("Error converting request to OrderDto: {}", e.getMessage());
+            throw new RuntimeException("Invalid order data: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/find-by/{orderId}")
-    public Reservation findById(@PathVariable UUID orderId) {
-        return orderService.findById(orderId);
+    public ResponseEntity<?> findById(@PathVariable UUID orderId) {
+        try {
+            log.info("ORDER CONTROLLER - Finding order by ID: {}", orderId);
+            Reservation order = orderService.findById(orderId);
+            return ResponseEntity.ok(order);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error finding order: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Order not found: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/find-by-userId/{userId}")
-    public List<Reservation> findByUserId(@PathVariable UUID userId) {
-        return orderService.findByUserId(userId);
+    public ResponseEntity<?> findByUserId(@PathVariable UUID userId) {
+        try {
+            log.info("ORDER CONTROLLER - Finding orders by user ID: {}", userId);
+            List<Reservation> orders = orderService.findByUserId(userId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error finding user orders: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error finding orders: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/find-by-operator/{operatorId}")
-    public Page<Reservation> findOrderByOperatorId(@PathVariable UUID operatorId, @PageableDefault(size = 20) Pageable pageable) {
-        return orderService.findByOperatorId(operatorId, pageable);
+    public ResponseEntity<?> findOrderByOperatorId(@PathVariable UUID operatorId,
+                                                   @PageableDefault(size = 20) Pageable pageable) {
+        try {
+            log.info("ORDER CONTROLLER - Finding orders by operator ID: {}", operatorId);
+            Page<Reservation> orders = orderService.findByOperatorId(operatorId, pageable);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error finding operator orders: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error finding orders: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/find-without-operator")
-    public Page<Reservation> findOrderWithoutOperatorId(@PageableDefault(size = 20) Pageable pageable) {
-        return orderService.findWithoutOperator(pageable);
-    }
-
-    @PostMapping("/create")
-    public void createOrder(@RequestBody OrderDto order) throws UnavailableException {
-        orderService.save(OrderMapper.mapOrderDtoToOrder(order));
+    public ResponseEntity<?> findOrderWithoutOperatorId(@PageableDefault(size = 20) Pageable pageable) {
+        try {
+            log.info("ORDER CONTROLLER - Finding orders without operator");
+            Page<Reservation> orders = orderService.findWithoutOperator(pageable);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error finding orders without operator: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error finding orders: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/change-order-status/{orderId}")
-    public void changeOrderStatus(@PathVariable UUID orderId, @RequestParam String status) {
-        statusService.changeOrderStatus(orderId, status);
+    public ResponseEntity<?> changeOrderStatus(@PathVariable UUID orderId, @RequestParam Status status) {
+        try {
+            log.info("ORDER CONTROLLER - Changing order status. Order: {}, Status: {}", orderId, status);
+            statusService.changeOrderStatus(orderId, status);
+            return ResponseEntity.ok(Map.of("message", "Order status updated successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error changing order status: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error changing status: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/change-operator-for-order")
-    public void changeOperatorForOrder(@RequestParam UUID orderId, @RequestParam UUID operatorId) {
-        orderService.changeOperatorId(orderId, operatorId);
-        amountService.changeAmount(operatorId);
-    }
-
-    @GetMapping("/get-order-amount-by-user/{userId}")
-    public AmountDto getOrderAmountByUser(@PathVariable UUID userId){
-        return orderService.getOrderAmountByUser(userId);
+    public ResponseEntity<?> changeOperatorForOrder(@RequestParam UUID orderId, @RequestParam UUID operatorId) {
+        try {
+            log.info("ORDER CONTROLLER - Changing operator for order. Order: {}, Operator: {}", orderId, operatorId);
+            orderService.changeOperatorId(orderId, operatorId);
+            amountService.changeAmount(operatorId);
+            return ResponseEntity.ok(Map.of("message", "Operator changed successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error changing operator: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error changing operator: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/stat/{operatorId}")
-    public Long getStatByOperatorId(@PathVariable UUID operatorId) {
-        return orderService.getStat(operatorId);
+    public ResponseEntity<?> getStatByOperatorId(@PathVariable UUID operatorId) {
+        try {
+            log.info("ORDER CONTROLLER - Getting stats for operator: {}", operatorId);
+            Long stat = orderService.getStat(operatorId);
+            return ResponseEntity.ok(stat);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error getting stats: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error getting stats: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/stat/all")
-    public List<OperatorOrderAmountDto> getStatAll() {
-        return amountService.getOperatorOrderAmounts();
+    public ResponseEntity<?> getStatAll() {
+        try {
+            log.info("ORDER CONTROLLER - Getting all stats");
+            List<OperatorOrderAmountDto> stats = amountService.getOperatorOrderAmounts();
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error getting all stats: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error getting stats: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/comment/{orderId}")
-    public void comment(@PathVariable UUID orderId, @RequestParam String comment) {
-        orderService.comment(orderId, comment);
+    public ResponseEntity<?> comment(@PathVariable UUID orderId, @RequestParam String comment) {
+        try {
+            log.info("ORDER CONTROLLER - Adding comment to order: {}", orderId);
+            orderService.comment(orderId, comment);
+            return ResponseEntity.ok(Map.of("message", "Comment added successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error adding comment: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error adding comment: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/get-status-history")
-    public List<StatusHistory> getStatusHistory(UUID orderId) {
-        return statusService.getStatusHistory(orderId);
+    public ResponseEntity<?> getStatusHistory(@RequestParam UUID orderId) {
+        try {
+            log.info("ORDER CONTROLLER - Getting status history for order: {}", orderId);
+            List<StatusHistory> history = statusService.getStatusHistory(orderId);
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error getting status history: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error getting history: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/decline")
-    public void declineOrder(@RequestParam UUID orderId, @RequestParam String declineReason) {
-        statusService.changeOrderStatus(orderId, Status.CANCELED.name());
-        orderService.setDeclineReason(orderId, declineReason);
+    public ResponseEntity<?> declineOrder(@RequestParam UUID orderId, @RequestParam String declineReason) {
+        try {
+            log.info("ORDER CONTROLLER - Declining order: {}, Reason: {}", orderId, declineReason);
+            statusService.changeOrderStatus(orderId, Status.CANCELED);
+            orderService.setDeclineReason(orderId, declineReason);
+            return ResponseEntity.ok(Map.of("message", "Order declined successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error declining order: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error declining order: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/add-dish/{orderId}/{dishId}")
-    public void addDishToOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
-        editOrderService.addDish(dishId, orderId);
+    public ResponseEntity<?> addDishToOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
+        try {
+            log.info("ORDER CONTROLLER - Adding dish to order. Order: {}, Dish: {}", orderId, dishId);
+            editOrderService.addDish(dishId, orderId);
+            return ResponseEntity.ok(Map.of("message", "Dish added successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error adding dish: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error adding dish: " + e.getMessage()));
+        }
     }
 
     @DeleteMapping("/delete-dish/{orderId}/{dishId}")
-    public void deleteDishFromOrderOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
-        editOrderService.deleteDish(dishId, orderId);
+    public ResponseEntity<?> deleteDishFromOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
+        try {
+            log.info("ORDER CONTROLLER - Deleting dish from order. Order: {}, Dish: {}", orderId, dishId);
+            editOrderService.deleteDish(dishId, orderId);
+            return ResponseEntity.ok(Map.of("message", "Dish deleted successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error deleting dish: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error deleting dish: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/change/quantity/{orderId}/{dishId}")
-    public void changeDishQuantity(@PathVariable UUID orderId, @PathVariable UUID dishId, @RequestParam Integer amount) {
-        editOrderService.changeDishAmount(dishId, orderId, amount);
+    public ResponseEntity<?> changeDishQuantity(@PathVariable UUID orderId, @PathVariable UUID dishId,
+                                                @RequestParam Integer amount) {
+        try {
+            log.info("ORDER CONTROLLER - Changing dish quantity. Order: {}, Dish: {}, Amount: {}",
+                    orderId, dishId, amount);
+            editOrderService.changeDishAmount(dishId, orderId, amount);
+            return ResponseEntity.ok(Map.of("message", "Dish quantity updated successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error changing dish quantity: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error changing quantity: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/get-with-filters")
-    public Page<Reservation> getWithFilters(@RequestParam(required = false) Status status, @RequestParam(required = false) String operatorName, @PageableDefault(size = 20) Pageable pageable) {
-        OrderFilter orderFilter = new OrderFilter(operatorName, status);
-        return filterService.findAllWithFilters(orderFilter, pageable);
+    public ResponseEntity<?> getWithFilters(@RequestParam(required = false) String status,
+                                            @RequestParam(required = false) String operatorName,
+                                            @PageableDefault(size = 20) Pageable pageable) {
+        try {
+            log.info("ORDER CONTROLLER - Getting orders with filters. Status: {}, Operator: {}", status, operatorName);
+            OrderFilter orderFilter = new OrderFilter(operatorName, status != null ? Status.valueOf(status) : null);
+            Page<Reservation> orders = filterService.findAllWithFilters(orderFilter, pageable);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error filtering orders: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error filtering orders: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/save-operator")
-    public void saveOperator(@RequestBody OperatorDto dto) {
-        operatorService.saveOperator(dto);
+    public ResponseEntity<?> saveOperator(@RequestBody OperatorDto dto) {
+        try {
+            log.info("ORDER CONTROLLER - Saving operator: {}", dto.getFullName());
+            operatorService.saveOperator(dto);
+            return ResponseEntity.ok(Map.of("message", "Operator saved successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error saving operator: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error saving operator: " + e.getMessage()));
+        }
     }
 
     @DeleteMapping("/delete-operator/{operatorId}")
-    public void deleteOperator(@PathVariable UUID operatorId) {
-        operatorService.deleteOperator(operatorId);
+    public ResponseEntity<?> deleteOperator(@PathVariable UUID operatorId) {
+        try {
+            log.info("ORDER CONTROLLER - Deleting operator: {}", operatorId);
+            operatorService.deleteOperator(operatorId);
+            return ResponseEntity.ok(Map.of("message", "Operator deleted successfully"));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error deleting operator: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error deleting operator: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/check-has-ordered/{foodId}")
     public ResponseEntity<?> checkHasOrderedFood(@PathVariable UUID foodId) {
-        return ResponseEntity.ok(orderService.hasOrdered(foodId));
+        try {
+            log.info("ORDER CONTROLLER - Checking if food was ordered: {}", foodId);
+            boolean hasOrdered = orderService.hasOrdered(foodId);
+            return ResponseEntity.ok(hasOrdered);
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error checking ordered food: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error checking ordered food: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/test/get-operator/{operatorId}")
@@ -145,7 +370,20 @@ public class OrderController {
             summary = "Тестовый метод для провреки взаимодействия сервисов друг с другом. Не использовать в проде"
     )
     @Deprecated
-    public ResponseEntity<OperatorDto> getOperatorDetailsById(@PathVariable UUID operatorId) throws UnavailableException {
-        return ResponseEntity.ok(operatorService.getOperatorDetails(operatorId));
+    public ResponseEntity<?> getOperatorDetailsById(@PathVariable UUID operatorId) {
+        try {
+            log.info("ORDER CONTROLLER - Getting operator details: {}", operatorId);
+            OperatorDto operator = operatorService.getOperatorDetails(operatorId);
+            return ResponseEntity.ok(operator);
+        } catch (UnavailableException e) {
+            log.error("ORDER CONTROLLER - Service unavailable: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Map.of("error", "Service unavailable: " + e.getMessage()));
+        } catch (Exception e) {
+            log.error("ORDER CONTROLLER - Error getting operator details: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error getting operator: " + e.getMessage()));
+        }
     }
+
 }
