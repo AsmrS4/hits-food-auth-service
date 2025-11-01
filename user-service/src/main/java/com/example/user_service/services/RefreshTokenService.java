@@ -63,6 +63,7 @@ public class RefreshTokenService {
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userDetails.getUsername()))
+                .setIssuedAt(issuedDate)
                 .setExpiration(expiredDate)
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
