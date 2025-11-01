@@ -8,6 +8,7 @@ import orderservice.data.Operator;
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.dto.AmountDto;
+import orderservice.dto.OrderDto;
 import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OperatorService operatorService;
     private final OperatorRepository operatorRepository;
 
     public Reservation findById(UUID id) {
@@ -38,9 +40,10 @@ public class OrderService {
         return orderRepository.findByOperatorId(null, pageable);
     }
 
-    public void save(Reservation order) {
+    public void save(Reservation order) throws UnavailableException {
         if(order.getOperatorId() != null){
-            order.setOperatorName(operatorRepository.findById(order.getOperatorId()).get().getFullName());
+            OperatorDto op = operatorService.getOperatorDetails(order.getOperatorId());
+            order.setOperatorName(op.getFullName());
         }
         orderRepository.save(order);
     }

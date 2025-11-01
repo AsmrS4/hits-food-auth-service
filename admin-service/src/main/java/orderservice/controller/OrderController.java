@@ -57,7 +57,7 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public void createOrder(@RequestBody OrderDto order) {
+    public void createOrder(@RequestBody OrderDto order) throws UnavailableException {
         orderService.save(OrderMapper.mapOrderDtoToOrder(order));
     }
 
