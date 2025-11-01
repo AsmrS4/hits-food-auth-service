@@ -49,7 +49,7 @@ public class FoodController {
         return ResponseEntity.ok(foodService.createFood(dto));
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}")
     public ResponseEntity<FoodDetailsDto> updateFood(
             @PathVariable UUID id,
             @ModelAttribute FoodUpdateDto dto) {
