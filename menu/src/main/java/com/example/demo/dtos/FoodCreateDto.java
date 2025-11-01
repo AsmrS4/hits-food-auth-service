@@ -10,10 +10,11 @@ import java.util.UUID;
 public class FoodCreateDto {
     private String name;
     private UUID categoryId;
-    private String photo;
+    private List<String> photos;
     private Double rate;
     private Double price;
     private String description;
     private List<Ingredient> ingredients;
+    private Boolean isAvailable;
 }
 

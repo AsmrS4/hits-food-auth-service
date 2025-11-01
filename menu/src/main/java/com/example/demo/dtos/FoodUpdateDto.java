@@ -8,10 +8,9 @@ import java.util.UUID;
 
 @Data
 public class FoodUpdateDto {
-
     private String name;
     private UUID categoryId;
-    private String photo;
+    private List<String> photos;
     private Double rate;
     private Double price;
     private String description;

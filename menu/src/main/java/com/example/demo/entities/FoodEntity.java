@@ -25,7 +25,10 @@ public class FoodEntity {
 
     private Double rate;
 
-    private String photo;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "food_photos", joinColumns = @JoinColumn(name = "food_id"))
+    @Column(name = "photo_url", length = 1000)
+    private List<String> photos = new ArrayList<>();
 
     private Boolean isAvailable;
 
