@@ -275,29 +275,15 @@ public class OrderController {
     }
 
     @PutMapping("/add-dish/{orderId}/{dishId}")
-    public ResponseEntity<?> addDishToOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
-        try {
-            log.info("ORDER CONTROLLER - Adding dish to order. Order: {}, Dish: {}", orderId, dishId);
-            editOrderService.addDish(dishId, orderId);
-            return ResponseEntity.ok(Map.of("message", "Dish added successfully"));
-        } catch (Exception e) {
-            log.error("ORDER CONTROLLER - Error adding dish: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error adding dish: " + e.getMessage()));
-        }
+    public ResponseEntity<?> addDishToOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) throws UnavailableException {
+        editOrderService.addDish(dishId, orderId);
+        return ResponseEntity.ok(Map.of("message", "Dish added successfully"));
     }
 
     @DeleteMapping("/delete-dish/{orderId}/{dishId}")
-    public ResponseEntity<?> deleteDishFromOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) {
-        try {
-            log.info("ORDER CONTROLLER - Deleting dish from order. Order: {}, Dish: {}", orderId, dishId);
-            editOrderService.deleteDish(dishId, orderId);
-            return ResponseEntity.ok(Map.of("message", "Dish deleted successfully"));
-        } catch (Exception e) {
-            log.error("ORDER CONTROLLER - Error deleting dish: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error deleting dish: " + e.getMessage()));
-        }
+    public ResponseEntity<?> deleteDishFromOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) throws UnavailableException {
+        editOrderService.deleteDish(dishId, orderId);
+        return ResponseEntity.ok(Map.of("message", "Dish deleted successfully"));
     }
 
     @PutMapping("/change/quantity/{orderId}/{dishId}")
