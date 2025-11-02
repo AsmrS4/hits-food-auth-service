@@ -17,7 +17,6 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<Reservation, UUID>, JpaSpecificationExecutor<Reservation> {
     Page<Reservation> findByOperatorId(UUID operatorId, Pageable pageable);
 
-    Long countOrdersByOperatorId(UUID operatorId);
 
     List<Reservation> findByClientId(UUID clientId);
 
@@ -27,4 +26,6 @@ public interface OrderRepository extends JpaRepository<Reservation, UUID>, JpaSp
     int countByClientIdAndStatus(UUID userId, Status status);
 
     int countByClientIdAndStatusNot(UUID userId, Status status);
+
+    Long countReservationsByOperatorId(UUID operatorId);
 }

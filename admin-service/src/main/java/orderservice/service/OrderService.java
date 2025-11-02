@@ -4,11 +4,13 @@ import com.example.common_module.dto.OperatorDto;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import orderservice.client.UserClient;
+import orderservice.data.Meal;
 import orderservice.data.Operator;
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
+import orderservice.repository.MealRepository;
 import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
 import org.springframework.data.domain.Page;
@@ -29,6 +31,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OperatorService operatorService;
     private final OperatorRepository operatorRepository;
+    private final MealRepository mealRepository;
 
     public Reservation findById(UUID id) {
         return orderRepository.findById(id).orElse(null);
@@ -43,6 +46,10 @@ public class OrderService {
     }
 
     public void save(Reservation order) throws UnavailableException {
+//        for(Meal dish : order.getMeals()){
+//            Meal meal = mealRepository.findById(dish.getId())
+//                    .orElseGet(() -> mealRepository.save(dish));
+//        }
         if(order.getOperatorId() != null){
             OperatorDto op = operatorService.getOperatorDetails(order.getOperatorId());
             order.setOperatorName(op.getFullName());
@@ -66,7 +73,7 @@ public class OrderService {
     }
 
     public Long getStat(UUID operatorId) {
-        return orderRepository.countOrdersByOperatorId(operatorId);
+        return orderRepository.countReservationsByOperatorId(operatorId);
     }
 
     public void setDeclineReason(UUID orderId, String reason) {
