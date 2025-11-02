@@ -4,11 +4,13 @@ import com.example.common_module.dto.OperatorDto;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import orderservice.client.DishClient;
 import orderservice.client.UserClient;
 import orderservice.data.*;
 import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
 import orderservice.dto.OrderResponseDto;
+import orderservice.mapper.MealMapper;
 import orderservice.repository.MealRepository;
 import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -33,10 +36,16 @@ public class OrderService {
     private final OperatorService operatorService;
     private final OperatorRepository operatorRepository;
     private final MealRepository mealRepository;
+    private final DishClient dishClient;
     private final ReservationMealRepository reservationMealRepository;
 
     public Reservation findById(UUID id) {
         return orderRepository.findById(id).orElse(null);
+    }
+
+    public List<String> getPhoto(UUID dishId){
+        Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+        return meal.getImageUrl();
     }
 
     public OrderResponseDto findByIdForController(UUID id) {
@@ -45,6 +54,8 @@ public class OrderService {
         List<Meal> meals = new java.util.ArrayList<>(List.of());
         for (ReservationMeal reservationMeal : reservationMeals) {
             Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+            assert meal != null;
+            meal.setImageUrl(getPhoto(meal.getId()));
             meals.add(meal);
         }
         return new OrderResponseDto(order, meals);
@@ -61,7 +72,10 @@ public class OrderService {
             List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
             List<Meal> meals = new java.util.ArrayList<>(List.of());
             for (ReservationMeal reservationMeal : reservationMeals) {
-                meals.add(mealRepository.getReferenceById(reservationMeal.getDishId()));
+                Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+                assert meal != null;
+                meal.setImageUrl(getPhoto(meal.getId()));
+                meals.add(meal);
             }
             orderResponseDtos.add(new OrderResponseDto(order, meals));
         }
@@ -115,6 +129,8 @@ public class OrderService {
                 List<Meal> meals = new java.util.ArrayList<>(List.of());
                 for (ReservationMeal reservationMeal : reservationMeals) {
                     Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+                    assert meal != null;
+                    meal.setImageUrl(getPhoto(meal.getId()));
                     meals.add(meal);
                 }
                 orderResponseDtos.add(new OrderResponseDto(order, meals));
