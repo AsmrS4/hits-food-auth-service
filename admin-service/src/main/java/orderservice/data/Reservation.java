@@ -34,8 +34,6 @@ public class Reservation {
     private LocalDate date;
     private Status status;
     private PayWay payWay;
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private List<Meal> meals;
 
     @PrePersist
     public void setDefaultValues() {
