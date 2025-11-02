@@ -14,6 +14,6 @@ public interface AmountRepository extends JpaRepository<OperatorOrderAmount, UUI
     List<OperatorOrderAmount> findByOperatorId(UUID operatorId);
 
     OperatorOrderAmount findFirstByOperatorId(UUID operatorId);
-    @Query("SELECT new orderservice.data.OperatorOrderAmountDto(ooa.id, ooa.operatorId, op.fullName, op.phone, ooa.orderAmount) from OperatorOrderAmount ooa LEFT JOIN Operator op ON ooa.operatorId = op.id")
+    @Query("SELECT new orderservice.data.OperatorOrderAmountDto(ooa.id, ooa.operatorId, op.fullName, op.phone, ooa.orderAmount) from OperatorOrderAmount ooa RIGHT JOIN Operator op ON ooa.operatorId = op.id")
     List<OperatorOrderAmountDto> findAllOrderAmount();
 }
