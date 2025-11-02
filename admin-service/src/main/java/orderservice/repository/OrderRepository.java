@@ -20,7 +20,7 @@ public interface OrderRepository extends JpaRepository<Reservation, UUID>, JpaSp
 
     List<Reservation> findByClientId(UUID clientId);
 
-    @Query("SELECT EXISTS (SELECT 1 FROM Reservation r JOIN r.meals m WHERE r.clientId=:clientId AND m.id =:foodId)")
+    @Query("SELECT EXISTS (SELECT 1 FROM Reservation r JOIN ReservationMeal rm ON r.id = rm.reservationId WHERE r.clientId=:clientId AND rm.dishId =:foodId)")
     boolean hasOrderedFood(@Param("foodId") UUID foodId, @Param("clientId") UUID clientId);
 
     int countByClientIdAndStatus(UUID userId, Status status);

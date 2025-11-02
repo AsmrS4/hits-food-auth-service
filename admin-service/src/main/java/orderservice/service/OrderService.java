@@ -3,6 +3,7 @@ package orderservice.service;
 import com.example.common_module.dto.OperatorDto;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import orderservice.client.UserClient;
 import orderservice.data.*;
 import orderservice.dto.AmountDto;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -110,17 +112,24 @@ public class OrderService {
     }
 
     public List<OrderResponseDto> findByUserId(UUID userId) {
-        List<Reservation> orders = orderRepository.findByClientId(userId);
-        List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
-        for (Reservation order : orders) {
-            List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
-            List<Meal> meals = new java.util.ArrayList<>(List.of());
-            for (ReservationMeal reservationMeal : reservationMeals) {
-                meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+        try {
+            List<Reservation> orders = orderRepository.findByClientId(userId);
+            List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
+            for (Reservation order : orders) {
+                List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+                List<Meal> meals = new java.util.ArrayList<>(List.of());
+                for (ReservationMeal reservationMeal : reservationMeals) {
+                    Meal meal =mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+                    meals.add(meal);
+                    //meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+                }
+                orderResponseDtos.add(new OrderResponseDto(order, meals));
             }
-            orderResponseDtos.add(new OrderResponseDto(order, meals));
+            return orderResponseDtos;
+        } catch (Exception exception ) {
+            log.error("RECEIVED EX: " + exception);
+            return null;
         }
-        return orderResponseDtos;
     }
 
     public boolean hasOrdered(UUID foodId) {

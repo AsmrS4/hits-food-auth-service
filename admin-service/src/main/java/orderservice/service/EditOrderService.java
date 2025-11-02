@@ -75,8 +75,8 @@ public class EditOrderService {
 
     public void deleteDish(UUID dishId, UUID orderId) throws UnavailableException {
         Reservation order = orderRepository.getReferenceById(orderId);
-        if (reservationMealRepository.findAllByReservationIdAndDishId() != null) {
-            ReservationMeal reservationMeal = reservationMealRepository.findAllByReservationIdAndDishId();
+        if (reservationMealRepository.findAllByReservationIdAndDishId(orderId, dishId) != null) {
+            ReservationMeal reservationMeal = reservationMealRepository.findAllByReservationIdAndDishId(orderId, dishId);
             reservationMealRepository.delete(reservationMeal);
             try {
                 Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
@@ -95,8 +95,8 @@ public class EditOrderService {
 
     public void changeDishAmount(UUID dishId, UUID orderId, Integer amount) {
         Reservation order = orderRepository.getReferenceById(orderId);
-        if (reservationMealRepository.findAllByReservationIdAndDishId() != null) {
-            ReservationMeal reservationMeal = reservationMealRepository.findAllByReservationIdAndDishId();
+        if (reservationMealRepository.findAllByReservationIdAndDishId(orderId, dishId) != null) {
+            ReservationMeal reservationMeal = reservationMealRepository.findAllByReservationIdAndDishId(orderId, dishId);
             Meal meal = mealRepository.getReferenceById(dishId);
             double previousPrice = meal.getPrice() * reservationMeal.getQuantity();
             order.setPrice(order.getPrice() - previousPrice);

@@ -2,6 +2,8 @@ package orderservice.repository;
 
 import orderservice.data.ReservationMeal;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,5 +15,6 @@ public interface ReservationMealRepository extends JpaRepository<ReservationMeal
 
     List<ReservationMeal> findAllByReservationId(UUID orderId);
 
-    ReservationMeal findAllByReservationIdAndDishId();
+    @Query("SELECT rm FROM ReservationMeal rm WHERE rm.reservationId=:reservationId AND rm.dishId=:dishId")
+    ReservationMeal findAllByReservationIdAndDishId(@Param("reservationId") UUID reservationId, @Param("dishId") UUID dishId);
 }
