@@ -3,6 +3,7 @@ package orderservice.service;
 import feign.FeignException;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import orderservice.client.DishClient;
 import orderservice.data.Meal;
 import orderservice.data.Reservation;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EditOrderService {
 
     private final MealRepository mealRepository;
@@ -39,7 +41,7 @@ public class EditOrderService {
                     reservationMeals.get(i).setQuantity(reservationMeals.get(i).getQuantity() + 1);
                     reservationMealRepository.save(reservationMeals.get(i));
                     Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
-                    Meal myMeal = mealRepository.getReferenceById(reservationMeals.get(i).getId());
+                    Meal myMeal = mealRepository.getReferenceById(reservationMeals.get(i).getDishId());
                     myMeal.setQuantity(reservationMeals.get(i).getQuantity());
                     mealRepository.save(myMeal);
                     order.setPrice(order.getPrice() + meal.getPrice());
@@ -47,11 +49,13 @@ public class EditOrderService {
                     orderRepository.save(order);
                     break;
                 } catch (FeignException ex) {
+                    log.error("ERROR " + ex);
                     if (ex.status() == 404) {
                         throw new UsernameNotFoundException("Dish not found");
                     }
                     throw new UnavailableException("User service is unavailable. Try again later");
                 } catch (Exception ex) {
+                    log.error("ERROR " + ex);
                     throw new UnavailableException("User service is unavailable. Try again later");
                 }
             }
@@ -68,11 +72,13 @@ public class EditOrderService {
                 order.setPrice(order.getPrice() + meal.getPrice());
                 orderRepository.save(order);
             } catch (FeignException ex) {
+                log.error("ERROR " + ex);
                 if (ex.status() == 404) {
                     throw new UsernameNotFoundException("Dish not found");
                 }
                 throw new UnavailableException("User service is unavailable. Try again later");
             } catch (Exception ex) {
+                log.error("ERROR " + ex);
                 throw new UnavailableException("User service is unavailable. Try again later");
             }
         }
