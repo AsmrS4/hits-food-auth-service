@@ -44,7 +44,8 @@ public class OrderService {
         List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
         List<Meal> meals = new java.util.ArrayList<>(List.of());
         for (ReservationMeal reservationMeal : reservationMeals) {
-            meals.add(mealRepository.getReferenceById(reservationMeal.getDishId()));
+            Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+            meals.add(meal);
         }
         return new OrderResponseDto(order, meals);
     }
