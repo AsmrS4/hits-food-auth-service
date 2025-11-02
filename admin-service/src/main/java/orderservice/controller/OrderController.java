@@ -306,12 +306,12 @@ public class OrderController {
     }
 
     @GetMapping("/get-with-filters")
-    public ResponseEntity<?> getWithFilters(@RequestParam(required = false) String status,
+    public ResponseEntity<?> getWithFilters(@RequestParam(required = false) Status status,
                                             @RequestParam(required = false) String operatorName,
                                             @PageableDefault(size = 20) Pageable pageable) {
         try {
             log.info("ORDER CONTROLLER - Getting orders with filters. Status: {}, Operator: {}", status, operatorName);
-            OrderFilter orderFilter = new OrderFilter(operatorName, status != null ? Status.valueOf(status) : null);
+            OrderFilter orderFilter = new OrderFilter(operatorName, status);
             List<OrderResponseDto> orders = filterService.findAllWithFilters(orderFilter, pageable);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
