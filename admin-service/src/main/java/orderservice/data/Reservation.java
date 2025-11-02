@@ -18,8 +18,6 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_num_seq")
-    @SequenceGenerator(name = "order_num_seq", sequenceName = "order_num_sequence")
     private Long orderNumber;
     @NotNull
     private UUID clientId;
