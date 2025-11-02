@@ -115,7 +115,6 @@ public class OrderService {
                 for (ReservationMeal reservationMeal : reservationMeals) {
                     Meal meal =mealRepository.findById(reservationMeal.getDishId()).orElse(null);
                     meals.add(meal);
-                    meals.add(mealRepository.getReferenceById(reservationMeal.getDishId()));
                 }
                 orderResponseDtos.add(new OrderResponseDto(order, meals));
             }

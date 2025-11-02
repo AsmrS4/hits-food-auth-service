@@ -29,7 +29,9 @@ public class EditOrderService {
 
     public void addDish(UUID dishId, UUID orderId) throws UnavailableException {
         boolean increase = false;
-        Reservation order = orderRepository.getReferenceById(orderId);
+        Reservation order = orderRepository.findById(orderId).orElseThrow(
+                () -> new UsernameNotFoundException("Order not found")
+        );
         List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(orderId);
         for (ReservationMeal reservationMeal : reservationMeals) {
             if (reservationMeal.getDishId().equals(dishId)) {
