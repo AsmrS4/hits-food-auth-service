@@ -56,6 +56,7 @@ public class OrderService {
             Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
             assert meal != null;
             meal.setImageUrl(getPhoto(meal.getId()));
+            meal.setQuantity(reservationMeal.getQuantity());
             meals.add(meal);
         }
         return new OrderResponseDto(order, meals);
@@ -75,6 +76,7 @@ public class OrderService {
                 Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
                 assert meal != null;
                 meal.setImageUrl(getPhoto(meal.getId()));
+                meal.setQuantity(reservationMeal.getQuantity());
                 meals.add(meal);
             }
             orderResponseDtos.add(new OrderResponseDto(order, meals));
@@ -131,6 +133,7 @@ public class OrderService {
                     Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
                     assert meal != null;
                     meal.setImageUrl(getPhoto(meal.getId()));
+                    meal.setQuantity(reservationMeal.getQuantity());
                     meals.add(meal);
                 }
                 orderResponseDtos.add(new OrderResponseDto(order, meals));
