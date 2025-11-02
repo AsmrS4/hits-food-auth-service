@@ -46,10 +46,6 @@ public class OrderService {
     }
 
     public void save(Reservation order) throws UnavailableException {
-//        for(Meal dish : order.getMeals()){
-//            Meal meal = mealRepository.findById(dish.getId())
-//                    .orElseGet(() -> mealRepository.save(dish));
-//        }
         if(order.getOperatorId() != null){
             OperatorDto op = operatorService.getOperatorDetails(order.getOperatorId());
             order.setOperatorName(op.getFullName());

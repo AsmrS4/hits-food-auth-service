@@ -7,11 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import orderservice.data.OperatorOrderAmountDto;
-import orderservice.data.PayWay; // ДОБАВЬТЕ ЭТОТ ИМПОРТ
-import orderservice.data.Reservation;
-import orderservice.data.Status;
-import orderservice.data.StatusHistory;
+import orderservice.data.*;
 import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
 import orderservice.filter.OrderFilter;
@@ -24,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,7 +37,8 @@ public class OrderController {
     private final StatusService statusService;
     private final FilterService filterService;
     private final AmountService amountService;
-    private final ObjectMapper objectMapper;
+    private final MealService mealService;
+    private final ReservationMealService reservationMealService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> request) {
@@ -86,10 +82,15 @@ public class OrderController {
                         "error", "Cart is empty"
                 ));
             }
-
+            UUID orderId = UUID.randomUUID();
             OrderDto orderDto = convertToOrderDto(request);
-            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto));
-
+            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId));
+            for (Meal meal : orderDto.getItems()) {
+                if (mealService.getById(meal.getId()).isEmpty()) {
+                    mealService.addMeal(meal);
+                }
+                reservationMealService.create(orderId, meal.getId(), meal.getQuantity());
+            }
             return ResponseEntity.ok(orderDto);
 
         } catch (Exception e) {
@@ -230,7 +231,7 @@ public class OrderController {
     }
 
     @GetMapping("/get-order-amount-by-user")
-    public AmountDto getOrderAmountByUser(UUID userId){
+    public AmountDto getOrderAmountByUser(UUID userId) {
         return orderService.getOrderAmountByUser(userId);
     }
 

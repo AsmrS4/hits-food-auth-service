@@ -6,13 +6,14 @@ import orderservice.data.Status;
 import orderservice.dto.OrderDto;
 
 import java.util.Random;
+import java.util.UUID;
 
 public class OrderMapper {
-    public static Reservation mapOrderDtoToOrder(OrderDto order)  {
+    public static Reservation mapOrderDtoToOrder(OrderDto order, UUID orderId)  {
         return Reservation.builder()
+                .id(orderId)
                 .status(Status.NEW)
                 .payWay(PayWay.valueOf(order.getPaymentMethod()))
-                .meals(order.getItems())
                 .price(order.getTotal())
                 .clientId(order.getUserId())
                 .phoneNumber(order.getPhoneNumber())
