@@ -91,7 +91,8 @@ public class EditOrderService {
             reservationMealRepository.delete(reservationMeal);
             try {
                 Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
-                order.setPrice(order.getPrice() - meal.getPrice() * meal.getQuantity());
+                Meal myMeal = mealRepository.getReferenceById(meal.getId());
+                order.setPrice(order.getPrice() - meal.getPrice() * myMeal.getQuantity());
                 orderRepository.save(order);
             } catch (FeignException ex) {
                 if (ex.status() == 404) {
