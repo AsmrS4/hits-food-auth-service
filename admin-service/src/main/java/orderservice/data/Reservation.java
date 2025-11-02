@@ -16,7 +16,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Reservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private Long orderNumber;
     @NotNull
