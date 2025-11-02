@@ -35,7 +35,6 @@ public class EditOrderService {
             if (reservationMeal.getDishId().equals(dishId)) {
                 try {
                     reservationMeal.setQuantity(reservationMeal.getQuantity() + 1);
-                    reservationMealRepository.save(reservationMeal);
                     Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
                     order.setPrice(order.getPrice() + meal.getPrice());
                     increase = true;
