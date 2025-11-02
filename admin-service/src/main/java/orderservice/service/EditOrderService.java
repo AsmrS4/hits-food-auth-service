@@ -33,12 +33,15 @@ public class EditOrderService {
                 () -> new UsernameNotFoundException("Order not found")
         );
         List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(orderId);
-        for (ReservationMeal reservationMeal : reservationMeals) {
-            if (reservationMeal.getDishId().equals(dishId)) {
+        for (int i = 0; i < reservationMeals.size(); i++) {
+            if (reservationMeals.get(i).getDishId().equals(dishId)) {
                 try {
-                    reservationMeal.setQuantity(reservationMeal.getQuantity() + 1);
-                    reservationMealRepository.save(reservationMeal);
+                    reservationMeals.get(i).setQuantity(reservationMeals.get(i).getQuantity() + 1);
+                    reservationMealRepository.save(reservationMeals.get(i));
                     Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+                    Meal myMeal = mealRepository.getReferenceById(reservationMeals.get(i).getId());
+                    myMeal.setQuantity(reservationMeals.get(i).getQuantity());
+                    mealRepository.save(myMeal);
                     order.setPrice(order.getPrice() + meal.getPrice());
                     increase = true;
                     orderRepository.save(order);
