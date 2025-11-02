@@ -109,8 +109,18 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public List<Reservation> findByUserId(UUID userId) {
-        return orderRepository.findByClientId(userId);
+    public List<OrderResponseDto> findByUserId(UUID userId) {
+        List<Reservation> orders = orderRepository.findByClientId(userId);
+        List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
+        for (Reservation order : orders) {
+            List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+            List<Meal> meals = new java.util.ArrayList<>(List.of());
+            for (ReservationMeal reservationMeal : reservationMeals) {
+                meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+            }
+            orderResponseDtos.add(new OrderResponseDto(order, meals));
+        }
+        return orderResponseDtos;
     }
 
     public boolean hasOrdered(UUID foodId) {
