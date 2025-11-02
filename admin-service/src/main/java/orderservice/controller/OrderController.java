@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import orderservice.data.*;
 import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
+import orderservice.dto.OrderResponseDto;
 import orderservice.filter.OrderFilter;
 import orderservice.mapper.OrderMapper;
 import orderservice.service.*;
@@ -128,7 +129,7 @@ public class OrderController {
     public ResponseEntity<?> findById(@PathVariable UUID orderId) {
         try {
             log.info("ORDER CONTROLLER - Finding order by ID: {}", orderId);
-            Reservation order = orderService.findById(orderId);
+            OrderResponseDto order = orderService.findByIdForController(orderId);
             return ResponseEntity.ok(order);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding order: {}", e.getMessage());
@@ -155,7 +156,7 @@ public class OrderController {
                                                    @PageableDefault(size = 20) Pageable pageable) {
         try {
             log.info("ORDER CONTROLLER - Finding orders by operator ID: {}", operatorId);
-            Page<Reservation> orders = orderService.findByOperatorId(operatorId, pageable);
+            List<OrderResponseDto> orders = orderService.findByOperatorId(operatorId, pageable);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding operator orders: {}", e.getMessage());
@@ -168,7 +169,7 @@ public class OrderController {
     public ResponseEntity<?> findOrderWithoutOperatorId(@PageableDefault(size = 20) Pageable pageable) {
         try {
             log.info("ORDER CONTROLLER - Finding orders without operator");
-            Page<Reservation> orders = orderService.findWithoutOperator(pageable);
+            List<OrderResponseDto> orders = orderService.findWithoutOperator(pageable);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding orders without operator: {}", e.getMessage());
@@ -309,7 +310,7 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Getting orders with filters. Status: {}, Operator: {}", status, operatorName);
             OrderFilter orderFilter = new OrderFilter(operatorName, status != null ? Status.valueOf(status) : null);
-            Page<Reservation> orders = filterService.findAllWithFilters(orderFilter, pageable);
+            List<OrderResponseDto> orders = filterService.findAllWithFilters(orderFilter, pageable);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error filtering orders: {}", e.getMessage());
