@@ -142,7 +142,7 @@ public class OrderController {
     public ResponseEntity<?> findByUserId(@PathVariable UUID userId) {
         try {
             log.info("ORDER CONTROLLER - Finding orders by user ID: {}", userId);
-            List<Reservation> orders = orderService.findByUserId(userId);
+            List<OrderResponseDto> orders = orderService.findByUserId(userId);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding user orders: {}", e.getMessage());
