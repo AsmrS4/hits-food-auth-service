@@ -4,15 +4,14 @@ import com.example.common_module.dto.OperatorDto;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import orderservice.client.UserClient;
-import orderservice.data.Meal;
-import orderservice.data.Operator;
-import orderservice.data.Reservation;
-import orderservice.data.Status;
+import orderservice.data.*;
 import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
+import orderservice.dto.OrderResponseDto;
 import orderservice.repository.MealRepository;
 import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
+import orderservice.repository.ReservationMealRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -32,17 +31,49 @@ public class OrderService {
     private final OperatorService operatorService;
     private final OperatorRepository operatorRepository;
     private final MealRepository mealRepository;
+    private final ReservationMealRepository reservationMealRepository;
 
     public Reservation findById(UUID id) {
         return orderRepository.findById(id).orElse(null);
     }
 
-    public Page<Reservation> findByOperatorId(UUID id, Pageable pageable) {
-        return orderRepository.findByOperatorId(id, pageable);
+    public OrderResponseDto findByIdForController(UUID id) {
+        Reservation order = orderRepository.findById(id).orElse(null);
+        ;
+        List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+        List<Meal> meals = new java.util.ArrayList<>(List.of());
+        for (ReservationMeal reservationMeal : reservationMeals) {
+            meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+        }
+        return new OrderResponseDto(order, meals);
     }
 
-    public Page<Reservation> findWithoutOperator(Pageable pageable) {
-        return orderRepository.findByOperatorId(null, pageable);
+    public List<OrderResponseDto> findByOperatorId(UUID id, Pageable pageable) {
+        Page<Reservation> orders = orderRepository.findByOperatorId(id, pageable);
+        List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
+        for (Reservation order : orders) {
+            List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+            List<Meal> meals = new java.util.ArrayList<>(List.of());
+            for (ReservationMeal reservationMeal : reservationMeals) {
+                meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+            }
+            orderResponseDtos.add(new OrderResponseDto(order, meals));
+        }
+        return orderResponseDtos;
+    }
+
+    public List<OrderResponseDto> findWithoutOperator(Pageable pageable) {
+        Page<Reservation> orders = orderRepository.findByOperatorId(null, pageable);
+        List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
+        for (Reservation order : orders) {
+            List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+            List<Meal> meals = new java.util.ArrayList<>(List.of());
+            for (ReservationMeal reservationMeal : reservationMeals) {
+                meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+            }
+            orderResponseDtos.add(new OrderResponseDto(order, meals));
+        }
+        return orderResponseDtos;
     }
 
     public void save(Reservation order) throws UnavailableException {
