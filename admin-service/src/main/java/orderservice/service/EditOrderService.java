@@ -1,5 +1,7 @@
 package orderservice.service;
 
+import feign.FeignException;
+import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import orderservice.client.DishClient;
 import orderservice.data.Meal;
@@ -9,6 +11,7 @@ import orderservice.mapper.MealMapper;
 import orderservice.repository.MealRepository;
 import orderservice.repository.OrderRepository;
 import orderservice.repository.ReservationMealRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,42 +27,69 @@ public class EditOrderService {
     private final ReservationMealRepository reservationMealRepository;
     private final DishClient dishClient;
 
-    public void addDish(UUID dishId, UUID orderId) {
+    public void addDish(UUID dishId, UUID orderId) throws UnavailableException {
         boolean increase = false;
         Reservation order = orderRepository.getReferenceById(orderId);
         List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(orderId);
         for (ReservationMeal reservationMeal : reservationMeals) {
             if (reservationMeal.getDishId().equals(dishId)) {
-                reservationMeal.setQuantity(reservationMeal.getQuantity() + 1);
-                reservationMealRepository.save(reservationMeal);
-                Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
-                order.setPrice(order.getPrice() + meal.getPrice());
-                increase = true;
-                orderRepository.save(order);
-                break;
+                try {
+                    reservationMeal.setQuantity(reservationMeal.getQuantity() + 1);
+                    reservationMealRepository.save(reservationMeal);
+                    Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+                    order.setPrice(order.getPrice() + meal.getPrice());
+                    increase = true;
+                    orderRepository.save(order);
+                    break;
+                } catch (FeignException ex) {
+                    if (ex.status() == 404) {
+                        throw new UsernameNotFoundException("Dish not found");
+                    }
+                    throw new UnavailableException("User service is unavailable. Try again later");
+                } catch (Exception ex) {
+                    throw new UnavailableException("User service is unavailable. Try again later");
+                }
             }
         }
         if (!increase) {
-            Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
-            mealRepository.save(meal);
-            ReservationMeal reservationMeal = new ReservationMeal();
-            reservationMeal.setReservationId(orderId);
-            reservationMeal.setDishId(dishId);
-            reservationMeal.setQuantity(1);
-            reservationMealRepository.save(reservationMeal);
-            order.setPrice(order.getPrice() + meal.getPrice());
-            orderRepository.save(order);
+            try {
+                Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+                mealRepository.save(meal);
+                ReservationMeal reservationMeal = new ReservationMeal();
+                reservationMeal.setReservationId(orderId);
+                reservationMeal.setDishId(dishId);
+                reservationMeal.setQuantity(1);
+                reservationMealRepository.save(reservationMeal);
+                order.setPrice(order.getPrice() + meal.getPrice());
+                orderRepository.save(order);
+            } catch (FeignException ex) {
+                if (ex.status() == 404) {
+                    throw new UsernameNotFoundException("Dish not found");
+                }
+                throw new UnavailableException("User service is unavailable. Try again later");
+            } catch (Exception ex) {
+                throw new UnavailableException("User service is unavailable. Try again later");
+            }
         }
     }
 
-    public void deleteDish(UUID dishId, UUID orderId) {
+    public void deleteDish(UUID dishId, UUID orderId) throws UnavailableException {
         Reservation order = orderRepository.getReferenceById(orderId);
         if (reservationMealRepository.findAllByReservationIdAndDishId() != null) {
             ReservationMeal reservationMeal = reservationMealRepository.findAllByReservationIdAndDishId();
             reservationMealRepository.delete(reservationMeal);
-            Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
-            order.setPrice(order.getPrice() - meal.getPrice());
-            orderRepository.save(order);
+            try {
+                Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+                order.setPrice(order.getPrice() - meal.getPrice());
+                orderRepository.save(order);
+            } catch (FeignException ex) {
+                if (ex.status() == 404) {
+                    throw new UsernameNotFoundException("Dish not found");
+                }
+                throw new UnavailableException("User service is unavailable. Try again later");
+            } catch (Exception ex) {
+                throw new UnavailableException("User service is unavailable. Try again later");
+            }
         }
     }
 
