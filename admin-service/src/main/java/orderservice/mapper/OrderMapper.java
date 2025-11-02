@@ -8,10 +8,9 @@ import orderservice.dto.OrderDto;
 import java.util.Random;
 
 public class OrderMapper {
-    public static Reservation mapOrderDtoToOrder(OrderDto order) {
+    public static Reservation mapOrderDtoToOrder(OrderDto order)  {
         return Reservation.builder()
-                .status(Status.COOKING)
-                .orderNumber(generateSixDigitNumber())
+                .status(Status.NEW)
                 .payWay(PayWay.valueOf(order.getPaymentMethod()))
                 .meals(order.getItems())
                 .price(order.getTotal())
@@ -19,6 +18,7 @@ public class OrderMapper {
                 .phoneNumber(order.getPhoneNumber())
                 .comment(order.getComment())
                 .address(order.getAddress())
+                .orderNumber(generateSixDigitNumber())
                 .build();
     }
 
