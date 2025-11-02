@@ -41,23 +41,26 @@ public class OrderService {
 
     public OrderResponseDto findByIdForController(UUID id) {
         Reservation order = orderRepository.findById(id).orElse(null);
-        ;
         List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
         List<Meal> meals = new java.util.ArrayList<>(List.of());
         for (ReservationMeal reservationMeal : reservationMeals) {
-            meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+            meals.add(mealRepository.getReferenceById(reservationMeal.getDishId()));
         }
         return new OrderResponseDto(order, meals);
     }
 
     public List<OrderResponseDto> findByOperatorId(UUID id, Pageable pageable) {
         Page<Reservation> orders = orderRepository.findByOperatorId(id, pageable);
+        return mapperPage(orders);
+    }
+
+    public List<OrderResponseDto> mapperPage(Page<Reservation> orders){
         List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
         for (Reservation order : orders) {
             List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
             List<Meal> meals = new java.util.ArrayList<>(List.of());
             for (ReservationMeal reservationMeal : reservationMeals) {
-                meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+                meals.add(mealRepository.getReferenceById(reservationMeal.getDishId()));
             }
             orderResponseDtos.add(new OrderResponseDto(order, meals));
         }
@@ -66,16 +69,7 @@ public class OrderService {
 
     public List<OrderResponseDto> findWithoutOperator(Pageable pageable) {
         Page<Reservation> orders = orderRepository.findByOperatorId(null, pageable);
-        List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
-        for (Reservation order : orders) {
-            List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
-            List<Meal> meals = new java.util.ArrayList<>(List.of());
-            for (ReservationMeal reservationMeal : reservationMeals) {
-                meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
-            }
-            orderResponseDtos.add(new OrderResponseDto(order, meals));
-        }
-        return orderResponseDtos;
+        return mapperPage(orders);
     }
 
     public void save(Reservation order) throws UnavailableException {
@@ -121,7 +115,7 @@ public class OrderService {
                 for (ReservationMeal reservationMeal : reservationMeals) {
                     Meal meal =mealRepository.findById(reservationMeal.getDishId()).orElse(null);
                     meals.add(meal);
-                    //meals.add(mealRepository.getReferenceById(reservationMeal.getId()));
+                    meals.add(mealRepository.getReferenceById(reservationMeal.getDishId()));
                 }
                 orderResponseDtos.add(new OrderResponseDto(order, meals));
             }
