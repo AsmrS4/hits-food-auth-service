@@ -318,6 +318,7 @@ public class OrderController {
     }
 
     @PostMapping("/save-operator")
+    @Deprecated
     public ResponseEntity<?> saveOperator(@RequestBody OperatorDto dto) {
         try {
             log.info("ORDER CONTROLLER - Saving operator: {}", dto.getFullName());
@@ -331,6 +332,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/delete-operator/{operatorId}")
+    @Deprecated
     public ResponseEntity<?> deleteOperator(@PathVariable UUID operatorId) {
         try {
             log.info("ORDER CONTROLLER - Deleting operator: {}", operatorId);
