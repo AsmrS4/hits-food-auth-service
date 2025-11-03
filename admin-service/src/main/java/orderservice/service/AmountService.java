@@ -27,6 +27,8 @@ public class AmountService {
         else{
             operatorOrderAmount.setOrderAmount(operatorOrderAmount.getOrderAmount() + 1L);
         }
+
+        amountRepository.save(operatorOrderAmount);
     }
 
     public List<OperatorOrderAmountDto> getOperatorOrderAmounts() {
