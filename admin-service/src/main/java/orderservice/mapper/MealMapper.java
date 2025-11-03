@@ -10,7 +10,7 @@ public class MealMapper {
                 .name(foodDetails.getFoodDetails().getName())
                 .price(foodDetails.getFoodDetails().getPrice())
                 .quantity(1)
-                .imageUrl(foodDetails.getFoodDetails().getPhoto())
+                .imageUrl(foodDetails.getFoodDetails().getPhotos())
                 .build();
     }
 }
