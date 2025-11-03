@@ -18,16 +18,16 @@ public class AmountService {
     private final AmountRepository amountRepository;
 
     public void changeAmount(UUID operatorId) {
-        List<OperatorOrderAmount> operatorOrderAmount = amountRepository.findByOperatorId(operatorId);
-        if (operatorOrderAmount.isEmpty()) {
+        OperatorOrderAmount operatorOrderAmount = amountRepository.findFirstByOperatorId(operatorId);
+        if (operatorOrderAmount == null) {
             OperatorOrderAmount operatorOrderAmountNew = new OperatorOrderAmount();
             operatorOrderAmountNew.setOperatorId(operatorId);
             operatorOrderAmountNew.setOrderAmount(1L);
             amountRepository.save(operatorOrderAmountNew);
         }
         else{
-            operatorOrderAmount.getFirst().setOrderAmount(operatorOrderAmount.getFirst().getOrderAmount() + 1L);
-            amountRepository.save(operatorOrderAmount.getFirst());
+            operatorOrderAmount.setOrderAmount(operatorOrderAmount.getOrderAmount() + 1L);
+            amountRepository.save(operatorOrderAmount);
         }
     }
 
