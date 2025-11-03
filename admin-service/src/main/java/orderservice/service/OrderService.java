@@ -8,6 +8,7 @@ import orderservice.client.DishClient;
 import orderservice.client.UserClient;
 import orderservice.data.*;
 import orderservice.dto.AmountDto;
+import orderservice.dto.FoodDetailsResponse;
 import orderservice.dto.OrderDto;
 import orderservice.dto.OrderResponseDto;
 import orderservice.mapper.MealMapper;
@@ -44,7 +45,9 @@ public class OrderService {
     }
 
     public List<String> getPhoto(UUID dishId){
-        Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+        ResponseEntity<?> response = dishClient.getFoodDetails(dishId);
+        log.info(response.toString());
+        Meal meal = MealMapper.mapFoodDetailsResponseToMeal((FoodDetailsResponse) Objects.requireNonNull(response.getBody()));
         return meal.getImageUrl();
     }
 
