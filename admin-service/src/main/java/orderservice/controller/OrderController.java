@@ -12,6 +12,7 @@ import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
 import orderservice.dto.OrderResponseDto;
 import orderservice.filter.OrderFilter;
+import orderservice.mapper.OrderAmountMapper;
 import orderservice.mapper.OrderMapper;
 import orderservice.service.*;
 import org.springframework.data.domain.Page;
@@ -222,8 +223,13 @@ public class OrderController {
     public ResponseEntity<?> getStatAll() {
         try {
             log.info("ORDER CONTROLLER - Getting all stats");
-            List<OperatorOrderAmountDto> stats = amountService.getOperatorOrderAmounts();
-            return ResponseEntity.ok(stats);
+            List<OperatorOrderAmount> stats = amountService.getOperatorOrderAmounts();
+            List<OperatorOrderAmountDto> responseStats = new java.util.ArrayList<>(List.of());
+            for(OperatorOrderAmount stat : stats){
+                OperatorDto operator = operatorService.getOperatorDetails(stat.getOperatorId());
+                responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
+            }
+            return ResponseEntity.ok(responseStats);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error getting all stats: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

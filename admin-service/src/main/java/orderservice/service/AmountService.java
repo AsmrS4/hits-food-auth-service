@@ -31,7 +31,7 @@ public class AmountService {
         amountRepository.save(operatorOrderAmount);
     }
 
-    public List<OperatorOrderAmountDto> getOperatorOrderAmounts() {
-        return amountRepository.findAllOrderAmount();
+    public List<OperatorOrderAmount> getOperatorOrderAmounts() {
+        return amountRepository.findAll();
     }
 }
