@@ -23,12 +23,12 @@ public class AmountService {
             operatorOrderAmount = new OperatorOrderAmount();
             operatorOrderAmount.setOperatorId(operatorId);
             operatorOrderAmount.setOrderAmount(1L);
+            amountRepository.save(operatorOrderAmount);
         }
         else{
             operatorOrderAmount.setOrderAmount(operatorOrderAmount.getOrderAmount() + 1L);
+            amountRepository.save(operatorOrderAmount);
         }
-
-        amountRepository.save(operatorOrderAmount);
     }
 
     public List<OperatorOrderAmount> getOperatorOrderAmounts() {
