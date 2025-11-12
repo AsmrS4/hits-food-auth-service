@@ -1,5 +1,6 @@
 package orderservice;
 
+import com.example.common_module.config.ClientConfig;
 import com.example.common_module.config.ContentTypeConfig;
 import com.example.common_module.config.SecurityConfig;
 import com.example.common_module.dto.OperatorDto;
@@ -12,6 +13,7 @@ import com.example.common_module.handler.GlobalExceptionHandler;
 import com.example.common_module.jwt.TokenService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
@@ -25,10 +27,11 @@ import org.springframework.context.annotation.Import;
         AuthenticationEntryPointImpl.class,
         AccessDeniedHandlerImpl.class,
         GlobalExceptionHandler.class,
-        OperatorDto.class
+        OperatorDto.class,
+        ClientConfig.class
 })
+@EnableFeignClients
 public class OrderServiceApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(OrderServiceApplication.class, args);
     }

@@ -1,41 +1,111 @@
 package orderservice.service;
 
+import com.example.common_module.dto.OperatorDto;
+import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
-import orderservice.data.Reservation;
+import lombok.extern.slf4j.Slf4j;
+import orderservice.client.DishClient;
+import orderservice.client.UserClient;
+import orderservice.data.*;
+import orderservice.dto.AmountDto;
+import orderservice.dto.FoodDetailsResponse;
+import orderservice.dto.OrderDto;
+import orderservice.dto.OrderResponseDto;
+import orderservice.mapper.MealMapper;
+import orderservice.repository.MealRepository;
+import orderservice.repository.OperatorRepository;
 import orderservice.repository.OrderRepository;
+import orderservice.repository.ReservationMealRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OperatorService operatorService;
+    private final OperatorRepository operatorRepository;
+    private final MealRepository mealRepository;
+    private final DishClient dishClient;
+    private final ReservationMealRepository reservationMealRepository;
 
     public Reservation findById(UUID id) {
         return orderRepository.findById(id).orElse(null);
     }
 
-    public Page<Reservation> findByOperatorId(UUID id, Pageable pageable) {
-        return orderRepository.findByOperatorId(id, pageable);
+    public List<String> getPhoto(UUID dishId){
+        ResponseEntity<?> response = dishClient.getFoodDetails(dishId);
+        log.info(response.toString());
+        Meal meal = MealMapper.mapFoodDetailsResponseToMeal((FoodDetailsResponse) Objects.requireNonNull(response.getBody()));
+        return meal.getImageUrl();
     }
 
-    public Page<Reservation> findWithoutOperator(Pageable pageable) {
-        return orderRepository.findByOperatorId(null, pageable);
+    public OrderResponseDto findByIdForController(UUID id) {
+        Reservation order = orderRepository.findById(id).orElse(null);
+        List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+        List<Meal> meals = new java.util.ArrayList<>(List.of());
+        for (ReservationMeal reservationMeal : reservationMeals) {
+            Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+            assert meal != null;
+            meal.setImageUrl(getPhoto(meal.getId()));
+            meal.setQuantity(reservationMeal.getQuantity());
+            meals.add(meal);
+        }
+        return new OrderResponseDto(order, meals);
     }
 
-    public void save(Reservation order) {
+    public List<OrderResponseDto> findByOperatorId(UUID id, Pageable pageable) {
+        Page<Reservation> orders = orderRepository.findByOperatorId(id, pageable);
+        return mapperPage(orders);
+    }
+
+    public List<OrderResponseDto> mapperPage(Page<Reservation> orders){
+        List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
+        for (Reservation order : orders) {
+            List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+            List<Meal> meals = new java.util.ArrayList<>(List.of());
+            for (ReservationMeal reservationMeal : reservationMeals) {
+                Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+                assert meal != null;
+                meal.setImageUrl(getPhoto(meal.getId()));
+                meal.setQuantity(reservationMeal.getQuantity());
+                meals.add(meal);
+            }
+            orderResponseDtos.add(new OrderResponseDto(order, meals));
+        }
+        return orderResponseDtos;
+    }
+
+    public List<OrderResponseDto> findWithoutOperator(Pageable pageable) {
+        Page<Reservation> orders = orderRepository.findByOperatorId(null, pageable);
+        return mapperPage(orders);
+    }
+
+    public void save(Reservation order) throws UnavailableException {
+        if(order.getOperatorId() != null){
+            OperatorDto op = operatorService.getOperatorDetails(order.getOperatorId());
+            order.setOperatorName(op.getFullName());
+        }
         orderRepository.save(order);
     }
 
     public void changeOperatorId(UUID orderId, UUID operatorId) {
         Reservation order = findById(orderId);
         order.setOperatorId(operatorId);
+        if(operatorRepository.findById(operatorId).isPresent()){
+            order.setOperatorName(operatorRepository.findById(operatorId).get().getFullName());
+        }
         orderRepository.save(order);
     }
 
@@ -46,7 +116,7 @@ public class OrderService {
     }
 
     public Long getStat(UUID operatorId) {
-        return orderRepository.countOrdersByOperatorId(operatorId);
+        return orderRepository.countReservationsByOperatorId(operatorId);
     }
 
     public void setDeclineReason(UUID orderId, String reason) {
@@ -55,8 +125,27 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public List<Reservation> findByUserId(UUID userId) {
-        return orderRepository.findByClientId(userId);
+    public List<OrderResponseDto> findByUserId(UUID userId) {
+        try {
+            List<Reservation> orders = orderRepository.findByClientId(userId);
+            List<OrderResponseDto> orderResponseDtos = new java.util.ArrayList<>(List.of());
+            for (Reservation order : orders) {
+                List<ReservationMeal> reservationMeals = reservationMealRepository.findAllByReservationId(order.getId());
+                List<Meal> meals = new java.util.ArrayList<>(List.of());
+                for (ReservationMeal reservationMeal : reservationMeals) {
+                    Meal meal = mealRepository.findById(reservationMeal.getDishId()).orElse(null);
+                    assert meal != null;
+                    meal.setImageUrl(getPhoto(meal.getId()));
+                    meal.setQuantity(reservationMeal.getQuantity());
+                    meals.add(meal);
+                }
+                orderResponseDtos.add(new OrderResponseDto(order, meals));
+            }
+            return orderResponseDtos;
+        } catch (Exception exception ) {
+            log.error("RECEIVED EX: " + exception);
+            return null;
+        }
     }
 
     public boolean hasOrdered(UUID foodId) {
@@ -74,5 +163,11 @@ public class OrderService {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+
+
+    public AmountDto getOrderAmountByUser(UUID userId) {
+        return new AmountDto(orderRepository.countByClientIdAndStatus(userId, Status.CONFIRMED),orderRepository.countByClientIdAndStatusNot(userId, Status.CONFIRMED));
     }
 }

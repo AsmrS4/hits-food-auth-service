@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class AboutController {
     @Autowired
     private AboutService aboutService;
-    @GetMapping("/about")
+    @GetMapping()
     public ResponseEntity<AboutDTO> getAboutInfo()  {
         return ResponseEntity.ok(aboutService.getAboutInfo());
     }
-    @PutMapping("/about")
+    @PutMapping()
     public ResponseEntity<AboutDTO> editAbout(@RequestBody @Valid EditAbout editAbout) {
         return ResponseEntity.ok(aboutService.editAboutInfo(editAbout));
     }

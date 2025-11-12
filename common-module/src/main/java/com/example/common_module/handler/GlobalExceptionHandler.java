@@ -8,6 +8,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.UnavailableException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,5 +97,13 @@ public class GlobalExceptionHandler {
         errors.put("status: ", HttpStatus.FORBIDDEN.value());
         errors.put("error: ", ex.getMessage());
         return new ResponseEntity<>(errors, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler({UnavailableException.class})
+    public ResponseEntity<Map<String, Object>> handleUnavailableException(UnavailableException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("status: ", HttpStatus.SERVICE_UNAVAILABLE.value());
+        errors.put("error: ", ex.getMessage());
+        return new ResponseEntity<>(errors, HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

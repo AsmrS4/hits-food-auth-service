@@ -19,7 +19,5 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String token;
-    private boolean isExpired;
-    private boolean isRevoked;
     private UUID userId;
 }

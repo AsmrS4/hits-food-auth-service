@@ -6,6 +6,7 @@ import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
+import jakarta.servlet.UnavailableException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException;
+    StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException, UnavailableException;
     List<StaffUserDTO> getOperators();
     AuthResponse registerClientUser(ClientRegisterRequest request) throws BadRequestException;
     Response changePassword(ExchangePasswordRequest request) throws BadRequestException;
@@ -23,5 +24,6 @@ public interface UserService {
     UserDTO editClientProfile(EditClientDTO dto) throws BadRequestException;
     UserDTO editStaffProfile(EditStaffDTO dto) throws BadRequestException;
     Response deleteOperator(UUID operatorId);
-    ClientUserDTO getUserDetails(UUID userId);
+    UserDTO getUserDetails(UUID userId);
+    UserDTO getUserByPhone(String phone) throws BadRequestException;
 }

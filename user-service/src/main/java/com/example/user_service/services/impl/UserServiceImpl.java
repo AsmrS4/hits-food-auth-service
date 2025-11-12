@@ -10,9 +10,11 @@ import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
 import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
+import com.example.user_service.services.RefreshTokenService;
 import com.example.user_service.services.interfaces.UserService;
 import com.example.user_service.client.OrdersClient;
 import com.example.user_service.utils.UserMapper;
+import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -28,6 +30,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
     private final UserMapper mapper;
     private final OrdersClient client;
 
@@ -49,13 +54,14 @@ public class UserServiceImpl implements UserService {
         userRepository.save(newUser);
 
         String accessToken = tokenService.getAccessToken(newUser);
+        String refreshToken = refreshTokenService.createNewRefresh(newUser);
         ClientUserDTO profile = mapper.mapClient(newUser);
 
-        return new AuthResponse(accessToken, profile);
+        return new AuthResponse(accessToken, refreshToken, profile);
     }
 
     @Override
-    public StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException {
+    public StaffUserDTO registerOperatorUser(StaffRegisterRequest request) throws BadRequestException, UnavailableException {
         if(userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException(String.format("Username %s is already taken", request.getUsername()));
         }
@@ -65,14 +71,18 @@ public class UserServiceImpl implements UserService {
         User newUser = mapper.map(request);
         newUser.setPhone(phoneNumber);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(newUser);
+
 
         OperatorDto dto = new OperatorDto();
         dto.setId(newUser.getId());
         dto.setFullName(newUser.getFullName());
         dto.setPhone(newUser.getPhone());
-        ResponseEntity<?> response = client.saveOperator(dto);
-
+        try {
+            client.saveOperator(dto);
+        } catch (Exception ex) {
+            throw new UnavailableException("Couldn't process request. Order service is unavailable");
+        }
+        userRepository.save(newUser);
         return mapper.map(newUser);
     }
 
@@ -92,7 +102,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser(){
         var userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-
         return getByUsername(userId);
     }
 
@@ -154,10 +163,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ClientUserDTO getUserDetails(UUID userId) {
+    public UserDTO getUserDetails(UUID userId) {
         User user  = userRepository.findUserById(userId).orElseThrow(
                 () -> new UsernameNotFoundException("User not found")
         );
+        if(user.getRole().equals(Role.ADMIN)) {
+            throw new AccessDeniedException("This information is secured");
+        }
+        if(user.getRole().equals(Role.OPERATOR)) {
+            return mapper.map(user);
+        }
+        return mapper.mapClient(user);
+    }
+
+    @Override
+    public UserDTO getUserByPhone(String phone) throws BadRequestException {
+        if(phone == null || phone.trim().isEmpty()) {
+            throw new BadRequestException("Phone is required");
+        }
+        Pattern pattern = Pattern.compile("^(?:\\+?7|8)\\d{10}$");
+        Matcher matcher = pattern.matcher(phone);
+        if(!matcher.matches()) {
+            throw new BadRequestException("Invalid phone format");
+        }
+        String validatedPhone = phone.replaceFirst("^(?:\\+?)7", "8");
+        User user = userRepository.findUserByPhone(validatedPhone)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if(user.getRole().equals(Role.ADMIN)) {
             throw new AccessDeniedException("This information is secured");
         }

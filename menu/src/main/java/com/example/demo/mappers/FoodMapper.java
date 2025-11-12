@@ -15,7 +15,7 @@ public interface FoodMapper {
 
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "ingredientIds", source = "ingredients")
-    @Mapping(target = "photos", source = "photos")
+    @Mapping(target = "photos", ignore = true)
     FoodEntity toEntity(FoodCreateDto dto);
 
     Food toDto(FoodEntity entity);
@@ -35,8 +35,8 @@ public interface FoodMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "photos", ignore = true)
-    @Mapping(target = "category", ignore = true)
-    @Mapping(target = "ingredientIds", ignore = true)
+    @Mapping(target = "category.id", source = "categoryId")
+    @Mapping(target = "ingredientIds", source = "ingredients")
     void updateEntityFromDto(FoodUpdateDto dto, @MappingTarget FoodEntity entity);
 
     @Named("mapIngredients")

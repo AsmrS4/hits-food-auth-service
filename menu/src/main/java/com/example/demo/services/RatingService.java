@@ -1,9 +1,12 @@
 package com.example.demo.services;
 
 import com.example.demo.client.OrderClient;
+import com.example.demo.dtos.Food;
 import com.example.demo.dtos.FoodRating;
 import com.example.demo.dtos.RatingResponse;
+import com.example.demo.entities.FoodEntity;
 import com.example.demo.entities.RatingEntity;
+import com.example.demo.repositories.FoodRepository;
 import com.example.demo.repositories.RatingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RatingService {
     private final RatingRepository repository;
+    private final FoodRepository foodRepository;
     private final OrderClient client;
     public RatingResponse rateFood(UUID foodId, FoodRating foodRating) throws BadRequestException {
         UUID userId = getUserIdFromContext();
@@ -87,6 +91,7 @@ public class RatingService {
             double amount = repository.calculateAverageRatingForFood(foodId);
             BigDecimal bg = new BigDecimal(Double.toString(amount));
             amount = Double.parseDouble(bg.setScale(1, RoundingMode.HALF_UP).toString());
+            saveRatingToFood(foodId, amount);
             return amount;
         } catch (Exception ex) {
             log.error("RECEIVED SQL EXCEPTION: " + ex.getMessage());
@@ -126,6 +131,12 @@ public class RatingService {
         } catch (Exception ex) {
             return null;
         }
+    }
 
+    private void saveRatingToFood(UUID foodId, double rating) {
+        foodRepository.findById(foodId).ifPresent(food -> {
+            food.setRate(rating);
+            foodRepository.save(food);
+        });
     }
 }
