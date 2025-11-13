@@ -21,6 +21,7 @@ public class FoodService {
     private final CategoryRepository categoryRepository;
     private final FoodMapper foodMapper;
     private final RatingService ratingService;
+    private final FileStorageService fileStorageService;
 
     public List<FoodShortDto> getAllFoods(FoodFilterRequest filter) {
         List<FoodEntity> foods = foodRepository.findAll();
@@ -108,7 +109,10 @@ public class FoodService {
         entity.setCategory(categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new UsernameNotFoundException("Category not found")));
 
-        if (entity.getPhotos() == null) {
+        if (dto.getPhotos() != null && !dto.getPhotos().isEmpty()) {
+            List<String> photoPaths = fileStorageService.storeFiles(dto.getPhotos());
+            entity.setPhotos(photoPaths);
+        } else {
             entity.setPhotos(new ArrayList<>());
         }
 
@@ -120,11 +124,25 @@ public class FoodService {
         FoodEntity entity = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
 
-        foodMapper.updateEntityFromDto(dto, entity);
+        List<String> currentPhotos = new ArrayList<>(entity.getPhotos());
 
-        if (dto.getPhotos() != null) {
-            entity.setPhotos(dto.getPhotos());
+        if (dto.getPhotosToDelete() != null) {
+            fileStorageService.deleteFiles(dto.getPhotosToDelete());
+            currentPhotos.removeAll(dto.getPhotosToDelete());
         }
+
+        if (dto.getNewPhotos() != null && !dto.getNewPhotos().isEmpty()) {
+            List<String> newPhotoPaths = fileStorageService.storeFiles(dto.getNewPhotos());
+            currentPhotos.addAll(newPhotoPaths);
+        }
+
+        if (dto.getExistingPhotos() != null) {
+            currentPhotos = new ArrayList<>(dto.getExistingPhotos());
+        }
+
+        entity.setPhotos(currentPhotos);
+
+        foodMapper.updateEntityFromDto(dto, entity);
 
         if (dto.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
@@ -145,8 +163,11 @@ public class FoodService {
 
 
     public void deleteFood(UUID id) {
-        if (!foodRepository.existsById(id))
-            throw new UsernameNotFoundException("Food not found");
+        FoodEntity food = foodRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+
+        fileStorageService.deleteFiles(food.getPhotos());
+
         foodRepository.deleteById(id);
         ratingService.deleteRatingByFood(id);
     }
