@@ -42,19 +42,20 @@ public class FoodController {
         return ResponseEntity.ok(foodService.getFoodDetails(id));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             description = "Create a new dish",
             summary = "This is summary for creating a new dish"
     )
-    public ResponseEntity<FoodDetailsDto> createFood(@RequestBody @Valid FoodCreateDto dto) {
+    public ResponseEntity<FoodDetailsDto> createFood(
+            @ModelAttribute @Valid FoodCreateDto dto) {
         return ResponseEntity.ok(foodService.createFood(dto));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FoodDetailsDto> updateFood(
             @PathVariable UUID id,
-            @RequestBody FoodUpdateDto dto) {
+            @ModelAttribute FoodUpdateDto dto) {
         FoodDetailsDto updatedFood = foodService.updateFood(id, dto);
         return ResponseEntity.ok(updatedFood);
     }
