@@ -9,30 +9,46 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 
 @Component
 @Slf4j
 public class ContentTypeFilter implements Filter {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
+            "application/json",
+            "application/x-www-form-urlencoded",
+            "multipart/form-data",
+            "text/plain"
+    );
+
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-        String requestContentType = httpRequest.getContentType();
-        log.info(requestContentType);
-        if (requestContentType != null && !requestContentType.contains("application/json")) {
-            log.warn("Unsupported media type {}", requestContentType);
-            httpResponse.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
-            httpResponse.setContentType("application/json");
-            Map<String, Object> errorDetails = new HashMap<>();
-            errorDetails.put("status", HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
-            errorDetails.put("error", "Unsupported media type");
-            errorDetails.put("message", "Required type is application/json");
-            httpResponse.getWriter().write(objectMapper.writeValueAsString(errorDetails));
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        String contentType = httpRequest.getContentType();
+        log.info(contentType);
+
+        if (contentType == null || "GET".equalsIgnoreCase(httpRequest.getMethod())) {
+            chain.doFilter(request, response);
             return;
         }
 
-        filterChain.doFilter(httpRequest, httpResponse);
+        boolean isAllowed = ALLOWED_CONTENT_TYPES.stream()
+                .anyMatch(allowed -> contentType.toLowerCase().startsWith(allowed.toLowerCase()));
+
+        if (!isAllowed) {
+            log.warn("Unsupported media type {}", contentType);
+            httpResponse.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+            httpResponse.getWriter().write("Unsupported Media Type");
+            return;
+        }
+
+        chain.doFilter(request, response);
     }
 }
