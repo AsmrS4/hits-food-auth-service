@@ -73,14 +73,14 @@ public class RatingService {
         repository.deleteRatingsByFoodId(foodId);
     }
 
-    public int getUsersRating(UUID foodId) {
+    public double getUsersRating(UUID foodId) {
         try {
             var userId = getUserIdFromContext();
             if(userId == null) {
                 return -1;
             }
             Optional<RatingEntity> ratingEntity = repository.findByFoodIdAndUserId(foodId, userId);
-            return ratingEntity.map(RatingEntity::getRating).orElse(-1);
+            return ratingEntity.map(RatingEntity::getRating).orElse(-1.0);
         } catch (Exception ex) {
             log.error("RECEIVED EXCEPTION: " + ex.getMessage());
             return -1;
