@@ -93,7 +93,7 @@ public class FoodService {
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
         boolean couldRate = ratingService.couldRateConcreteFood(id);
         boolean hasRate = ratingService.hasRateFromConcreteUser(id);
-        int userRating = ratingService.getUsersRating(id);
+        double userRating = ratingService.getUsersRating(id);
         foodDetailsDto.setRate(rateAmount);
         return FoodDetailsResponse.builder()
                 .foodDetails(foodDetailsDto)
