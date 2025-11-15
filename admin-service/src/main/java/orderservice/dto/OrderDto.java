@@ -2,13 +2,16 @@ package orderservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import orderservice.data.Meal;
 
 import java.util.List;
 import java.util.UUID;
 
+
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class OrderDto {
     private Boolean success;
     private String errorMessage;
@@ -22,6 +25,4 @@ public class OrderDto {
     private String address;
     private String paymentMethod;
     private String comment;
-
 }
-

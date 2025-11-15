@@ -15,24 +15,29 @@ public interface FoodMapper {
 
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "ingredientIds", source = "ingredients")
+    @Mapping(target = "photos", ignore = true)
     FoodEntity toEntity(FoodCreateDto dto);
-
 
     Food toDto(FoodEntity entity);
 
     @Mapping(target="categoryId", source="category.id")
+    @Mapping(target = "photos", source = "photos")
     FoodShortDto toShortDto(FoodEntity entity);
 
     @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "ingredients", source = "ingredientIds", qualifiedByName = "mapIngredients")
+    @Mapping(target = "photos", source = "photos")
     FoodDetailsDto toDetailsDto(FoodEntity entity);
 
     @Mapping(target="categoryId", source="category.id")
+    @Mapping(target = "photos", source = "photos")
     List<FoodShortDto> toShortDtoList(List<FoodEntity> entities);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "photos", ignore = true)
+    @Mapping(target = "category.id", source = "categoryId")
+    @Mapping(target = "ingredientIds", source = "ingredients")
     void updateEntityFromDto(FoodUpdateDto dto, @MappingTarget FoodEntity entity);
-
 
     @Named("mapIngredients")
     default List<Ingredient> mapIngredients(List<Ingredient> ingredientIds) {

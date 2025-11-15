@@ -16,9 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Reservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long orderNumber;
     @NotNull
     private UUID clientId;
@@ -31,11 +29,10 @@ public class Reservation {
     private double price;
     private String declineReason;
     private UUID operatorId;
+    private String operatorName;
     private LocalDate date;
     private Status status;
     private PayWay payWay;
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private List<Meal> meals;
 
     @PrePersist
     public void setDefaultValues() {

@@ -1,9 +1,9 @@
-package com.example.demo.dtos;
+package orderservice.dto;
 
-import com.example.demo.models.Ingredient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import orderservice.data.Ingredient;
 
 import java.util.List;
 import java.util.UUID;

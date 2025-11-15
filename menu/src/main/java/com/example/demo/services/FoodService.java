@@ -21,6 +21,7 @@ public class FoodService {
     private final CategoryRepository categoryRepository;
     private final FoodMapper foodMapper;
     private final RatingService ratingService;
+    private final FileStorageService fileStorageService;
 
     public List<FoodShortDto> getAllFoods(FoodFilterRequest filter) {
         List<FoodEntity> foods = foodRepository.findAll();
@@ -107,6 +108,14 @@ public class FoodService {
         entity.setIsAvailable(true);
         entity.setCategory(categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new UsernameNotFoundException("Category not found")));
+
+        if (dto.getPhotos() != null && !dto.getPhotos().isEmpty()) {
+            List<String> photoPaths = fileStorageService.storeFiles(dto.getPhotos());
+            entity.setPhotos(photoPaths);
+        } else {
+            entity.setPhotos(new ArrayList<>());
+        }
+
         return foodMapper.toDetailsDto(foodRepository.save(entity));
     }
 
@@ -114,6 +123,25 @@ public class FoodService {
     public FoodDetailsDto updateFood(UUID id, FoodUpdateDto dto) {
         FoodEntity entity = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+
+        List<String> currentPhotos = new ArrayList<>(entity.getPhotos());
+
+        if (dto.getPhotosToDelete() != null) {
+            fileStorageService.deleteFiles(dto.getPhotosToDelete());
+            currentPhotos.removeAll(dto.getPhotosToDelete());
+        }
+
+        if (dto.getNewPhotos() != null && !dto.getNewPhotos().isEmpty()) {
+            List<String> newPhotoPaths = fileStorageService.storeFiles(dto.getNewPhotos());
+            currentPhotos.addAll(newPhotoPaths);
+        }
+
+        if (dto.getExistingPhotos() != null) {
+            currentPhotos = new ArrayList<>(dto.getExistingPhotos());
+        }
+
+        entity.setPhotos(currentPhotos);
+
         foodMapper.updateEntityFromDto(dto, entity);
 
         if (dto.getCategoryId() != null) {
@@ -122,18 +150,24 @@ public class FoodService {
             entity.setCategory(category);
         }
 
-        if (dto.getIsAvailable() != null)
-            entity.setIsAvailable(dto.getIsAvailable());
+        if (dto.getIngredients() != null) {
+            entity.setIngredientIds(dto.getIngredients());
+        }
 
-        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
+        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(entity);
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
         foodDetailsDto.setRate(rateAmount);
+
         return foodDetailsDto;
     }
 
+
     public void deleteFood(UUID id) {
-        if (!foodRepository.existsById(id))
-            throw new UsernameNotFoundException("Food not found");
+        FoodEntity food = foodRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+
+        fileStorageService.deleteFiles(food.getPhotos());
+
         foodRepository.deleteById(id);
         ratingService.deleteRatingByFood(id);
     }

@@ -1,6 +1,7 @@
 package com.example.user_service.services.impl;
 
 
+import com.example.common_module.enums.Role;
 import com.example.common_module.jwt.TokenService;
 import com.example.user_service.domain.dto.auth.*;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
@@ -12,6 +13,7 @@ import com.example.user_service.services.interfaces.AuthService;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class AuthServiceImpl implements AuthService {
         String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
         User user = userRepository.findUserByPhone(phoneNumber)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
+        if(!user.getRole().equals(Role.CLIENT)) {
+            throw new AccessDeniedException("Login with client credentials for staff is forbidden");
+        }
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }
@@ -46,6 +51,9 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse loginStaffUser(StaffLoginRequest request) throws BadRequestException {
         User user = userRepository.findUserByUsername(request.getUsername())
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
+        if(user.getRole().equals(Role.CLIENT)) {
+            throw new AccessDeniedException("Login with username for client is forbidden");
+        }
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Login failed");
         }

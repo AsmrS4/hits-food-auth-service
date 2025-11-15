@@ -16,14 +16,15 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-#  autoconfigure:
-#    exclude:
-#      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-#security:
-#  enabled: false
+
 logging:
   level:
     org.springframework.security: trace
+
+url:
+  user-service-url: http://localhost:8910
+  menu-service-url: http://localhost:8080
+
 jwt:
   secret: hits2025972303hits2025972303hits20259723032025hits
   lifetime: 30m

@@ -22,13 +22,13 @@ public class StatusService {
         return statusHistoryRepository.findByOrderId(orderId);
     }
 
-    public void changeOrderStatus(UUID id, String status) {
+    public void changeOrderStatus(UUID id, Status status) {
         Reservation order = orderRepository.findById(id).orElse(null);
         assert order != null;
-        order.setStatus(Status.valueOf(status));
+        order.setStatus(status);
         StatusHistory statusHistory = new StatusHistory();
         statusHistory.setOrderId(id);
-        statusHistory.setStatus(Status.valueOf(status));
+        statusHistory.setStatus(status);
         statusHistory.setDate(LocalDateTime.now());
         statusHistoryRepository.save(statusHistory);
         orderRepository.save(order);
