@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.config.FileStorageConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,10 @@ import java.util.UUID;
 public class FileStorageService {
 
     private final FileStorageConfig fileStorageConfig;
+    @Value("${server.host}")
+    private String SERVER_HOST;
+    @Value("${server.port}")
+    private String SERVER_PORT;
 
     public String storeFile(MultipartFile file) {
         try {
@@ -37,7 +42,7 @@ public class FileStorageService {
             Path targetLocation = storagePath.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            return "/uploads/" + fileName;
+            return String.format("http://%s:%s", SERVER_HOST, SERVER_PORT) + "/uploads/" + fileName;
 
         } catch (IOException e) {
             log.error("Failed to store file", e);
