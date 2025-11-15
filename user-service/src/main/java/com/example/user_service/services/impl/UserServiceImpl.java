@@ -87,6 +87,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Response deleteOperator(UUID operatorId) throws UnavailableException {
+        User user = getUserById(operatorId);
+        userRepository.delete(user);
+        try {
+            client.deleteOperator(operatorId);
+        } catch (Exception ex) {
+            throw new UnavailableException("Couldn't process request. Order service is unavailable");
+        }
+        return new Response(HttpStatus.OK, 200, String.format("Operator with id %s was deleted", operatorId));
+    }
+
+    @Override
     public Response changePassword(ExchangePasswordRequest request) throws BadRequestException {
         User currentUser = getCurrentUser();
         if(!passwordEncoder.matches(request.getPassword(), currentUser.getPassword())) {
@@ -99,6 +111,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(currentUser);
         return new Response(HttpStatus.OK, 200, "Password was changed successfully");
     }
+
     @Override
     public User getCurrentUser(){
         var userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
@@ -154,19 +167,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response deleteOperator(UUID operatorId) {
-        User user = userRepository.findUserById(operatorId)
-                .orElseThrow(()-> new UsernameNotFoundException(String.format("Operator with id %s not found", operatorId)));
-        userRepository.delete(user);
-        ResponseEntity<?> response = client.deleteOperator(operatorId);
-        return new Response(HttpStatus.OK, 200, String.format("Operator with id %s was deleted", operatorId));
-    }
-
-    @Override
     public UserDTO getUserDetails(UUID userId) {
-        User user  = userRepository.findUserById(userId).orElseThrow(
-                () -> new UsernameNotFoundException("User not found")
-        );
+        User user  = getUserById(userId);
         if(user.getRole().equals(Role.ADMIN)) {
             throw new AccessDeniedException("This information is secured");
         }
@@ -200,6 +202,12 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    private User getUserById(UUID userId) {
+        return userRepository.findUserById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("User not found")
+        );
+    }
+
     @Override
     public UserDetailsService userDetailsService() {
         return this::getByUsername;
@@ -210,6 +218,7 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAllOperators();
         return mapper.map(users);
     }
+
     private String validatePhoneNumber(String phoneNumber) throws BadRequestException {
         String validatedPhone = phoneNumber.replaceFirst("^(?:\\+?)7", "8");
         if(userRepository.existsByPhone(validatedPhone)) {
