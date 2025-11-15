@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FoodRating {
     @NotBlank(message = "Rating is required")
-    private int rating;
+    private double rating;
 }
