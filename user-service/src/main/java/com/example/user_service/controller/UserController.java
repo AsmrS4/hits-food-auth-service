@@ -96,7 +96,7 @@ public class UserController {
             description = "Remove operator account",
             summary = "This is summary for remove operator's account from system"
     )
-    public ResponseEntity<Response> deleteOperator(@PathVariable UUID operatorId) {
+    public ResponseEntity<Response> deleteOperator(@PathVariable UUID operatorId) throws UnavailableException {
         return ResponseEntity.ok(userService.deleteOperator(operatorId));
     }
     @GetMapping("/users/operators")
