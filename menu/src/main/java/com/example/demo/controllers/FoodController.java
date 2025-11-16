@@ -17,7 +17,8 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/foods")
 @RequiredArgsConstructor
-//@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Menu controller")
 @Slf4j
 public class FoodController {
