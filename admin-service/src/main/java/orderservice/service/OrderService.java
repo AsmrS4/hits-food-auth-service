@@ -12,10 +12,7 @@ import orderservice.dto.FoodDetailsResponse;
 import orderservice.dto.OrderDto;
 import orderservice.dto.OrderResponseDto;
 import orderservice.mapper.MealMapper;
-import orderservice.repository.MealRepository;
-import orderservice.repository.OperatorRepository;
-import orderservice.repository.OrderRepository;
-import orderservice.repository.ReservationMealRepository;
+import orderservice.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +36,7 @@ public class OrderService {
     private final MealRepository mealRepository;
     private final DishClient dishClient;
     private final ReservationMealRepository reservationMealRepository;
+    private final AmountRepository amountRepository;
 
     public Reservation findById(UUID id) {
         return orderRepository.findById(id).orElse(null);
@@ -95,13 +93,16 @@ public class OrderService {
     public void save(Reservation order) throws UnavailableException {
         if(order.getOperatorId() != null){
             OperatorDto op = operatorService.getOperatorDetails(order.getOperatorId());
-            order.setOperatorName(op.getFullName());
+            if(op!=null) {
+                order.setOperatorName(op.getFullName());
+            }
         }
         orderRepository.save(order);
     }
 
     public void changeOperatorId(UUID orderId, UUID operatorId) {
         Reservation order = findById(orderId);
+        changeOrderAmount(order);
         order.setOperatorId(operatorId);
         if(operatorRepository.findById(operatorId).isPresent()){
             order.setOperatorName(operatorRepository.findById(operatorId).get().getFullName());
@@ -165,6 +166,18 @@ public class OrderService {
         }
     }
 
+    private void changeOrderAmount(Reservation order) {
+        OperatorOrderAmount operatorOrderAmount = amountRepository.findFirstByOperatorId(order.getOperatorId());
+        if(operatorOrderAmount != null ) {
+            if(operatorOrderAmount.getOrderAmount() > 1) {
+                Long amount = operatorOrderAmount.getOrderAmount();
+                operatorOrderAmount.setOrderAmount(amount - 1);
+                amountRepository.save(operatorOrderAmount);
+            } else {
+                amountRepository.delete(operatorOrderAmount);
+            }
+        }
+    }
 
 
     public AmountDto getOrderAmountByUser(UUID userId) {
