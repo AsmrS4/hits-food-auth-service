@@ -4,6 +4,7 @@ import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
 import com.example.demo.mappers.FoodMapper;
 import com.example.demo.repositories.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -122,7 +123,7 @@ public class FoodService {
     @Transactional
     public FoodDetailsDto updateFood(UUID id, FoodUpdateDto dto) {
         FoodEntity entity = foodRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Food not found with id: " + id));
 
         List<String> currentPhotos = new ArrayList<>(entity.getPhotos());
 
@@ -142,11 +143,22 @@ public class FoodService {
 
         entity.setPhotos(currentPhotos);
 
-        foodMapper.updateEntityFromDto(dto, entity);
+        if (dto.getName() != null) {
+            entity.setName(dto.getName());
+        }
+        if (dto.getDescription() != null) {
+            entity.setDescription(dto.getDescription());
+        }
+        if (dto.getPrice() != null) {
+            entity.setPrice(dto.getPrice());
+        }
+        if (dto.getIsAvailable() != null) {
+            entity.setIsAvailable(dto.getIsAvailable());
+        }
 
         if (dto.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new UsernameNotFoundException("Category not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + dto.getCategoryId()));
             entity.setCategory(category);
         }
 
@@ -154,7 +166,7 @@ public class FoodService {
             entity.setIngredientIds(dto.getIngredients());
         }
 
-        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(entity);
+        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
         foodDetailsDto.setRate(rateAmount);
 
