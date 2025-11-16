@@ -19,12 +19,12 @@ public class OrderMapper {
                 .phoneNumber(order.getPhoneNumber())
                 .comment(order.getComment())
                 .address(order.getAddress())
-                .orderNumber(generateSixDigitNumber())
+                .orderNumber(order.getOrderNumber())
                 .build();
     }
 
-    public static Long generateSixDigitNumber() {
+   /* public static Long generateSixDigitNumber() {
         Random random = new Random();
         return random.nextLong(9000000) + 1000000;
-    }
+    }*/
 }

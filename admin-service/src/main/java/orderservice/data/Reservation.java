@@ -17,6 +17,7 @@ import java.util.UUID;
 public class Reservation {
     @Id
     private UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long orderNumber;
     @NotNull
     private UUID clientId;

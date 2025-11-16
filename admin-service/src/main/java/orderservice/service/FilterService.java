@@ -1,5 +1,6 @@
 package orderservice.service;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import orderservice.client.DishClient;
 import orderservice.data.Meal;
@@ -33,8 +34,12 @@ public class FilterService {
     private final DishClient dishClient;
 
     public List<String> getPhoto(UUID dishId) {
-        Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
-        return meal.getImageUrl();
+        try {
+            Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+            return meal.getImageUrl();
+        } catch (FeignException ex) {
+            return null;
+        }
     }
 
     public List<OrderResponseDto> findAllWithFilters(OrderFilter orderFilter, Pageable pageable) {
