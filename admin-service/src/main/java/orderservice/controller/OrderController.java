@@ -2,6 +2,7 @@ package orderservice.controller;
 
 import com.example.common_module.dto.OperatorDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.UnavailableException;
@@ -226,8 +227,15 @@ public class OrderController {
             List<OperatorOrderAmount> stats = amountService.getOperatorOrderAmounts();
             List<OperatorOrderAmountDto> responseStats = new java.util.ArrayList<>(List.of());
             for(OperatorOrderAmount stat : stats){
-                OperatorDto operator = operatorService.getOperatorDetails(stat.getOperatorId());
-                responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
+                OperatorDto operator = null;
+                try {
+                    operator = operatorService.getOperatorDetails(stat.getOperatorId());
+                } catch (FeignException ex) {
+                    log.error("ORDER CONTROLLER - RECEIVED EXCEPTION", ex);
+                }
+                if(operator!=null) {
+                    responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
+                }
             }
             return ResponseEntity.ok(responseStats);
         } catch (Exception e) {
