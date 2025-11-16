@@ -17,6 +17,8 @@ import java.util.UUID;
 public class Reservation {
     @Id
     private UUID id;
+    @GeneratedValue(generator = "orderNumbersSeqGen", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "orderNumbersSeqGen", sequenceName = "order_numbers_seq", allocationSize = 1)
     private Long orderNumber;
     @NotNull
     private UUID clientId;

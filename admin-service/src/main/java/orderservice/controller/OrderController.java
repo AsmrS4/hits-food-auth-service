@@ -2,8 +2,11 @@ package orderservice.controller;
 
 import com.example.common_module.dto.OperatorDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +44,7 @@ public class OrderController {
     private final AmountService amountService;
     private final MealService mealService;
     private final ReservationMealService reservationMealService;
+    private final EntityManager entityManager;
 
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> request) {
@@ -86,7 +90,9 @@ public class OrderController {
             }
             UUID orderId = UUID.randomUUID();
             OrderDto orderDto = convertToOrderDto(request);
-            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId));
+            Query query = entityManager.createNativeQuery("SELECT NEXTVAL('order_numbers_seq')");
+            Long orderNumber = (Long) query.getSingleResult();
+            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId, orderNumber));
             for (Meal meal : orderDto.getItems()) {
                 if (mealService.getById(meal.getId()).isEmpty()) {
                     mealService.addMeal(meal);
@@ -226,8 +232,15 @@ public class OrderController {
             List<OperatorOrderAmount> stats = amountService.getOperatorOrderAmounts();
             List<OperatorOrderAmountDto> responseStats = new java.util.ArrayList<>(List.of());
             for(OperatorOrderAmount stat : stats){
-                OperatorDto operator = operatorService.getOperatorDetails(stat.getOperatorId());
-                responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
+                OperatorDto operator = null;
+                try {
+                    operator = operatorService.getOperatorDetails(stat.getOperatorId());
+                } catch (FeignException ex) {
+                    log.error("ORDER CONTROLLER - RECEIVED EXCEPTION", ex);
+                }
+                if(operator!=null) {
+                    responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
+                }
             }
             return ResponseEntity.ok(responseStats);
         } catch (Exception e) {

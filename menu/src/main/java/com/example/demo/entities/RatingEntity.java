@@ -20,5 +20,5 @@ public class RatingEntity {
     private UUID ratingId;
     private UUID userId;
     private UUID foodId;
-    private int rating;
+    private double rating;
 }

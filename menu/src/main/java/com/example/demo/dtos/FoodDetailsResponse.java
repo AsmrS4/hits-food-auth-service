@@ -13,5 +13,5 @@ public class FoodDetailsResponse {
     private FoodDetailsDto foodDetails;
     private boolean couldRate;
     private boolean hasRate;
-    private int userRating;
+    private double userRating;
 }

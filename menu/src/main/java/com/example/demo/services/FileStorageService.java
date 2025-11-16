@@ -21,6 +21,8 @@ import java.util.UUID;
 public class FileStorageService {
 
     private final FileStorageConfig fileStorageConfig;
+    @Value("${server.protocol}")
+    private String PROTOCOL;
     @Value("${server.host}")
     private String SERVER_HOST;
     @Value("${server.port}")
@@ -42,7 +44,7 @@ public class FileStorageService {
             Path targetLocation = storagePath.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            return String.format("http://%s:%s", SERVER_HOST, SERVER_PORT) + "/uploads/" + fileName;
+            return String.format("%s://%s:%s", PROTOCOL, SERVER_HOST, SERVER_PORT) + "/uploads/" + fileName;
 
         } catch (IOException e) {
             log.error("Failed to store file", e);
