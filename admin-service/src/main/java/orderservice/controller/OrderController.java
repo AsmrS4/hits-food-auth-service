@@ -96,7 +96,7 @@ public class OrderController {
             String datePrefix = currentDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
             Query query = entityManager.createNativeQuery(
-                    "SELECT COALESCE(MAX(order_number), 0) + 1 FROM orders WHERE DATE(created_date) = CURRENT_DATE"
+                    "SELECT COALESCE(MAX(order_number), 0) + 1 FROM reservation WHERE DATE(date) = CURRENT_DATE"
             );
             Long dailySequence = (Long) query.getSingleResult();
 
