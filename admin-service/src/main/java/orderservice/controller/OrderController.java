@@ -25,6 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -90,9 +92,16 @@ public class OrderController {
             }
             UUID orderId = UUID.randomUUID();
             OrderDto orderDto = convertToOrderDto(request);
-            Query query = entityManager.createNativeQuery("SELECT NEXTVAL('order_numbers_seq')");
-            Long orderNumber = (Long) query.getSingleResult();
-            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId, orderNumber));
+            LocalDate currentDate = LocalDate.now();
+            String datePrefix = currentDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+            Query query = entityManager.createNativeQuery(
+                    "SELECT COALESCE(MAX(order_number), 0) + 1 FROM orders WHERE DATE(created_date) = CURRENT_DATE"
+            );
+            Long dailySequence = (Long) query.getSingleResult();
+
+            String orderNumber = datePrefix + String.format("%04d", dailySequence);
+            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId, Long.parseLong(orderNumber)));
             for (Meal meal : orderDto.getItems()) {
                 if (mealService.getById(meal.getId()).isEmpty()) {
                     mealService.addMeal(meal);
@@ -231,14 +240,14 @@ public class OrderController {
             log.info("ORDER CONTROLLER - Getting all stats");
             List<OperatorOrderAmount> stats = amountService.getOperatorOrderAmounts();
             List<OperatorOrderAmountDto> responseStats = new java.util.ArrayList<>(List.of());
-            for(OperatorOrderAmount stat : stats){
+            for (OperatorOrderAmount stat : stats) {
                 OperatorDto operator = null;
                 try {
                     operator = operatorService.getOperatorDetails(stat.getOperatorId());
                 } catch (FeignException ex) {
                     log.error("ORDER CONTROLLER - RECEIVED EXCEPTION", ex);
                 }
-                if(operator!=null) {
+                if (operator != null) {
                     responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
                 }
             }
