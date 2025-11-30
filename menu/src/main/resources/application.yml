@@ -1,6 +1,7 @@
 server:
   port: 8080
-  host: localhost
+#  host: localhost
+  host: menu-service
   protocol: http
 
 spring:
@@ -8,7 +9,8 @@ spring:
     name: foodchain
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/foodservice
+#    url: jdbc:postgresql://localhost:5432/foodservice
+    url: jdbc:postgresql://menu_db:5432/foodservice
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -62,6 +64,7 @@ logging:
 
 app:
   file-storage:
-    base-url: http://localhost:8080/uploads/
+#    base-url: http://localhost:8080/uploads/
+    base-url: http://menu-service:8080/uploads/
     upload-dir: ./uploads
     max-file-size: 10MB

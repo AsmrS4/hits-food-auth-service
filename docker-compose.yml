@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  user-service:
+    #    build:
+    #      context: .
+    #      dockerfile: user-service/Dockerfile
+    image: user-image:latest
+    container_name: user-service
+    ports:
+      - '8910:8910'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user_db:5432/food_users_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - user_db
+    networks:
+      - app-network
+
+  menu-service:
+    #    build:
+    #      context: .
+    #      dockerfile: menu/Dockerfile
+    image: menu-image:latest
+    container_name: menu-service
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://menu_db:5432/foodservice
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - menu_db
+    networks:
+      - app-network
+
+  order-service:
+    #    build:
+    #      context: .
+    #      dockerfile: orderservice/Dockerfile
+    image: order-image:latest
+    container_name: order-service
+    ports:
+      - '8096:8096'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://order_db:5432/mydatabase
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - order_db
+    networks:
+      - app-network
+
+  user_db:
+    container_name: users_db
+    image: postgres:15
+    volumes:
+      - user_db-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=food_users_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+  menu_db:
+    container_name: menu_db
+    image: postgres:15
+    volumes:
+      - menu_db-data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_DB=foodservice
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+  order_db:
+    container_name: order_db
+    image: postgres:15
+    volumes:
+      - order_db-data:/var/lib/postgresql/data
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+volumes:
+  user_db-data:
+  menu_db-data:
+  order_db-data:
+
+networks:
+  app-network:
+    driver: bridge

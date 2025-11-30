@@ -9,7 +9,8 @@ spring:
     name: user-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/food_users_db
+#    url: jdbc:postgresql://localhost:5432/food_users_db
+    url: jdbc:postgresql://user_db:5432/food_users_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -39,7 +40,8 @@ jwt:
   refresh-lifetime: 14400m
 
 url:
-  order-service-url: http://localhost:8096
+#  order-service-url: http://localhost:8096
+  order-service-url: http://order-service:8096
 
 logging:
   level:
