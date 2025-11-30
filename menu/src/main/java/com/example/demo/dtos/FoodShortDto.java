@@ -19,5 +19,6 @@ public class FoodShortDto {
     String description;
     UUID categoryId;
     Boolean isAvailable;
+    Boolean isDeleted;
 }
 
