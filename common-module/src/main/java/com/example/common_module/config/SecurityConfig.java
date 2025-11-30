@@ -46,6 +46,7 @@ public class SecurityConfig {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
+                    config.addAllowedOrigin("https://egorycheva28.github.io/*");
                     config.addAllowedOriginPattern("*");
                     config.setAllowCredentials(true);
                     return config;
