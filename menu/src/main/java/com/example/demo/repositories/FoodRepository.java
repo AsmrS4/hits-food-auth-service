@@ -12,6 +12,7 @@ import java.util.*;
 public interface FoodRepository extends JpaRepository<FoodEntity, UUID>, JpaSpecificationExecutor<FoodEntity> {
     List<FoodEntity> findByCategory(CategoryEntity category);
     List<FoodEntity> findByNameContainingIgnoreCase(String name);
+    List<FoodEntity> findByIsDeletedFalse();
     boolean existsByCategory(CategoryEntity category);
 }
 
