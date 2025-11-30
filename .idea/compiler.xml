@@ -39,7 +39,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="admin-service" target="21" />
       <module name="auth-service" target="21" />
       <module name="common" target="21" />
       <module name="orders-service" target="21" />
@@ -47,7 +46,6 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="admin-service" options="-parameters" />
       <module name="auth-service" options="-parameters" />
       <module name="common" options="-parameters" />
       <module name="common-module" options="-parameters" />
