@@ -16,5 +16,5 @@
 2) sudo docker build -f user-service/Dockerfile -t user-image:latest .
 3) sudo docker build -f menu/Dockerfile -t menu-image:latest .
 4) sudo docker build -f orderservice/Dockerfile -t order-image:latest
-После билда в корне проекта запустить
+<br>После билда в корне проекта запустить
 sudo docker compose up
