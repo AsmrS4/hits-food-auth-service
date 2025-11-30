@@ -24,5 +24,6 @@ public class OrderDto {
     private String phoneNumber;
     private String address;
     private String paymentMethod;
+    private Long orderNumber;
     private String comment;
 }

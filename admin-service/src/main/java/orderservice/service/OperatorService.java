@@ -59,7 +59,8 @@ public class OperatorService {
         }
         catch (FeignException ex) {
             if(ex.status() == 404) {
-                throw new UsernameNotFoundException("Operator not found");
+                //throw new UsernameNotFoundException("Operator not found");
+                return null;
             }
             throw new UnavailableException("User service is unavailable. Try again later");
         }

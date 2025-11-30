@@ -2,8 +2,11 @@ package orderservice.controller;
 
 import com.example.common_module.dto.OperatorDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +46,7 @@ public class OrderController {
     private final AmountService amountService;
     private final MealService mealService;
     private final ReservationMealService reservationMealService;
+    private final EntityManager entityManager;
 
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> request) {
@@ -86,7 +92,16 @@ public class OrderController {
             }
             UUID orderId = UUID.randomUUID();
             OrderDto orderDto = convertToOrderDto(request);
-            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId));
+            LocalDate currentDate = LocalDate.now();
+            String datePrefix = currentDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+            Query query = entityManager.createNativeQuery(
+                    "SELECT COALESCE(MAX(order_number), 0) + 1 FROM reservation WHERE DATE(date) = CURRENT_DATE"
+            );
+            Long dailySequence = (Long) query.getSingleResult();
+
+            String orderNumber = datePrefix + String.format("%04d", dailySequence);
+            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId, Long.parseLong(orderNumber)));
             for (Meal meal : orderDto.getItems()) {
                 if (mealService.getById(meal.getId()).isEmpty()) {
                     mealService.addMeal(meal);
@@ -225,9 +240,16 @@ public class OrderController {
             log.info("ORDER CONTROLLER - Getting all stats");
             List<OperatorOrderAmount> stats = amountService.getOperatorOrderAmounts();
             List<OperatorOrderAmountDto> responseStats = new java.util.ArrayList<>(List.of());
-            for(OperatorOrderAmount stat : stats){
-                OperatorDto operator = operatorService.getOperatorDetails(stat.getOperatorId());
-                responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
+            for (OperatorOrderAmount stat : stats) {
+                OperatorDto operator = null;
+                try {
+                    operator = operatorService.getOperatorDetails(stat.getOperatorId());
+                } catch (FeignException ex) {
+                    log.error("ORDER CONTROLLER - RECEIVED EXCEPTION", ex);
+                }
+                if (operator != null) {
+                    responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
+                }
             }
             return ResponseEntity.ok(responseStats);
         } catch (Exception e) {
