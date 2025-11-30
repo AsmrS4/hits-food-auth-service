@@ -31,6 +31,7 @@ public class FoodEntity {
     private List<String> photos = new ArrayList<>();
 
     private Boolean isAvailable;
+    private Boolean isDeleted = false;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)

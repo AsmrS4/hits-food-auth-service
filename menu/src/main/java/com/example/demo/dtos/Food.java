@@ -15,6 +15,7 @@ public class Food {
     Double rate;
     String photo;
     Boolean isAvailable;
+    Boolean isDeleted;
     List<Ingredient> ingredientIds;
     Category category;
 }

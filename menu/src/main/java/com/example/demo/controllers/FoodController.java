@@ -69,6 +69,11 @@ public class FoodController {
         foodService.deleteFood(id);
         return ResponseEntity.noContent().build();
     }
+    @PatchMapping("/{id}/restore")
+    @Operation(description = "Restore deleted food", summary = "Restore a previously deleted food item")
+    public ResponseEntity<FoodDetailsDto> restoreFood(@PathVariable UUID id) {
+        return ResponseEntity.ok(foodService.restoreFood(id));
+    }
 
     @PatchMapping("/{id}/availability")
     @Operation(

@@ -4,7 +4,6 @@ import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
 import com.example.demo.mappers.FoodMapper;
 import com.example.demo.repositories.*;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,7 +24,7 @@ public class FoodService {
     private final FileStorageService fileStorageService;
 
     public List<FoodShortDto> getAllFoods(FoodFilterRequest filter) {
-        List<FoodEntity> foods = foodRepository.findAll();
+        List<FoodEntity> foods = foodRepository.findByIsDeletedFalse();
         if (filter == null) {
             List<FoodShortDto> foodShortDtos = foodMapper.toShortDtoList(foods);
             return foodShortDtos.stream().map(dto -> {
@@ -86,8 +85,12 @@ public class FoodService {
             return dto;
         }).collect(Collectors.toList());
     }
-
     public FoodDetailsResponse getFoodDetails(UUID id) {
+        FoodEntity food = foodRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+        if (food.getIsDeleted()) {
+            throw new UsernameNotFoundException("Food not found");
+        }
         FoodDetailsDto foodDetailsDto = foodRepository.findById(id)
                 .map(foodMapper::toDetailsDto)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
@@ -107,6 +110,7 @@ public class FoodService {
     public FoodDetailsDto createFood(FoodCreateDto dto) {
         FoodEntity entity = foodMapper.toEntity(dto);
         entity.setIsAvailable(true);
+        entity.setIsDeleted(false);
         entity.setCategory(categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new UsernameNotFoundException("Category not found")));
 
@@ -123,7 +127,10 @@ public class FoodService {
     @Transactional
     public FoodDetailsDto updateFood(UUID id, FoodUpdateDto dto) {
         FoodEntity entity = foodRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Food not found with id: " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+        if (entity.getIsDeleted()) {
+            throw new UsernameNotFoundException("Food not found");
+        }
 
         List<String> currentPhotos = new ArrayList<>(entity.getPhotos());
 
@@ -143,22 +150,11 @@ public class FoodService {
 
         entity.setPhotos(currentPhotos);
 
-        if (dto.getName() != null) {
-            entity.setName(dto.getName());
-        }
-        if (dto.getDescription() != null) {
-            entity.setDescription(dto.getDescription());
-        }
-        if (dto.getPrice() != null) {
-            entity.setPrice(dto.getPrice());
-        }
-        if (dto.getIsAvailable() != null) {
-            entity.setIsAvailable(dto.getIsAvailable());
-        }
+        foodMapper.updateEntityFromDto(dto, entity);
 
         if (dto.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + dto.getCategoryId()));
+                    .orElseThrow(() -> new UsernameNotFoundException("Category not found"));
             entity.setCategory(category);
         }
 
@@ -166,7 +162,7 @@ public class FoodService {
             entity.setIngredientIds(dto.getIngredients());
         }
 
-        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
+        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(entity);
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
         foodDetailsDto.setRate(rateAmount);
 
@@ -174,20 +170,38 @@ public class FoodService {
     }
 
 
+    @Transactional
     public void deleteFood(UUID id) {
         FoodEntity food = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+        food.setIsDeleted(true);
+        food.setIsAvailable(false);
 
-        fileStorageService.deleteFiles(food.getPhotos());
+        foodRepository.save(food);
+    }
 
-        foodRepository.deleteById(id);
-        ratingService.deleteRatingByFood(id);
+    @Transactional
+    public FoodDetailsDto restoreFood(UUID id) {
+        FoodEntity entity = foodRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+
+        entity.setIsDeleted(false);
+        entity.setIsAvailable(true);
+
+
+        FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
+        double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
+        foodDetailsDto.setRate(rateAmount);
+        return foodDetailsDto;
     }
 
     @Transactional
     public FoodDetailsDto setAvailability(UUID id, boolean available) {
         FoodEntity entity = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+        if (entity.getIsDeleted()) {
+            throw new UsernameNotFoundException("Food not found");
+        }
         entity.setIsAvailable(available);
         FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);

@@ -27,6 +27,7 @@ public interface FoodMapper {
     @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "ingredients", source = "ingredientIds", qualifiedByName = "mapIngredients")
     @Mapping(target = "photos", source = "photos")
+
     FoodDetailsDto toDetailsDto(FoodEntity entity);
 
     @Mapping(target="categoryId", source="category.id")
