@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  app:
+    image: order-image:latest
+    container_name: order-service
+    ports:
+      - '8096:8096'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mydatabase
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    container_name: order_db
+    image: postgres:15
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+
+networks:
+  app-network:
+    driver: bridge
