@@ -1,6 +1,6 @@
 server:
   port: 8080
-#  host: localhost  - поменять для локального запуска либо если в контейнерах не будут грузиться фото
+#  host: localhost  - поменять для локального запуска либо если в контейнерах не будут грузиться фото и пересобрать образ
   host: menu-service
   protocol: http
 
@@ -56,7 +56,8 @@ jwt:
   lifetime: 30m
 
 url:
-  order-service-url: http://localhost:8096
+#  order-service-url: http://localhost:8096  - поменять для локального запуска и пересобрать образ
+  order-service-url: http://order-service:8096
 
 logging:
   level:
@@ -64,7 +65,7 @@ logging:
 
 app:
   file-storage:
-#    base-url: http://localhost:8080/uploads/  - поменять для локального запуска либо если в контейнерах не будут грузиться фото
+#    base-url: http://localhost:8080/uploads/  - поменять для локального запуска либо если в контейнерах не будут грузиться фото и пересобрать образ
     base-url: http://menu-service:8080/uploads/
     upload-dir: ./uploads
     max-file-size: 10MB
