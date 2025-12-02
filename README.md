@@ -1,16 +1,17 @@
 # Food API
+## <br> Описание проекта:
+   Приложение разработанно с использованием микросервисной архитектуры. <br> Для запуска приложения необходимо установить сервис:
+      https://github.com/rkadl77/FoodService
 ## <br> Документация к API доступна по локальным ссылкам: 
 #### user-service: 
-   http://localhost:8910/swagger-ui/index.html#/
+      http://localhost:8910/swagger-ui/index.html#/
 #### menu-service: 
-   http://localhost:8080/swagger-ui/index.html#/
+      http://localhost:8080/swagger-ui/index.html#/
 #### order-service: 
-   http://localhost:8096/swagger-ui/index.html#/
+      http://localhost:8096/swagger-ui/index.html#/
 #### cart-service: 
       http://localhost:5621/swagger/index.html
 
-#### <br> Ссылка на проект с cart-service: 
-   https://github.com/rkadl77/FoodService
 
 
 ## <br> Запуск проекта из контейнеров:
