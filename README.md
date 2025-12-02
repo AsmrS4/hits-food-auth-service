@@ -12,9 +12,13 @@
 
 
 # Запуск проекта из контейнеров:
-1) зайти в корень проекта
+1) зайти в проект FoodService
+2) sudo docker build -t cart-image:latest .
+   
+1) зайти в корень проекта hits-food-auth-service
 2) sudo docker build -f user-service/Dockerfile -t user-image:latest .
 3) sudo docker build -f menu/Dockerfile -t menu-image:latest .
-4) sudo docker build -f orderservice/Dockerfile -t order-image:latest
-<br>После билда в корне проекта запустить
+4) sudo docker build -f orderservice/Dockerfile -t order-image:latest .
+
+<br><br>После билда в корне этого же проекта проекта запустить команду
 sudo docker compose up
