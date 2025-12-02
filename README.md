@@ -1,18 +1,20 @@
-Документация к API доступна по локальным ссылкам: 
-# user-service: http://localhost:8910/swagger-ui/index.html#/
-# menu-service: http://localhost:8080/swagger-ui/index.html#/
-# order-service: http://localhost:8096/swagger-ui/index.html#/
+# Food API
+## <br> Документация к API доступна по локальным ссылкам: 
+#### user-service: 
+   http://localhost:8910/swagger-ui/index.html#/
+#### menu-service: 
+   http://localhost:8080/swagger-ui/index.html#/
+#### order-service: 
+   http://localhost:8096/swagger-ui/index.html#/
+#### cart-service: 
+   http://localhost:5621/swagger/index.html
 
-Для запуска всего приложения необходимо запускать сервисы в следующем порядке:
-1) discovery-service
-2) config-service
-Далее остальные сервисы, кроме common-module(используется в качестве пакета с общими зависимостями и настройками безопасности)
-
-Для использования единной точки входа(выполнения запросов к сервисам через один хост и порт) запустить gateway(порт по умолчанию 8000)
+#### <br>Ссылка на проект с cart-service: 
+   https://github.com/rkadl77/FoodService
 
 
-# Запуск проекта из контейнеров:
-1) зайти в проект FoodService
+## <br> Запуск проекта из контейнеров:
+1) Зайти в проект FoodService
 2) sudo docker build -t cart-image:latest .
    
 1) зайти в корень проекта hits-food-auth-service
