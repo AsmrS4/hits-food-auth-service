@@ -7,9 +7,9 @@
 #### order-service: 
    http://localhost:8096/swagger-ui/index.html#/
 #### cart-service: 
-   http://localhost:5621/swagger/index.html
+      http://localhost:5621/swagger/index.html
 
-#### <br>Ссылка на проект с cart-service: 
+#### <br> Ссылка на проект с cart-service: 
    https://github.com/rkadl77/FoodService
 
 
