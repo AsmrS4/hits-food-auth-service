@@ -15,8 +15,8 @@
 
 
 ## <br> Запуск проекта из контейнеров:
-1) Зайти в проект FoodService
-2) sudo docker build -t cart-image:latest .
+1) #### Зайти в проект FoodService(ссылку на установку см. выше) и выполнить команду:
+            sudo docker build -t cart-image:latest .
    
 1) зайти в корень проекта hits-food-auth-service
 2) sudo docker build -f user-service/Dockerfile -t user-image:latest .
