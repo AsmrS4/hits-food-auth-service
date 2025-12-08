@@ -39,6 +39,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://user_db:5432/food_users_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - FEATURES_ENABLESAVEEDITEDUSER=true
+      - FEATURES_ENABLECHANGEPASSWORD=true
+      - FEATURES_ENABLESTAFFAUTHVIAPHONENUMBER=false
+      - FEATURES_ENABLEREFRESHSESSION=true
     depends_on:
       - user_db
     networks:
@@ -67,6 +71,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://order_db:5432/mydatabase
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - FEATURE_BUGWRONGORDERNUMBERCOUNTER=true
     depends_on:
       - order_db
     networks:
@@ -109,7 +114,7 @@ services:
       retries: 5
       
   user_db:
-    container_name: users_db
+    container_name: user_db
     image: postgres:15
     volumes:
       - user_db-data:/var/lib/postgresql/data

@@ -107,5 +107,4 @@ public class UserController {
     public  ResponseEntity<List<StaffUserDTO>> getOperators() {
         return ResponseEntity.ok(userService.getOperators());
     }
-
 }

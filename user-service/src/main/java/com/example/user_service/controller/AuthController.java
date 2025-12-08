@@ -47,7 +47,7 @@ public class AuthController {
             description = "Refresh and access token pair",
             summary = "This is summary for getting pair of token"
     )
-    public ResponseEntity<TokenPair> getNewTokenPair(@RequestBody @Valid RefreshRequest request) {
+    public ResponseEntity<TokenPair> getNewTokenPair(@RequestBody @Valid RefreshRequest request) throws BadRequestException {
         return ResponseEntity.ok(authService.getNewPair(request));
     }
 }

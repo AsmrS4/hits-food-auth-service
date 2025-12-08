@@ -43,6 +43,13 @@ url:
 #  order-service-url: http://localhost:8096
   order-service-url: http://order-service:8096
 
+features:
+  enableSaveEditedUser: true
+  enableBadStatusInsteadSuccess: false
+  enableChangePassword: true
+  enableStaffAuthViaPhoneNumber: false
+  enableRefreshSession: true
+
 logging:
   level:
     org.springframework.security: trace
