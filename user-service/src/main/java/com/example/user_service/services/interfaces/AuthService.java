@@ -8,5 +8,5 @@ public interface AuthService {
     AuthResponse loginClientUser(LoginRequest request) throws BadRequestException;
     AuthResponse loginStaffUser(StaffLoginRequest request) throws BadRequestException;
 
-    TokenPair getNewPair(RefreshRequest request);
+    TokenPair getNewPair(RefreshRequest request) throws BadRequestException;
 }

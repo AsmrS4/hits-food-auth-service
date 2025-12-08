@@ -2,6 +2,7 @@ package com.example.user_service.services.impl;
 
 import com.example.common_module.dto.OperatorDto;
 import com.example.common_module.jwt.TokenService;
+import com.example.user_service.config.UserBugToggles;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
+    private final UserBugToggles toggles;
     private final UserMapper mapper;
     private final OrdersClient client;
 
@@ -100,6 +102,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response changePassword(ExchangePasswordRequest request) throws BadRequestException {
+        if(!toggles.isEnableChangePassword()) {
+            throw new BadRequestException("Password change is denied");
+        }
         User currentUser = getCurrentUser();
         if(!passwordEncoder.matches(request.getPassword(), currentUser.getPassword())) {
             throw new BadRequestException("Incorrect password");
@@ -140,7 +145,9 @@ public class UserServiceImpl implements UserService {
 
         dto.setPhone(validatedPhone);
         User updatedUser = mapper.updateUser(user, dto);
-        updatedUser = userRepository.save(updatedUser);
+        if(toggles.isEnableSaveEditedUser()) {
+            updatedUser = userRepository.save(updatedUser);
+        }
         return mapper.mapClient(updatedUser);
     }
 
@@ -162,7 +169,9 @@ public class UserServiceImpl implements UserService {
             dto.setPhone(validatedPhone);
         }
         User updatedUser = mapper.updateUser(user, dto);
-        updatedUser = userRepository.save(updatedUser);
+        if(toggles.isEnableSaveEditedUser()) {
+            updatedUser = userRepository.save(updatedUser);
+        }
         return mapper.map(updatedUser);
     }
 
