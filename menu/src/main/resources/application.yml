@@ -1,0 +1,78 @@
+server:
+  port: 8080
+#  host: localhost  - поменять для локального запуска либо если в контейнерах не будут грузиться фото и пересобрать образ
+  host: menu-service
+  protocol: http
+
+spring:
+  application:
+    name: foodchain
+
+  datasource:
+#    url: jdbc:postgresql://localhost:5432/foodservice - поменять для локального запуска
+    url: jdbc:postgresql://menu_db:5432/foodservice
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    schemas: public
+    validate-on-migrate: true
+    clean-on-validation-error: false
+    out-of-order: false
+    table: flyway_schema_history
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+    servlet:
+      path: /
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
+      location: ${app.file-storage.upload-dir}
+
+  web:
+    resources:
+      static-locations: classpath:/static/,file:${app.file-storage.upload-dir}
+
+jwt:
+  secret: hits2025972303hits2025972303hits20259723032025hits
+  lifetime: 30m
+
+url:
+#  order-service-url: http://localhost:8096  - поменять для локального запуска и пересобрать образ
+  order-service-url: http://order-service:8096
+
+logging:
+  level:
+    org.springframework.security: trace
+
+app:
+  file-storage:
+#    base-url: http://localhost:8080/uploads/  - поменять для локального запуска либо если в контейнерах не будут грузиться фото и пересобрать образ
+    base-url: http://menu-service:8080/uploads/
+    upload-dir: ./uploads
+    max-file-size: 10MB
+
+feature:
+  bugWrongPriceSorting: false
+  bugCorruptPhotosPaths: false
+  bugDuplicateRatingSave: false
+  bugCategoryDeleteAllowed: false
+  bugFoodDetailsWrongUserRating: false

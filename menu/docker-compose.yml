@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    image: menu-image:latest
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/foodservice
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    container_name: menu_db
+    image: postgres:15
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_DB=foodservice
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+
+networks:
+  app-network:
+    external: true
