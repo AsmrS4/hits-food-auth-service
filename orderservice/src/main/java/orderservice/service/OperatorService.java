@@ -8,9 +8,7 @@ import orderservice.client.UserClient;
 import orderservice.data.Operator;
 import com.example.common_module.dto.OperatorDto;
 import orderservice.repository.OperatorRepository;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,5 @@
 package orderservice.repository;
 
-import orderservice.data.Operator;
 import orderservice.data.OperatorOrderAmount;
 import orderservice.data.OperatorOrderAmountDto;
 import org.springframework.data.jpa.repository.JpaRepository;

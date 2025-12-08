@@ -1,6 +1,5 @@
 package orderservice.data;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

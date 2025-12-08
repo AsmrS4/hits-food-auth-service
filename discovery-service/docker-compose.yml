@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  app:
+    image: discovery-image:latest
+    ports:
+      - '8761:8761'
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true

@@ -1,6 +1,7 @@
 server:
   port: 8080
-  host: localhost
+#  host: localhost  - поменять для локального запуска либо если в контейнерах не будут грузиться фото и пересобрать образ
+  host: menu-service
   protocol: http
 
 spring:
@@ -8,7 +9,8 @@ spring:
     name: foodchain
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/foodservice
+#    url: jdbc:postgresql://localhost:5432/foodservice - поменять для локального запуска
+    url: jdbc:postgresql://menu_db:5432/foodservice
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -54,7 +56,8 @@ jwt:
   lifetime: 30m
 
 url:
-  order-service-url: http://localhost:8096
+#  order-service-url: http://localhost:8096  - поменять для локального запуска и пересобрать образ
+  order-service-url: http://order-service:8096
 
 logging:
   level:
@@ -62,6 +65,7 @@ logging:
 
 app:
   file-storage:
-    base-url: http://localhost:8080/uploads/
+#    base-url: http://localhost:8080/uploads/  - поменять для локального запуска либо если в контейнерах не будут грузиться фото и пересобрать образ
+    base-url: http://menu-service:8080/uploads/
     upload-dir: ./uploads
     max-file-size: 10MB
