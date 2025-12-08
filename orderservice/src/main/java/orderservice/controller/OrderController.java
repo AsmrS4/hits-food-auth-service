@@ -10,6 +10,7 @@ import jakarta.persistence.Query;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import orderservice.configuration.FeatureToggles;
 import orderservice.data.*;
 import orderservice.dto.AmountDto;
 import orderservice.dto.OrderDto;
@@ -46,6 +47,7 @@ public class OrderController {
     private final MealService mealService;
     private final ReservationMealService reservationMealService;
     private final EntityManager entityManager;
+    private final FeatureToggles featureToggles;
 
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> request) {
@@ -98,9 +100,17 @@ public class OrderController {
                     "SELECT COALESCE(MAX(order_number), 0) + 1 FROM reservation WHERE DATE(date) = CURRENT_DATE"
             );
             Long dailySequence = (Long) query.getSingleResult();
-
-            String orderNumber = datePrefix + String.format("%04d", dailySequence);
-            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId, Long.parseLong(orderNumber)));
+            long orderNumber;
+            if(dailySequence > 1){
+                orderNumber =  dailySequence;
+                if(!featureToggles.isBugWrongOrderNumberCounter()){
+                    orderNumber = Long.parseLong(datePrefix + String.format("%04d", dailySequence));
+                }
+            }
+            else{
+                orderNumber = Long.parseLong(datePrefix + String.format("%04d", dailySequence));
+            }
+            orderService.save(OrderMapper.mapOrderDtoToOrder(orderDto, orderId, orderNumber));
             for (Meal meal : orderDto.getItems()) {
                 if (mealService.getById(meal.getId()).isEmpty()) {
                     mealService.addMeal(meal);

@@ -38,6 +38,13 @@ url:
   user-service-url: http://user-service:8910
   menu-service-url: http://menu-service:8080
 
+feature:
+  bugWrongStatisticCounter: false
+  bugWrongOrderNumberCounter: false
+  bugWrongStatusChange: false
+  bugOperatorWithoutFullName: false
+  bugStatusHistoryNotChanges: false
+
 jwt:
   secret: hits2025972303hits2025972303hits20259723032025hits
   lifetime: 30m
