@@ -1,6 +1,35 @@
 version: '3.8'
 
 services:
+  front-client:
+    image: 'front-client:latest'
+    container_name: front-client
+    restart: on-failure
+    environment:
+      - USER_API_URL=http://user-service:3000/api
+      - MENU_API_URL=http://menu-service:3000/api
+      - ORDER_API_URL=http://order-service:3000/order
+      - CART_API_URL=http://cart-service:3000/api
+    ports:
+      - '4173:4173'
+    networks:
+      - app-network
+    hostname: front-client
+
+  front-operator:
+    image: 'front-operator:latest'
+    container_name: front-operator
+    restart: on-failure
+    environment:
+      - USER_API_URL=http://user-service:3000/api
+      - MENU_API_URL=http://menu-service:3000/api
+      - ORDER_API_URL=http://order-service:3000/api
+    ports:
+      - '4175:4175'
+    networks:
+      - app-network
+    hostname: front-operator
+
   user-service:
     image: user-image:latest
     container_name: user-service
