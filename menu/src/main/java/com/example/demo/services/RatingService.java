@@ -127,7 +127,7 @@ public class RatingService {
         }
     }
 
-    private UUID getUserIdFromContext() {
+    public UUID getUserIdFromContext() {
         var id = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         log.warn("User id = " + id);
         try {
