@@ -7,7 +7,9 @@ server:
 spring:
   application:
     name: foodchain
-
+  cloud:
+    config:
+      enabled: false
   datasource:
 #    url: jdbc:postgresql://localhost:5432/foodservice - поменять для локального запуска
     url: jdbc:postgresql://menu_db:5432/foodservice
@@ -69,3 +71,10 @@ app:
     base-url: http://menu-service:8080/uploads/
     upload-dir: ./uploads
     max-file-size: 10MB
+
+feature:
+  bugWrongPriceSorting: false
+  bugCorruptPhotosPaths: false
+  bugDuplicateRatingSave: false
+  bugCategoryDeleteAllowed: false
+  bugFoodDetailsWrongUserRating: false

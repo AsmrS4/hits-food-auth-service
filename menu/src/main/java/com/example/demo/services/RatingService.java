@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.client.OrderClient;
+import com.example.demo.config.FeatureToggles;
 import com.example.demo.dtos.Food;
 import com.example.demo.dtos.FoodRating;
 import com.example.demo.dtos.RatingResponse;
@@ -28,6 +29,8 @@ public class RatingService {
     private final RatingRepository repository;
     private final FoodRepository foodRepository;
     private final OrderClient client;
+    private final FeatureToggles features;
+
     public RatingResponse rateFood(UUID foodId, FoodRating foodRating) throws BadRequestException {
         UUID userId = getUserIdFromContext();
         if(!couldRateConcreteFood(foodId)) {
@@ -46,7 +49,9 @@ public class RatingService {
                 .rating(foodRating.getRating())
                 .build();
         repository.save(ratingEntity);
-
+        if (features.isBugDuplicateRatingSave()) {
+            repository.save(ratingEntity);
+        }
         return new RatingResponse(this.countRatingAmountForConcreteFood(foodId));
     }
 

@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.config.FeatureToggles;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
 import com.example.demo.mappers.FoodMapper;
@@ -22,6 +23,7 @@ public class FoodService {
     private final FoodMapper foodMapper;
     private final RatingService ratingService;
     private final FileStorageService fileStorageService;
+    private final FeatureToggles features;
 
     public List<FoodShortDto> getAllFoods(FoodFilterRequest filter) {
         List<FoodEntity> foods = foodRepository.findByIsDeletedFalse();
@@ -66,11 +68,17 @@ public class FoodService {
                     .toList();
         }
         if ("price".equalsIgnoreCase(filter.getSortBy())) {
-            foods = foods.stream()
-                    .sorted(Comparator.comparing(FoodEntity::getPrice,
-                            "desc".equalsIgnoreCase(filter.getSortDirection())
-                                    ? Comparator.reverseOrder() : Comparator.naturalOrder()))
-                    .toList();
+            if (features.isBugWrongPriceSorting()) {
+                foods = foods.stream()
+                        .sorted(Comparator.comparing(FoodEntity::getPrice).reversed())
+                        .toList();
+            } else {
+                foods = foods.stream()
+                        .sorted(Comparator.comparing(FoodEntity::getPrice,
+                                "desc".equalsIgnoreCase(filter.getSortDirection())
+                                        ? Comparator.reverseOrder() : Comparator.naturalOrder()))
+                        .toList();
+            }
         } else if ("rate".equalsIgnoreCase(filter.getSortBy())) {
             foods = foods.stream()
                     .sorted(Comparator.comparing(FoodEntity::getRate,
@@ -98,6 +106,9 @@ public class FoodService {
         boolean couldRate = ratingService.couldRateConcreteFood(id);
         boolean hasRate = ratingService.hasRateFromConcreteUser(id);
         double userRating = ratingService.getUsersRating(id);
+        if (features.isBugFoodDetailsWrongUserRating()) {
+            userRating = 5.0;
+        }
         foodDetailsDto.setRate(rateAmount);
         return FoodDetailsResponse.builder()
                 .foodDetails(foodDetailsDto)

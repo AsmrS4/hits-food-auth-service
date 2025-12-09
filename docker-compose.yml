@@ -57,6 +57,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://menu_db:5432/foodservice
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - FEATURE_BUGWRONGPRICESORTING=true
+      - FEATURE_BUGCORRUPTPHOTOSPATHS=true
+      - FEATURE_BUGDUPLICATERATINGSAVE=false
+      - FEATURE_BUGCATEGORYDELETEALLOWED=true
+      - FEATURE_BUGFOODDETAILSWRONGUSERRATING=true
     depends_on:
       - menu_db
     networks:

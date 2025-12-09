@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.config.FeatureToggles;
 import com.example.demo.config.FileStorageConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class FileStorageService {
 
     private final FileStorageConfig fileStorageConfig;
+    private final FeatureToggles features;
     @Value("${server.protocol}")
     private String PROTOCOL;
     @Value("${server.host}")
@@ -43,6 +45,9 @@ public class FileStorageService {
 
             Path targetLocation = storagePath.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            if (features.isBugCorruptPhotosPaths()) {
+                return "/uploads/" + UUID.randomUUID() + ".bug";
+            }
 
             return String.format("%s://%s:%s", PROTOCOL, SERVER_HOST, SERVER_PORT) + "/uploads/" + fileName;
 
