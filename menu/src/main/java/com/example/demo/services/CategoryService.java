@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.config.FeatureToggles;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.CategoryEntity;
 import com.example.demo.repositories.CategoryRepository;
@@ -21,6 +22,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final FoodRepository foodRepository;
     private final CategoryMapper categoryMapper;
+    private final FeatureToggles features;
 
     public List<Category> getAllCategories() {
         return categoryMapper.toDtoList(categoryRepository.findAll());
@@ -51,7 +53,7 @@ public class CategoryService {
         CategoryEntity entity = categoryRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Category not found"));
         boolean hasFoods = foodRepository.existsByCategory(entity);
-        if (hasFoods) {
+        if (hasFoods && !features.isBugCategoryDeleteAllowed()) {
             throw new BadRequestException("Cannot delete category with associated foods");
         }
         categoryRepository.delete(entity);
