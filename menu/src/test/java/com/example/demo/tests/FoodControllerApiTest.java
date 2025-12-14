@@ -1,4 +1,4 @@
-package com.example.demo.unit;
+package com.example.demo.tests;
 
 import com.example.demo.client.OrderClient;
 import com.example.demo.config.FeatureToggles;

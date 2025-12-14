@@ -1,4 +1,4 @@
-package com.example.demo.unit;
+package com.example.demo.tests;
 
 import com.example.demo.config.FeatureToggles;
 import com.example.demo.repositories.FoodRepository;
