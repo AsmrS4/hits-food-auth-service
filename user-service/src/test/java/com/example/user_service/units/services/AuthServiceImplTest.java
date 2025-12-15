@@ -1,4 +1,4 @@
-package com.example.user_service.services;
+package com.example.user_service.units.services;
 
 import com.example.common_module.jwt.TokenService;
 import com.example.user_service.domain.dto.auth.LoginRequest;
