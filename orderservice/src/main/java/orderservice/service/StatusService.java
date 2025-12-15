@@ -1,6 +1,7 @@
 package orderservice.service;
 
 import lombok.RequiredArgsConstructor;
+import orderservice.configuration.FeatureToggles;
 import orderservice.data.Reservation;
 import orderservice.data.Status;
 import orderservice.data.StatusHistory;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class StatusService {
     private final OrderRepository orderRepository;
     private final StatusHistoryRepository statusHistoryRepository;
+    private final FeatureToggles featureToggles;
 
     public List<StatusHistory> getStatusHistory(UUID orderId) {
         return statusHistoryRepository.findByOrderId(orderId);
@@ -25,12 +27,16 @@ public class StatusService {
     public void changeOrderStatus(UUID id, Status status) {
         Reservation order = orderRepository.findById(id).orElse(null);
         assert order != null;
-        order.setStatus(status);
+        if(!featureToggles.isBugWrongStatusChange()){
+            order.setStatus(status);
+        }
         StatusHistory statusHistory = new StatusHistory();
         statusHistory.setOrderId(id);
         statusHistory.setStatus(status);
         statusHistory.setDate(LocalDateTime.now());
-        statusHistoryRepository.save(statusHistory);
+        if(!featureToggles.isBugStatusHistoryNotChanges()){
+            statusHistoryRepository.save(statusHistory);
+        }
         orderRepository.save(order);
     }
 }

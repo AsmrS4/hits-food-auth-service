@@ -5,6 +5,7 @@ import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import orderservice.client.UserClient;
+import orderservice.configuration.FeatureToggles;
 import orderservice.data.Operator;
 import com.example.common_module.dto.OperatorDto;
 import orderservice.repository.OperatorRepository;
@@ -19,12 +20,15 @@ import java.util.UUID;
 @Slf4j
 public class OperatorService {
     private final OperatorRepository operatorRepository;
+    private final FeatureToggles featureToggles;
     private final UserClient userClient;
     public void saveOperator(OperatorDto operatorDto){
         Operator newOperator = new Operator();
         newOperator.setId(operatorDto.getId());
         newOperator.setPhone(operatorDto.getPhone());
-        newOperator.setFullName(operatorDto.getFullName());
+        if(!featureToggles.isBugOperatorWithoutFullName()){
+            newOperator.setFullName(operatorDto.getFullName());
+        }
         operatorRepository.save(newOperator);
     }
     public void deleteOperator(UUID operatorId){
