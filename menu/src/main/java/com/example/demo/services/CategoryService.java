@@ -1,11 +1,11 @@
 package com.example.demo.services;
 
-import com.example.demo.config.FeatureToggles;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.CategoryEntity;
 import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.repositories.FoodRepository;
 import com.example.demo.mappers.CategoryMapper;
+import com.example.demo.config.FeatureToggles;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -59,4 +59,3 @@ public class CategoryService {
         categoryRepository.delete(entity);
     }
 }
-
