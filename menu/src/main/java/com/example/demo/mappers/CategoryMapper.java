@@ -15,4 +15,3 @@ public interface CategoryMapper {
     List<Category> toDtoList(List<CategoryEntity> entities);
 }
 
-

@@ -1,18 +1,15 @@
 package com.example.demo.services;
 
 import com.example.demo.client.OrderClient;
-import com.example.demo.config.FeatureToggles;
-import com.example.demo.dtos.Food;
 import com.example.demo.dtos.FoodRating;
 import com.example.demo.dtos.RatingResponse;
-import com.example.demo.entities.FoodEntity;
 import com.example.demo.entities.RatingEntity;
 import com.example.demo.repositories.FoodRepository;
 import com.example.demo.repositories.RatingRepository;
+import com.example.demo.config.FeatureToggles;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -49,9 +46,11 @@ public class RatingService {
                 .rating(foodRating.getRating())
                 .build();
         repository.save(ratingEntity);
+
         if (features.isBugDuplicateRatingSave()) {
             repository.save(ratingEntity);
         }
+
         return new RatingResponse(this.countRatingAmountForConcreteFood(foodId));
     }
 
@@ -128,7 +127,7 @@ public class RatingService {
         }
     }
 
-    private UUID getUserIdFromContext() {
+    public UUID getUserIdFromContext() {
         var id = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         log.warn("User id = " + id);
         try {
