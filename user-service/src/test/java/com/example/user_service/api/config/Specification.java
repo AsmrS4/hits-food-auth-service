@@ -24,6 +24,9 @@ public class Specification {
     public static ResponseSpecification responseSpecificationError401() {
         return new ResponseSpecBuilder().expectStatusCode(401).build();
     }
+    public static ResponseSpecification responseSpecificationError403() {
+        return new ResponseSpecBuilder().expectStatusCode(403).build();
+    }
     public static ResponseSpecification responseSpecificationError500() {
         return new ResponseSpecBuilder().expectStatusCode(500).build();
     }
