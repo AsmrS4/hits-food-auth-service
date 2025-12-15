@@ -1,7 +1,7 @@
 package com.example.demo.services;
 
-import com.example.demo.config.FeatureToggles;
 import com.example.demo.config.FileStorageConfig;
+import com.example.demo.config.FeatureToggles;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +45,7 @@ public class FileStorageService {
 
             Path targetLocation = storagePath.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
             if (features.isBugCorruptPhotosPaths()) {
                 return "/uploads/" + UUID.randomUUID() + ".bug";
             }

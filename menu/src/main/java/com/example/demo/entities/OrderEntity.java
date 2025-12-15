@@ -27,4 +27,3 @@ public class OrderEntity {
 
     private UUID clientId;
 }
-

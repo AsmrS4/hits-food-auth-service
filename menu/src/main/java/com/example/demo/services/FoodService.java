@@ -93,6 +93,7 @@ public class FoodService {
             return dto;
         }).collect(Collectors.toList());
     }
+
     public FoodDetailsResponse getFoodDetails(UUID id) {
         FoodEntity food = foodRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
@@ -180,7 +181,6 @@ public class FoodService {
         return foodDetailsDto;
     }
 
-
     @Transactional
     public void deleteFood(UUID id) {
         FoodEntity food = foodRepository.findById(id)
@@ -198,7 +198,6 @@ public class FoodService {
 
         entity.setIsDeleted(false);
         entity.setIsAvailable(true);
-
 
         FoodDetailsDto foodDetailsDto = foodMapper.toDetailsDto(foodRepository.save(entity));
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
