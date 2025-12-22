@@ -303,7 +303,9 @@ public class OrderController {
     public ResponseEntity<?> declineOrder(@RequestParam UUID orderId, @RequestParam String declineReason) {
         try {
             log.info("ORDER CONTROLLER - Declining order: {}, Reason: {}", orderId, declineReason);
-            statusService.changeOrderStatus(orderId, Status.CANCELED);
+            if(!featureToggles.isBugErrorStatusChangeWhenDeclineOrder()){
+                statusService.changeOrderStatus(orderId, Status.CANCELED);
+            }
             orderService.setDeclineReason(orderId, declineReason);
             return ResponseEntity.ok(Map.of("message", "Order declined successfully"));
         } catch (Exception e) {
