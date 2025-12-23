@@ -49,6 +49,9 @@ features:
   enableRefreshSession: ${ENABLE_REFRESH_SESSION:true}
   enableInternalServerError: ${ENABLE_INTERNAL_SERVER_ERROR:false}
   enableSaveNullableProperties: ${ENABLE_SAVE_NULLABLE_PROPS:false}
+  enableReturnEmptyResult: ${ENABLE_RETURN_EMPTY_RESULT:false}
+  enableMixedUpTokens: ${ENABLE_MIXED_UP_TOKENS:false}
+  enableExpiredAccessToken: ${ENABLE_EXPIRED_ACCESS_TOKEN:false}
 
 logging:
   level:

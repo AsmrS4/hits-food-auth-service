@@ -49,7 +49,12 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = tokenService.getAccessToken(user);
         String refreshToken = refreshTokenService.createNewRefresh(user);
         ClientUserDTO userProfile = mapper.mapClient(user);
-
+        if(toggles.isEnableReturnEmptyResult()) {
+            return null;
+        }
+        if(toggles.isEnableMixedUpTokens()) {
+            return new AuthResponse(refreshToken, accessToken, userProfile);
+        }
         return new AuthResponse(accessToken, refreshToken, userProfile);
     }
 
@@ -67,7 +72,12 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = tokenService.getAccessToken(user);
         String refreshToken = refreshTokenService.createNewRefresh(user);
         StaffUserDTO userProfile = mapper.map(user);
-
+        if(toggles.isEnableReturnEmptyResult()) {
+            return null;
+        }
+        if(toggles.isEnableMixedUpTokens()) {
+            return new AuthResponse(refreshToken, accessToken, userProfile);
+        }
         return new AuthResponse(accessToken, refreshToken, userProfile);
     }
 
@@ -81,6 +91,9 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         String newRefreshToken = refreshTokenService.getNewRefresh(user, request.getRefreshToken());
         String accessToken = tokenService.getAccessToken(user);
+        if(toggles.isEnableMixedUpTokens()) {
+            return new TokenPair(newRefreshToken, accessToken);
+        }
         return new TokenPair(accessToken, newRefreshToken);
     }
 }

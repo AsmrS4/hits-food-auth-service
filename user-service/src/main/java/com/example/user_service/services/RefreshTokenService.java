@@ -1,6 +1,7 @@
 package com.example.user_service.services;
 
 import com.example.common_module.errors.CustomJwtException;
+import com.example.user_service.config.UserBugToggles;
 import com.example.user_service.domain.entities.Token;
 import com.example.user_service.repository.TokenRepository;
 import io.jsonwebtoken.*;
@@ -25,7 +26,7 @@ public class RefreshTokenService {
     private String SECRET_KEY;
     @Value("${jwt.refresh-lifetime}")
     private Duration LIFE_TIME;
-
+    private final UserBugToggles userBugToggles;
     private final TokenRepository tokenRepository;
 
     public String createNewRefresh(UserDetails userDetails) {
@@ -59,8 +60,12 @@ public class RefreshTokenService {
 
     private String generateRefreshToken(UserDetails userDetails) {
         Date issuedDate = new Date();
-        Date expiredDate = new Date(issuedDate.getTime() + LIFE_TIME.toMillis());
-
+        Date expiredDate;
+        if(userBugToggles.isEnableExpiredAccessToken()) {
+            expiredDate = new Date(issuedDate.getTime() - LIFE_TIME.toMillis());
+        } else {
+            expiredDate = new Date(issuedDate.getTime() + LIFE_TIME.toMillis());
+        }
         return Jwts.builder()
                 .setSubject(String.valueOf(userDetails.getUsername()))
                 .setIssuedAt(issuedDate)
