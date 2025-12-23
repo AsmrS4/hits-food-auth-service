@@ -15,4 +15,10 @@ public class FeatureToggles {
     private boolean bugWrongStatusChange;
     private boolean bugOperatorWithoutFullName;
     private boolean bugStatusHistoryNotChanges;
+
+    private boolean bugNotIncreaseDishAmountAfterAdd;
+    private boolean bugCantGetDishInformation;
+    private boolean bugErrorStatusChangeWhenDeclineOrder;
+    private boolean bugInvalidPriceCountAfterDishAddInOrder;
+    private boolean bugInvalidPriceCountAfterDishDeleteFromOrder;
 }

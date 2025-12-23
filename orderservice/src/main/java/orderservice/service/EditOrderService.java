@@ -5,6 +5,8 @@ import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import orderservice.client.DishClient;
+import orderservice.client.UserClient;
+import orderservice.configuration.FeatureToggles;
 import orderservice.data.Meal;
 import orderservice.data.Reservation;
 import orderservice.data.ReservationMeal;
@@ -27,6 +29,7 @@ public class EditOrderService {
     private final MealRepository mealRepository;
     private final OrderRepository orderRepository;
     private final ReservationMealRepository reservationMealRepository;
+    private final FeatureToggles featureToggles;
     private final DishClient dishClient;
 
     public void addDish(UUID dishId, UUID orderId) throws UnavailableException {
@@ -38,13 +41,23 @@ public class EditOrderService {
         for (int i = 0; i < reservationMeals.size(); i++) {
             if (reservationMeals.get(i).getDishId().equals(dishId)) {
                 try {
-                    reservationMeals.get(i).setQuantity(reservationMeals.get(i).getQuantity() + 1);
+                    if(!featureToggles.isBugNotIncreaseDishAmountAfterAdd()){
+                        reservationMeals.get(i).setQuantity(reservationMeals.get(i).getQuantity() + 1);
+                    }
                     reservationMealRepository.save(reservationMeals.get(i));
-                    Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+                    Meal meal;
+                    if(!featureToggles.isBugCantGetDishInformation()){
+                        meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
+                    }
+                    else{
+                        meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(orderId).getBody()));
+                    }
                     Meal myMeal = mealRepository.getReferenceById(reservationMeals.get(i).getDishId());
                     myMeal.setQuantity(reservationMeals.get(i).getQuantity());
                     mealRepository.save(myMeal);
-                    order.setPrice(order.getPrice() + meal.getPrice());
+                    if(!featureToggles.isBugInvalidPriceCountAfterDishAddInOrder()){
+                        order.setPrice(order.getPrice() + meal.getPrice());
+                    }
                     increase = true;
                     orderRepository.save(order);
                     break;
@@ -69,7 +82,9 @@ public class EditOrderService {
                 reservationMeal.setDishId(dishId);
                 reservationMeal.setQuantity(1);
                 reservationMealRepository.save(reservationMeal);
-                order.setPrice(order.getPrice() + meal.getPrice());
+                if(!featureToggles.isBugInvalidPriceCountAfterDishAddInOrder()){
+                    order.setPrice(order.getPrice() + meal.getPrice());
+                }
                 orderRepository.save(order);
             } catch (FeignException ex) {
                 log.error("ERROR " + ex);
@@ -92,7 +107,9 @@ public class EditOrderService {
             try {
                 Meal meal = MealMapper.mapFoodDetailsResponseToMeal(Objects.requireNonNull(dishClient.getFoodDetails(dishId).getBody()));
                 Meal myMeal = mealRepository.getReferenceById(meal.getId());
-                order.setPrice(order.getPrice() - meal.getPrice() * myMeal.getQuantity());
+                if(!featureToggles.isBugInvalidPriceCountAfterDishDeleteFromOrder()){
+                    order.setPrice(order.getPrice() - meal.getPrice() * myMeal.getQuantity());
+                }
                 orderRepository.save(order);
             } catch (FeignException ex) {
                 if (ex.status() == 404) {

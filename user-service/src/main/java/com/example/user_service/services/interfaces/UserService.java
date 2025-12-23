@@ -20,7 +20,7 @@ public interface UserService {
     Response changePassword(ExchangePasswordRequest request) throws BadRequestException;
     UserDetailsService userDetailsService();
     User getCurrentUser();
-    UserDTO getUserProfile();
+    UserDTO getUserProfile() throws Exception;
     UserDTO editClientProfile(EditClientDTO dto) throws BadRequestException;
     UserDTO editStaffProfile(EditStaffDTO dto) throws BadRequestException;
     Response deleteOperator(UUID operatorId) throws UnavailableException;

@@ -3,10 +3,12 @@ package com.example.user_service.config;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "features")
+@RefreshScope
 @Getter
 @Setter
 public class UserBugToggles {
@@ -15,5 +17,8 @@ public class UserBugToggles {
     private boolean enableChangePassword;
     private boolean enableStaffAuthViaPhoneNumber;
     private boolean enableRefreshSession;
+
+    private boolean enableInternalServerError;
+    private boolean enableSaveNullableProperties;
 }
 

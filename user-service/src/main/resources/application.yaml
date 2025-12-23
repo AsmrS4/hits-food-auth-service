@@ -9,8 +9,7 @@ spring:
     name: user-service
 
   datasource:
-#    url: jdbc:postgresql://localhost:5432/food_users_db
-    url: jdbc:postgresql://user_db:5432/food_users_db
+    url: jdbc:postgresql://localhost:5432/food_users_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -40,15 +39,16 @@ jwt:
   refresh-lifetime: 14400m
 
 url:
-#  order-service-url: http://localhost:8096
   order-service-url: http://order-service:8096
 
 features:
-  enableSaveEditedUser: true
-  enableBadStatusInsteadSuccess: false
-  enableChangePassword: true
-  enableStaffAuthViaPhoneNumber: false
-  enableRefreshSession: true
+  enableSaveEditedUser: ${ENABLE_SAVE_EDITED_USER:true}
+  enableBadStatusInsteadSuccess: ${ENABLE_BAD_STATUS_INSTEAD_OF_SUCCESS:false}
+  enableChangePassword: ${ENABLE_CHANGE_PASSWORD:true}
+  enableStaffAuthViaPhoneNumber: ${ENABLE_STAFF_AUTH_VIA_PHONE_NUMBER:false}
+  enableRefreshSession: ${ENABLE_REFRESH_SESSION:true}
+  enableInternalServerError: ${ENABLE_INTERNAL_SERVER_ERROR:false}
+  enableSaveNullableProperties: ${ENABLE_SAVE_NULLABLE_PROPS:false}
 
 logging:
   level:
