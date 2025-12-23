@@ -48,7 +48,7 @@ public class UserController {
             description = "Get user profile endpoint",
             summary = "This is summary for getting user's profile"
     )
-    public ResponseEntity<UserDTO> getProfile() {
+    public ResponseEntity<UserDTO> getProfile() throws Exception {
         return ResponseEntity.ok(userService.getUserProfile());
     }
     @PutMapping("/users/me")
