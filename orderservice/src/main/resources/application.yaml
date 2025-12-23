@@ -40,7 +40,7 @@ url:
 
 feature:
   bugWrongStatisticCounter: false
-  bugWrongOrderNumberCounter: false
+  bugWrongOrderNumberCounter: true
   bugWrongStatusChange: false
   bugOperatorWithoutFullName: false
   bugStatusHistoryNotChanges: false
