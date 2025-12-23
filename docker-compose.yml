@@ -33,16 +33,14 @@ services:
   user-service:
     image: user-image:latest
     container_name: user-service
+    env_file:
+      - .env
     ports:
       - '8910:8910'
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://user_db:5432/food_users_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - FEATURES_ENABLESAVEEDITEDUSER=true
-      - FEATURES_ENABLECHANGEPASSWORD=true
-      - FEATURES_ENABLESTAFFAUTHVIAPHONENUMBER=false
-      - FEATURES_ENABLEREFRESHSESSION=true
     depends_on:
       - user_db
     networks:

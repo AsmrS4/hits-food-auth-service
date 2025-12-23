@@ -124,8 +124,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUserProfile() {
+    public UserDTO getUserProfile() throws Exception {
         User user = getCurrentUser();
+        if(toggles.isEnableInternalServerError()) {
+            throw new Exception("Server error");
+        }
         if(user.getRole().equals(Role.CLIENT)) {
             return mapper.mapClient(user);
         }else {
@@ -145,6 +148,11 @@ public class UserServiceImpl implements UserService {
 
         dto.setPhone(validatedPhone);
         User updatedUser = mapper.updateUser(user, dto);
+        if(toggles.isEnableSaveNullableProperties()) {
+            updatedUser.setFullName(null);
+            updatedUser.setPhone(null);
+            updatedUser.setUsername(null);
+        }
         if(toggles.isEnableSaveEditedUser()) {
             updatedUser = userRepository.save(updatedUser);
         }
@@ -169,6 +177,11 @@ public class UserServiceImpl implements UserService {
             dto.setPhone(validatedPhone);
         }
         User updatedUser = mapper.updateUser(user, dto);
+        if(toggles.isEnableSaveNullableProperties()) {
+            updatedUser.setFullName(null);
+            updatedUser.setPhone(null);
+            updatedUser.setUsername(null);
+        }
         if(toggles.isEnableSaveEditedUser()) {
             updatedUser = userRepository.save(updatedUser);
         }
