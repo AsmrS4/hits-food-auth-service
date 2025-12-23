@@ -20,5 +20,9 @@ public class UserBugToggles {
 
     private boolean enableInternalServerError;
     private boolean enableSaveNullableProperties;
+
+    private boolean enableReturnEmptyResult;
+    private boolean enableMixedUpTokens;
+    private boolean enableExpiredAccessToken;
 }
 
