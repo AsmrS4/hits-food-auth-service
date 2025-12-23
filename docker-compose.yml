@@ -10,6 +10,10 @@ services:
       - MENU_API_URL=http://menu-service:3000/api
       - ORDER_API_URL=http://order-service:3000/order
       - CART_API_URL=http://cart-service:3000/api
+      - VITE_DISH_NOT_FOUND=${DISH_NOT_FOUND:-false}
+      - VITE_TOTAL_COST_NOT_UPDATE=${TOTAL_COST_NOT_UPDATE:-false}
+      - VITE_RESETTING_SORTS=${RESETTING_SORTS:-false}
+      - VITE_DISH_COUNT_NOT_UPDATE=${DISH_COUNT_NOT_UPDATE:-false}
     ports:
       - '4173:4173'
     networks:
@@ -24,6 +28,12 @@ services:
       - USER_API_URL=http://user-service:3000/api
       - MENU_API_URL=http://menu-service:3000/api
       - ORDER_API_URL=http://order-service:3000/api
+      - VITE_DISH_NOT_FOUND=${DISH_NOT_FOUND:-false}
+      - VITE_TOTAL_COST_NOT_UPDATE=${TOTAL_COST_NOT_UPDATE:-false}
+      - VITE_PHOTO_NOT_DELETE=${PHOTO_NOT_DELETE:-false}
+      - VITE_FOR_NO_REASON=${FOR_NO_REASON:-false}
+      - VITE_ERROR_ADD_NEW_DISH_INTO_ORDER=${ERROR_ADD_NEW_DISH_INTO_ORDER:-false}
+      - VITE_ALWAYS_SUCCESS_ABOUT_US=${ALWAYS_SUCCESS_ABOUT_US:-false}
     ports:
       - '4175:4175'
     networks:
