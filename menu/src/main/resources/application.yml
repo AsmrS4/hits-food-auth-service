@@ -76,3 +76,8 @@ feature:
   bugDuplicateRatingSave: false
   bugCategoryDeleteAllowed: false
   bugFoodDetailsWrongUserRating: false
+  bugAvgRatingIncorrect: false
+  bugPartialSave: false
+  bugWrongUserData: false
+  bugDeletedFoodVisible: false
+  bugFoodUpdateNotSaved: false

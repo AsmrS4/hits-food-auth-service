@@ -86,6 +86,9 @@ public class FoodService {
                                     ? Comparator.reverseOrder() : Comparator.naturalOrder()))
                     .toList();
         }
+        if (features.isBugDeletedFoodVisible()) {
+            foods.addAll(foodRepository.findAll());
+        }
         List<FoodShortDto> foodShortDtos = foodMapper.toShortDtoList(foods);
         return foodShortDtos.stream().map(dto -> {
             double amountRating = ratingService.countRatingAmountForConcreteFood(dto.getId());
