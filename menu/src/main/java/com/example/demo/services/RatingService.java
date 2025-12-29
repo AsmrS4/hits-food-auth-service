@@ -129,6 +129,9 @@ public class RatingService {
         }
     }
     public boolean couldRateConcreteFood(UUID foodId) {
+        if (features.isBugAllowRatingWithoutOrder()) {
+            return true;
+        }
         return this.hasOrderedConcreteFood(foodId);
     }
     private boolean hasOrderedConcreteFood(UUID foodId) {

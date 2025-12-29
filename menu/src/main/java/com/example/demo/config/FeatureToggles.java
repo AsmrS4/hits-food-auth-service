@@ -20,4 +20,5 @@ public class FeatureToggles {
     private boolean bugWrongUserData;
     private boolean bugDeletedFoodVisible;
     private boolean bugFoodUpdateNotSaved;
+    private boolean bugAllowRatingWithoutOrder;
 }

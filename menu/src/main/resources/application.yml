@@ -81,3 +81,4 @@ feature:
   bugWrongUserData: false
   bugDeletedFoodVisible: false
   bugFoodUpdateNotSaved: false
+  bugAllowRatingWithoutOrder: false
