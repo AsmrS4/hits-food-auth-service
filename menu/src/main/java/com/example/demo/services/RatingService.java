@@ -50,6 +50,11 @@ public class RatingService {
         if (features.isBugDuplicateRatingSave()) {
             repository.save(ratingEntity);
         }
+        if (features.isBugPartialSave()) {
+            // эмуляция частичного сохранение: не сохраняем FoodEntity
+        } else {
+            saveRatingToFood(foodId, repository.calculateAverageRatingForFood(foodId));
+        }
 
         return new RatingResponse(this.countRatingAmountForConcreteFood(foodId));
     }
@@ -68,9 +73,19 @@ public class RatingService {
         Optional<RatingEntity> ratingEntity = repository.findByFoodIdAndUserId(foodId, userId);
         ratingEntity.ifPresent(entity -> {
             entity.setRating(newRating.getRating());
-            repository.save(entity);
+            if (!features.isBugPartialSave()) {
+                repository.save(entity);
+            }
         });
-        return new RatingResponse(this.countRatingAmountForConcreteFood(foodId));
+
+        double amount;
+        if (features.isBugAvgRatingIncorrect()) {
+            amount = repository.calculateAverageRatingForFood(foodId) + 1.0;
+        } else {
+            amount = repository.calculateAverageRatingForFood(foodId);
+        }
+        saveRatingToFood(foodId, amount);
+        return new RatingResponse(amount);
     }
 
     public void deleteRatingByFood(UUID foodId) {
@@ -78,17 +93,14 @@ public class RatingService {
     }
 
     public double getUsersRating(UUID foodId) {
-        try {
-            var userId = getUserIdFromContext();
-            if(userId == null) {
-                return -1;
-            }
-            Optional<RatingEntity> ratingEntity = repository.findByFoodIdAndUserId(foodId, userId);
-            return ratingEntity.map(RatingEntity::getRating).orElse(-1.0);
-        } catch (Exception ex) {
-            log.error("RECEIVED EXCEPTION: " + ex.getMessage());
-            return -1;
-        }
+        if (features.isBugWrongUserData()) return 5.0;
+
+        UUID userId = getUserIdFromContext();
+        if(userId == null) return -1;
+
+        return repository.findByFoodIdAndUserId(foodId, userId)
+                .map(RatingEntity::getRating)
+                .orElse(-1.0);
     }
     public double countRatingAmountForConcreteFood(UUID foodId) {
         try {
@@ -115,6 +127,9 @@ public class RatingService {
         }
     }
     public boolean couldRateConcreteFood(UUID foodId) {
+        if (features.isBugAllowRatingWithoutOrder()) {
+            return true;
+        }
         return this.hasOrderedConcreteFood(foodId);
     }
     private boolean hasOrderedConcreteFood(UUID foodId) {
@@ -138,6 +153,7 @@ public class RatingService {
     }
 
     private void saveRatingToFood(UUID foodId, double rating) {
+        if (features.isBugFoodUpdateNotSaved()) return;
         foodRepository.findById(foodId).ifPresent(food -> {
             food.setRate(rating);
             foodRepository.save(food);
