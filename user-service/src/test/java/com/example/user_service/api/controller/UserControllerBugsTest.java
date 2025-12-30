@@ -2,11 +2,13 @@ package com.example.user_service.api.controller;
 
 import com.example.user_service.api.config.Specification;
 import com.example.user_service.api.dto.ClientDto;
+import com.example.user_service.api.dto.StaffDto;
 import com.example.user_service.api.enums.Role;
 import com.example.user_service.api.reponses.auth.AuthClientResponse;
 import com.example.user_service.api.reponses.auth.AuthStaffResponse;
 import com.example.user_service.api.requests.auth.ClientLoginRequest;
 import com.example.user_service.api.requests.auth.StaffLoginRequest;
+import io.restassured.common.mapper.TypeRef;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,9 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("User API tests")
@@ -64,6 +68,24 @@ public class UserControllerBugsTest {
 
             assertNotNull(response);
 
+        }
+        @Test
+        @DisplayName("Must return success response status 200 and message")
+        public void getOperatorListTest() {
+            String accessToken = getAccessTokenAfterAuthorization(Role.ADMIN);
+            List<StaffDto> response = given()
+                    .when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .get("/users/operators")
+                    .then()
+                    .log().all()
+                    .extract().as(new TypeRef<List<StaffDto>>() {});
+            assertNotNull(response);
+            assertTrue(!response.isEmpty());
+            List<StaffDto> clientUser = response.stream().filter(user ->
+                user.getRole().equals(Role.CLIENT)
+            ).toList();
+            assertTrue(clientUser.isEmpty());
         }
         private String getAccessTokenAfterAuthorization(Role userRole) {
             Specification.installSpecifications(
