@@ -7,7 +7,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "features")
+@ConfigurationProperties(prefix = "feature")
 @RefreshScope
 @Getter
 @Setter
@@ -24,5 +24,6 @@ public class UserBugToggles {
     private boolean enableReturnEmptyResult;
     private boolean enableMixedUpTokens;
     private boolean enableExpiredAccessToken;
+    private boolean enableOperatorsWithClientsBug;
 }
 
