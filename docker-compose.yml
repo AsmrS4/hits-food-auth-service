@@ -90,6 +90,14 @@ services:
       - ASPNETCORE_URLS=http://+:5621
       - ConnectionStrings__DefaultConnection=Host=cart-postgres;Port=5432;Database=hitsApplicationDb;Username=postgres;Password=root
       - Jwt__Secret=hits2025972303hits2025972303hits20259723032025hits
+      - FeatureFlags__EnableCalculationBug=${ENABLE_CALCULATION_BUG:-false}
+      - FeatureFlags__EnableOverflowBug=${ENABLE_OVERFLOW_BUG:-false}
+      - FeatureFlags__EnableNewCartLogic=${ENABLE_NEW_CART_LOGIC:-false}
+      - FeatureFlags__EnableImageUrlBug=${ENABLE_IMAGE_URL_BUG:-false}
+      - FeatureFlags__EnableValidationBug=${ENABLE_VALIDATION_BUG:-false}
+      - FeatureFlags__CartItemLimit=50
+      - FeatureFlags__JavaServiceUrl=http://localhost:8096
+
     depends_on:
       cart-postgres:
         condition: service_healthy
