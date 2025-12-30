@@ -237,7 +237,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<StaffUserDTO> getOperators() {
-        List<User> users = userRepository.findAllOperators();
+        List<User> users = toggles.isEnableOperatorsWithClientsBug() ?
+                userRepository.findAllOperatorsAndClients() :
+                userRepository.findAllOperators();
+
         return mapper.map(users);
     }
 

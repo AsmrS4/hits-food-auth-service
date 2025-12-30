@@ -41,7 +41,7 @@ jwt:
 url:
   order-service-url: http://order-service:8096
 
-features:
+feature:
   enableSaveEditedUser: ${ENABLE_SAVE_EDITED_USER:true}
   enableBadStatusInsteadSuccess: ${ENABLE_BAD_STATUS_INSTEAD_OF_SUCCESS:false}
   enableChangePassword: ${ENABLE_CHANGE_PASSWORD:true}
@@ -52,6 +52,7 @@ features:
   enableReturnEmptyResult: ${ENABLE_RETURN_EMPTY_RESULT:false}
   enableMixedUpTokens: ${ENABLE_MIXED_UP_TOKENS:false}
   enableExpiredAccessToken: ${ENABLE_EXPIRED_ACCESS_TOKEN:false}
+  enableOperatorsWithClientsBug: ${ENABLE_OPERATORS_WITH_CLIENTS_BUG:true}
 
 logging:
   level:

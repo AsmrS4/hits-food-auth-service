@@ -1,21 +1,8 @@
 version: '3.8'
 
 services:
-  app:
-    image: user-image:latest
-    ports:
-      - '8910:8910'
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/food_users_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-    depends_on:
-      - db
-    networks:
-      - app-network
-
-  db:
-    container_name: users_db
+  users_db:
+    container_name: users_db_iso
     image: postgres:15
     volumes:
       - db-data:/var/lib/postgresql/data
@@ -26,11 +13,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     networks:
-      - app-network
+      - isolate-app-network
 
 volumes:
   db-data:
 
 networks:
-  app-network:
-    external: true
+  isolate-app-network:
+    driver: bridge

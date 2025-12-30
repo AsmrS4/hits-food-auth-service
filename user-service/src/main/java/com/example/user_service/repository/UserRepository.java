@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByUsername(String username);
     @Query("SELECT u FROM User u WHERE u.role = 2 ORDER BY u.username ASC")
     List<User> findAllOperators();
+    @Query("SELECT u FROM User u WHERE u.role <> 1 ORDER BY u.username ASC")
+    List<User> findAllOperatorsAndClients();
 }
