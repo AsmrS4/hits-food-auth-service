@@ -52,7 +52,7 @@ feature:
   enableReturnEmptyResult: ${ENABLE_RETURN_EMPTY_RESULT:false}
   enableMixedUpTokens: ${ENABLE_MIXED_UP_TOKENS:false}
   enableExpiredAccessToken: ${ENABLE_EXPIRED_ACCESS_TOKEN:false}
-  enableOperatorsWithClientsBug: ${ENABLE_OPERATORS_WITH_CLIENTS_BUG:true}
+  enableOperatorsWithClientsBug: ${ENABLE_OPERATORS_WITH_CLIENTS_BUG:false}
 
 logging:
   level:
