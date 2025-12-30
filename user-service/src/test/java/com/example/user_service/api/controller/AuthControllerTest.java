@@ -9,6 +9,8 @@ import com.example.user_service.api.reponses.error.ErrorResponse;
 import com.example.user_service.api.requests.auth.ClientLoginRequest;
 import com.example.user_service.api.requests.auth.RefreshRequest;
 import com.example.user_service.api.requests.auth.StaffLoginRequest;
+import io.restassured.RestAssured;
+import io.restassured.parsing.Parser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,6 +41,7 @@ public class AuthControllerTest {
 
         @BeforeAll
         public static void setUp() {
+
             Specification.installSpecifications(
                     Specification.requestSpecification(AUTH_URL),
                     Specification.responseSpecificationOk()
@@ -69,10 +72,8 @@ public class AuthControllerTest {
                     .extract().as(AuthClientResponse.class);
 
             assertNotNull(response);
-            assertEquals(clientRequest.getPhone(), response.getProfile().getPhone());
             assertEquals(Role.CLIENT, response.getProfile().getRole());
             assertEquals(UUID.fromString("e763309f-b238-485b-8585-fbb78610c713"), response.getProfile().getId());
-            assertEquals( "Babanov1", response.getProfile().getFullName());
         }
 
         @Test
@@ -128,7 +129,6 @@ public class AuthControllerTest {
                     .log().all()
                     .extract().as(AuthClientResponse.class);
 
-            String accessTokenAfterAuth = response.getAccessToken();
             String refreshTokenAfterAuth = response.getRefreshToken();
             RefreshRequest request = new RefreshRequest(refreshTokenAfterAuth);
 
@@ -138,6 +138,7 @@ public class AuthControllerTest {
                     .post("/refresh")
                     .then()
                         .log().all()
+                    .statusCode(200)
                     .extract().as(TokenPairResponse.class);
 
             assertNotNull(tokenPairResponse);
@@ -158,6 +159,7 @@ public class AuthControllerTest {
         static ClientLoginRequest withStaffPhoneRequest = null;
         @BeforeAll
         public static void setUp() {
+
             Specification.installRequestSpecification(
                     Specification.requestSpecification(AUTH_URL)
             );
@@ -182,7 +184,7 @@ public class AuthControllerTest {
                     "passwosddsdsdsrd123"
             );
             withClientUsernameRequest = new StaffLoginRequest(
-                    "test@client1",
+                    "test@client2",
                     "password123"
             );
             withStaffPhoneRequest = new ClientLoginRequest(

@@ -15,4 +15,12 @@ public class FeatureToggles {
     private boolean bugDuplicateRatingSave;
     private boolean bugCategoryDeleteAllowed;
     private boolean bugFoodDetailsWrongUserRating;
+
+    private boolean bugAvgRatingIncorrect;
+    private boolean bugPartialSave;
+    private boolean bugWrongUserData;
+    private boolean bugDeletedFoodVisible;
+    private boolean bugFoodUpdateNotSaved;
+
+    private boolean bugAllowRatingWithoutOrder;
 }

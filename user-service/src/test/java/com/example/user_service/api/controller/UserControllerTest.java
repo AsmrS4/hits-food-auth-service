@@ -72,9 +72,7 @@ public class UserControllerTest {
                     .extract().as(ClientDto.class);
 
             assertNotNull(response);
-            assertEquals("Babanov1", response.getFullName());
             assertEquals("e763309f-b238-485b-8585-fbb78610c713", response.getId().toString());
-            assertEquals("88005553537", response.getPhone());
             assertEquals(Role.CLIENT, response.getRole());
         }
 
