@@ -3,7 +3,6 @@ package com.example.user_service.services.impl;
 
 import com.example.common_module.enums.Role;
 import com.example.common_module.jwt.TokenService;
-import com.example.user_service.config.UserBugToggles;
 import com.example.user_service.domain.dto.auth.*;
 import com.example.user_service.domain.dto.user.ClientUserDTO;
 import com.example.user_service.domain.dto.user.StaffUserDTO;
@@ -11,6 +10,8 @@ import com.example.user_service.domain.entities.User;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.RefreshTokenService;
 import com.example.user_service.services.interfaces.AuthService;
+import com.example.user_service.utils.FeatureFlagConstants;
+import com.example.user_service.utils.FeatureFlagsManager;
 import com.example.user_service.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -29,14 +30,14 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
-    private final UserBugToggles toggles;
+    private final FeatureFlagsManager featureFlagsManager;
     @Override
     public AuthResponse loginClientUser(LoginRequest request) throws BadRequestException {
         String phoneNumber = request.getPhone().replaceFirst("^(?:\\+?)7", "8");
         User user = userRepository.findUserByPhone(phoneNumber)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
 
-        if(!toggles.isEnableStaffAuthViaPhoneNumber()) {
+        if(!featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_STAFF_AUTH_VIA_PHONE_NUMBER)) {
             if(!user.getRole().equals(Role.CLIENT)) {
                 throw new AccessDeniedException("Login with client credentials for staff is forbidden");
             }
@@ -49,10 +50,10 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = tokenService.getAccessToken(user);
         String refreshToken = refreshTokenService.createNewRefresh(user);
         ClientUserDTO userProfile = mapper.mapClient(user);
-        if(toggles.isEnableReturnEmptyResult()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_RETURN_EMPTY_RESULT)) {
             return null;
         }
-        if(toggles.isEnableMixedUpTokens()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_MIXED_UP_TOKENS)) {
             return new AuthResponse(refreshToken, accessToken, userProfile);
         }
         return new AuthResponse(accessToken, refreshToken, userProfile);
@@ -72,10 +73,10 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = tokenService.getAccessToken(user);
         String refreshToken = refreshTokenService.createNewRefresh(user);
         StaffUserDTO userProfile = mapper.map(user);
-        if(toggles.isEnableReturnEmptyResult()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_RETURN_EMPTY_RESULT)) {
             return null;
         }
-        if(toggles.isEnableMixedUpTokens()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_MIXED_UP_TOKENS)) {
             return new AuthResponse(refreshToken, accessToken, userProfile);
         }
         return new AuthResponse(accessToken, refreshToken, userProfile);
@@ -83,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenPair getNewPair(RefreshRequest request) throws BadRequestException {
-        if(!toggles.isEnableRefreshSession()) {
+        if(!featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_REFRESH_SESSION)) {
             throw new BadRequestException("Session refresh is denied");
         }
         UUID userId = this.refreshTokenService.getUserId(request.getRefreshToken());
@@ -91,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         String newRefreshToken = refreshTokenService.getNewRefresh(user, request.getRefreshToken());
         String accessToken = tokenService.getAccessToken(user);
-        if(toggles.isEnableMixedUpTokens()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_MIXED_UP_TOKENS)) {
             return new TokenPair(newRefreshToken, accessToken);
         }
         return new TokenPair(accessToken, newRefreshToken);

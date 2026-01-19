@@ -1,26 +1,26 @@
 package com.example.user_service.services.impl;
 
 import com.example.common_module.dto.OperatorDto;
+import com.example.common_module.enums.Role;
 import com.example.common_module.jwt.TokenService;
-import com.example.user_service.config.UserBugToggles;
+import com.example.user_service.client.OrdersClient;
 import com.example.user_service.domain.dto.Response;
 import com.example.user_service.domain.dto.auth.AuthResponse;
 import com.example.user_service.domain.dto.registration.ClientRegisterRequest;
 import com.example.user_service.domain.dto.registration.StaffRegisterRequest;
 import com.example.user_service.domain.dto.user.*;
 import com.example.user_service.domain.entities.User;
-import com.example.common_module.enums.Role;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.services.RefreshTokenService;
 import com.example.user_service.services.interfaces.UserService;
-import com.example.user_service.client.OrdersClient;
+import com.example.user_service.utils.FeatureFlagConstants;
+import com.example.user_service.utils.FeatureFlagsManager;
 import com.example.user_service.utils.UserMapper;
 import jakarta.servlet.UnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
-    private final UserBugToggles toggles;
+    private final FeatureFlagsManager featureFlagsManager;
     private final UserMapper mapper;
     private final OrdersClient client;
 
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response changePassword(ExchangePasswordRequest request) throws BadRequestException {
-        if(!toggles.isEnableChangePassword()) {
+        if(!featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_CHANGE_PASSWORD)) {
             throw new BadRequestException("Password change is denied");
         }
         User currentUser = getCurrentUser();
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserProfile() throws Exception {
         User user = getCurrentUser();
-        if(toggles.isEnableInternalServerError()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_INTERNAL_SERVER_ERROR)) {
             throw new Exception("Server error");
         }
         if(user.getRole().equals(Role.CLIENT)) {
@@ -148,12 +148,12 @@ public class UserServiceImpl implements UserService {
 
         dto.setPhone(validatedPhone);
         User updatedUser = mapper.updateUser(user, dto);
-        if(toggles.isEnableSaveNullableProperties()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_NULLABLE_PROPS)) {
             updatedUser.setFullName(null);
             updatedUser.setPhone(null);
             updatedUser.setUsername(null);
         }
-        if(toggles.isEnableSaveEditedUser()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_EDITED_USER)) {
             updatedUser = userRepository.save(updatedUser);
         }
         return mapper.mapClient(updatedUser);
@@ -177,12 +177,12 @@ public class UserServiceImpl implements UserService {
             dto.setPhone(validatedPhone);
         }
         User updatedUser = mapper.updateUser(user, dto);
-        if(toggles.isEnableSaveNullableProperties()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_NULLABLE_PROPS)) {
             updatedUser.setFullName(null);
             updatedUser.setPhone(null);
             updatedUser.setUsername(null);
         }
-        if(toggles.isEnableSaveEditedUser()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_EDITED_USER)) {
             updatedUser = userRepository.save(updatedUser);
         }
         return mapper.map(updatedUser);
@@ -213,7 +213,7 @@ public class UserServiceImpl implements UserService {
         String validatedPhone = phone.replaceFirst("^(?:\\+?)7", "8");
         User user = userRepository.findUserByPhone(validatedPhone)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        if(user.getRole().equals(Role.ADMIN)) {
+        if(!user.getRole().equals(Role.CLIENT)) {
             throw new AccessDeniedException("This information is secured");
         }
         return mapper.mapClient(user);
@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<StaffUserDTO> getOperators() {
-        List<User> users = toggles.isEnableOperatorsWithClientsBug() ?
+        List<User> users = featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_OPERATORS_WITH_CLIENTS_BUG) ?
                 userRepository.findAllOperatorsAndClients() :
                 userRepository.findAllOperators();
 
