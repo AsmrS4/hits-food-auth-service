@@ -14,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @Import({
@@ -29,6 +30,7 @@ import org.springframework.context.annotation.Import;
 		OperatorDto.class
 })
 @EnableFeignClients(basePackages = {"com.example.user_service.client"})
+@EnableScheduling
 public class UserServiceApplication {
 
 	public static void main(String[] args) {
