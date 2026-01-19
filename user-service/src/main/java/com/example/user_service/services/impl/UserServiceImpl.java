@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,8 +113,10 @@ public class UserServiceImpl implements UserService {
         if(request.getPassword().equals(request.getNewPassword())) {
             throw new BadRequestException("Previous password and new password mustn't be equals");
         }
-        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(currentUser);
+        if(!featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_PASSWORD_BUG)) {
+            currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(currentUser);
+        }
         return new Response(HttpStatus.OK, 200, "Password was changed successfully");
     }
 
@@ -156,6 +159,9 @@ public class UserServiceImpl implements UserService {
         if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_EDITED_USER)) {
             updatedUser = userRepository.save(updatedUser);
         }
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SET_ADMIN_ROLE_TO_CLIENT_BUG)) {
+            updatedUser.setRole(Role.ADMIN);
+        }
         return mapper.mapClient(updatedUser);
     }
 
@@ -185,6 +191,9 @@ public class UserServiceImpl implements UserService {
         if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_EDITED_USER)) {
             updatedUser = userRepository.save(updatedUser);
         }
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SET_CLIENT_ROLE_TO_OPERATOR_BUG) && updatedUser.getRole().equals(Role.OPERATOR)) {
+            updatedUser.setRole(Role.CLIENT);
+        }
         return mapper.map(updatedUser);
     }
 
@@ -211,12 +220,18 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Invalid phone format");
         }
         String validatedPhone = phone.replaceFirst("^(?:\\+?)7", "8");
-        User user = userRepository.findUserByPhone(validatedPhone)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        if(!user.getRole().equals(Role.CLIENT)) {
-            throw new AccessDeniedException("This information is secured");
+        Optional<User> user = userRepository.findUserByPhone(validatedPhone);
+        if(user.isPresent()) {
+            if(!user.get().getRole().equals(Role.CLIENT)) {
+                throw new AccessDeniedException("This information is secured");
+            }
+            return mapper.mapClient(user.get());
+        } else {
+            if (featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_OK_STATUS_BUG)) {
+                return null;
+            }
+            throw new UsernameNotFoundException("User not found");
         }
-        return mapper.mapClient(user);
     }
 
     private User getByUsername(String username) {

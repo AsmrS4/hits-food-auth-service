@@ -90,6 +90,9 @@ public class RefreshTokenService {
         if(prevToken!=null) {
             deletePrevRefreshToken(prevToken);
         }
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_REFRESH_BUG)) {
+            return;
+        }
         tokenRepository.save(token);
     }
 
