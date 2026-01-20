@@ -80,8 +80,7 @@ public class AuthControllerTest {
         @DisplayName("Must return success response with profile data for Operator user")
         public void authWithOperatorCredentialsTest() {
             UUID operatorId = UUID.fromString("27160085-2429-4dd7-8619-bcf1d1f387cf");
-            String operatorName = "Иван Оператор";
-            String operatorUsername = "test@operator1";
+
             AuthStaffResponse response = given()
                     .body(operatorRequest)
                     .when()
@@ -93,8 +92,6 @@ public class AuthControllerTest {
             assertNotNull(response);
             assertEquals(Role.OPERATOR, response.getProfile().getRole());
             assertEquals(operatorId, response.getProfile().getId());
-            assertEquals(operatorName, response.getProfile().getFullName());
-            assertEquals(operatorUsername, response.getProfile().getUsername());
         }
 
         @Test

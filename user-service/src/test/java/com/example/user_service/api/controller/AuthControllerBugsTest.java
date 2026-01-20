@@ -122,5 +122,29 @@ public class AuthControllerBugsTest {
 
             assertNotNull(tokenPairResponse);
         }
+
+        @Test
+        @DisplayName("Should save refresh token in DB")
+        public void refreshTokenNotSavingBugTest() {
+            AuthClientResponse response = given()
+                    .body(clientRequest)
+                    .when()
+                    .post("/user/sign-in")
+                    .then()
+                    .log().all()
+                    .extract().as(AuthClientResponse.class);
+            String refreshTokenAfterAuth = response.getRefreshToken();
+            RefreshRequest request = new RefreshRequest(refreshTokenAfterAuth);
+            TokenPairResponse tokenPairResponse = given()
+                    .body(request)
+                    .when()
+                    .post("/refresh")
+                    .then()
+                    .log().all()
+                    .statusCode(200)
+                    .extract().as(TokenPairResponse.class);
+
+            assertNotNull(tokenPairResponse);
+        }
     }
 }

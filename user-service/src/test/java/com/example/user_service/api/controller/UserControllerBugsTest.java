@@ -6,8 +6,14 @@ import com.example.user_service.api.dto.StaffDto;
 import com.example.user_service.api.enums.Role;
 import com.example.user_service.api.reponses.auth.AuthClientResponse;
 import com.example.user_service.api.reponses.auth.AuthStaffResponse;
+import com.example.user_service.api.reponses.error.ErrorResponse;
 import com.example.user_service.api.requests.auth.ClientLoginRequest;
 import com.example.user_service.api.requests.auth.StaffLoginRequest;
+import com.example.user_service.api.requests.users.EditProfileDto;
+import com.example.user_service.domain.dto.Response;
+import com.example.user_service.domain.dto.user.EditClientDTO;
+import com.example.user_service.domain.dto.user.EditStaffDTO;
+import com.example.user_service.domain.dto.user.ExchangePasswordRequest;
 import io.restassured.common.mapper.TypeRef;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,6 +92,118 @@ public class UserControllerBugsTest {
             ).toList();
             assertTrue(clientUser.isEmpty());
         }
+
+        @Test
+        @DisplayName("Should throw UsernameNotFoundException with not existing user")
+        public void findNotExistingUserByPhoneShouldThrowException() {
+            String accessToken = getAccessTokenAfterAuthorization(Role.CLIENT);
+            Specification.installSpecifications(
+                    Specification.requestSpecification(BASE_URL),
+                    Specification.responseSpecificationError404()
+            );
+
+            ErrorResponse errorResponse = given()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .queryParam("phone","88000003538")
+                    .get("/users/find-by-phone")
+                    .then()
+                    .log().all()
+                    .statusCode(404).extract().as(ErrorResponse.class);
+
+            assertEquals(404, errorResponse.getStatus());
+            assertEquals("User not found", errorResponse.getError());
+        }
+
+        @Test
+        @DisplayName("Should return correct client role after update")
+        public void updateClientProfileShouldReturnClientDtoWithClientRole() {
+            String accessToken = getAccessTokenAfterAuthorization(Role.CLIENT);
+            EditClientDTO editProfile = new EditClientDTO("Babanov1","88005553537");
+            EditClientDTO resetProfile = new EditClientDTO("Babanov1", "88005553537");
+            ClientDto clientDto = given()
+                    .when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .body(editProfile)
+                    .put("/users/me")
+                    .then()
+                    .statusCode(200)
+                    .extract().as(ClientDto.class);
+            given().when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .body(resetProfile)
+                    .put("/users/me");
+
+            assertNotNull(clientDto);
+            assertEquals(Role.CLIENT, clientDto.getRole());
+        }
+
+        @Test
+        @DisplayName("Should return correct client role after retrieve request")
+        public void getClientProfileShouldReturnClientDtoWithClientRole() {
+            String accessToken = getAccessTokenAfterAuthorization(Role.CLIENT);
+            ClientDto clientDto = given()
+                    .when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .get("/users/me")
+                    .then()
+                    .statusCode(200)
+                    .extract().as(ClientDto.class);
+
+            assertEquals(Role.CLIENT, clientDto.getRole());
+        }
+
+        @Test
+        @DisplayName("Should return correct operator role after update")
+        public void updateStaffProfileShouldReturnOperatorRole() {
+            String accessToken = getAccessTokenAfterAuthorization(Role.OPERATOR);
+            EditStaffDTO resetProfile = new EditStaffDTO("Иван Оператор", "88005553536", "test@operator1");
+            EditStaffDTO editProfileDto = new EditStaffDTO("Иван Оператор", "88005553536", "test@operator1");
+            StaffDto response = given()
+                    .when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .body(editProfileDto)
+                    .put("/users/me/staff")
+                    .then()
+                    .statusCode(200)
+                    .extract().as(StaffDto.class);
+
+            given().when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .body(resetProfile)
+                    .put("/users/me/staff");
+
+            assertNotNull(response);
+            assertEquals("27160085-2429-4dd7-8619-bcf1d1f387cf", response.getId().toString());
+            assertEquals(Role.OPERATOR, response.getRole());
+        }
+
+        @Test
+        @DisplayName("Should return correct operator role retrieve request")
+        public void getStaffProfileShouldReturnStaffDtoWithOperatorOrAdminRole() {
+            String accessToken = getAccessTokenAfterAuthorization(Role.OPERATOR);
+            StaffDto staffDto = given()
+                    .when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .get("/users/me")
+                    .then()
+                    .statusCode(200)
+                    .extract().as(StaffDto.class);
+
+            assertEquals(Role.OPERATOR, staffDto.getRole());
+        }
+
+        private Response changePasswordRequest(ExchangePasswordRequest request, String accessToken) {
+            return given()
+                    .when()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .body(request)
+                    .put("/users/password/change")
+                    .then()
+                    .log().all()
+                    .statusCode(200)
+                    .extract().as(Response.class);
+        }
+
         private String getAccessTokenAfterAuthorization(Role userRole) {
             Specification.installSpecifications(
                     Specification.requestSpecification(BASE_URL),

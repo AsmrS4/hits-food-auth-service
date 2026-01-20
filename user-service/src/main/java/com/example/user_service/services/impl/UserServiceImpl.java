@@ -133,8 +133,10 @@ public class UserServiceImpl implements UserService {
             throw new Exception("Server error");
         }
         if(user.getRole().equals(Role.CLIENT)) {
+            if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SET_ADMIN_ROLE_TO_CLIENT_BUG)) user.setRole(Role.ADMIN);
             return mapper.mapClient(user);
         }else {
+            if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SET_CLIENT_ROLE_TO_OPERATOR_BUG)) user.setRole(Role.CLIENT);
             return mapper.map(user);
         }
     }
