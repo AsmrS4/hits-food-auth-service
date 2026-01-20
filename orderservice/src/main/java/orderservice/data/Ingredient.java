@@ -1,5 +1,6 @@
 package orderservice.data;
 
+
 public enum Ingredient {
     ONION,
     MEAT,

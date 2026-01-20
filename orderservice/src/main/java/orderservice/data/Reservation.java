@@ -29,6 +29,8 @@ public class Reservation {
     private String comment;
     @NotNull
     private double price;
+
+
     private String declineReason;
     private UUID operatorId;
     private String operatorName;

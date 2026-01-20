@@ -21,4 +21,10 @@ public class FeatureToggles {
     private boolean bugErrorStatusChangeWhenDeclineOrder;
     private boolean bugInvalidPriceCountAfterDishAddInOrder;
     private boolean bugInvalidPriceCountAfterDishDeleteFromOrder;
+
+    private boolean bugNullImageOfDishInOrderGetByIdMethod;
+    private boolean bugNullQuantityOfDishInOrderGetByIdMethod;
+    private boolean bugEmptyArrayOfDishInOrderGetByIdMethod;
+    private boolean bugNullCommentForOrderInCommentMethod;
+    private boolean bugMathMistakesInOrderPriceCountingChangeDishAmountMethod;
 }
