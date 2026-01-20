@@ -23,4 +23,9 @@ public class FeatureToggles {
     private boolean bugFoodUpdateNotSaved;
 
     private boolean bugAllowRatingWithoutOrder;
+    private boolean bugIgnoreOnePriceBound;
+    private boolean bugDropFoodPhotosOnRead;
+    private boolean bugNameSearchCaseSensitive;
+    private boolean bugDistortFoodPriceOnDetails;
+    private boolean bugSearchExactNameOnly;
 }

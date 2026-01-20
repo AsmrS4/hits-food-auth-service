@@ -86,3 +86,8 @@ feature:
   bugFoodUpdateNotSaved: false
 
   bugAllowRatingWithoutOrder: false
+  bugIgnoreOnePriceBound: false
+  bugDropFoodPhotosOnRead: false
+  bugNameSearchCaseSensitive: false
+  bugDistortFoodPriceOnDetails: false
+  bugSearchExactNameOnly: false
