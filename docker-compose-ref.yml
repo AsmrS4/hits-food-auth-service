@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+
+  user-service:
+    image: user-image:latest
+    container_name: user-service
+    env_file:
+      - .env
+    ports:
+      - '8910:8910'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user_db:5432/food_users_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - FEATURE_ENABLE_SAVE_EDITED_USER=${ENABLE_SAVE_EDITED_USER:-false}
+      - FEATURE_ENABLE_CHANGE_PASSWORD=${ENABLE_CHANGE_PASSWORD:-true}
+      - FEATURE_ENABLE_STAFF_AUTH_VIA_PHONE_NUMBER=${ENABLE_STAFF_AUTH_VIA_PHONE_NUMBER:-false}
+      - FEATURE_ENABLE_REFRESH_SESSION=${ENABLE_REFRESH_SESSION:-true}
+      - FEATURE_ENABLE_INTERNAL_SERVER_ERROR=${ENABLE_INTERNAL_SERVER_ERROR:-false}
+      - FEATURE_ENABLE_SAVE_NULLABLE_PROPS=${ENABLE_SAVE_NULLABLE_PROPS:-false}
+      - FEATURE_ENABLE_RETURN_EMPTY_RESULT=${ENABLE_RETURN_EMPTY_RESULT:-false}
+      - FEATURE_ENABLE_MIXED_UP_TOKENS=${ENABLE_MIXED_UP_TOKENS:-false}
+      - FEATURE_ENABLE_EXPIRED_ACCESS_TOKEN=${ENABLE_EXPIRED_ACCESS_TOKEN:-false}
+      - FEATURE_ENABLE_OPERATORS_WITH_CLIENTS_BUG=${ENABLE_OPERATORS_WITH_CLIENTS_BUG:-false}
+    depends_on:
+      - user_db
+    networks:
+      - app-network
+
+  menu-service:
+    image: menu-image:latest
+    container_name: menu-service
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://menu_db:5432/foodservice
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - FEATURE_BUG_WRONG_PRICE_SORTING=${ENABLE_BUG_WRONG_PRICE_SORTING:-false}
+      - FEATURE_BUG_CORRUPT_PHOTOS_PATHS=${ENABLE_BUG_CORRUPT_PHOTOS_PATHS:-false}
+      - FEATURE_BUG_DUPLICATE_RATING_SAVE=${ENABLE_BUG_DUPLICATE_RATING_SAVE:-false}
+      - FEATURE_BUG_CATEGORY_DELETE_ALLOWED=${ENABLE_BUG_CATEGORY_DELETE_ALLOWED:-false}
+      - FEATURE_BUG_FOOD_DETAILS_WRONG_USER_RATING=${ENABLE_BUG_FOOD_DETAILS_WRONG_USER_RATING:-false}
+    depends_on:
+      - menu_db
+    networks:
+      - app-network
+
+  order-service:
+    image: order-image:latest
+    container_name: order-service
+    ports:
+      - '8096:8096'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://order_db:5432/mydatabase
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - FEATURE_BUG_WRONG_STATISTIC_COUNTER=${BUG_WRONG_STATISTIC_COUNTER:-false}
+      - FEATURE_BUG_WRONG_ORDER_NUMBER_COUNTER=${BUG_WRONG_NUMBER_COUNTER:-false}
+      - FEATURE_BUG_WRONG_STATUS_CHANGE=${BUG_WRONG_STATUS_CHANGE:-false}
+      - FEATURE_BUG_OPERATOR_WITHOUT_FULL_NAME=${BUG_OPERATOR_WITHOUT_FULL_NAME:-false}
+      - FEATURE_BUG_STATUS_HISTORY_NOT_CHANGES=${BUG_STATUS_HISTORY_NOT_CHANGES:-false}
+      - FEATURE_BUG_INVALID_PRICE_COUNT_AFTER_DISH_ADD_IN_ORDER=${BUG_INVALID_PRICE_COUNT_AFTER_DISH_ADD_IN_ORDER:-false}
+      - FEATURE_BUG_INVALID_PRICE_COUNT_AFTER_DISH_DELETE_FROM_ORDER=${BUG_INVALID_PRICE_COUNT_AFTER_DISH_DELETE_FROM_ORDER:-false}
+      - FEATURE_BUG_CANT_GET_DISH_INFORMATION=${BUG_CANT_GET_DISH_INFORMATION:-false}
+      - FEATURE_BUG_ERROR_STATUS_CHANGE_WHEN_DECLINE_ORDER=${BUG_ERROR_STATUS_CHANGE_WHEN_DECLINE_ORDER:-false}
+      - FEATURE_BUG_NOT_INCREASE_DISH_AMOUNT_AFTER_ADD=${BUG_NOT_INCREASE_DISH_AMOUNT_AFTER_ADD:-false}
+    depends_on:
+      - order_db
+    networks:
+      - app-network
+
+  user_db:
+    container_name: user_db
+    image: postgres:15
+    volumes:
+      - user_db-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=food_users_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+  menu_db:
+    container_name: menu_db
+    image: postgres:15
+    volumes:
+      - menu_db-data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_DB=foodservice
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+  order_db:
+    container_name: order_db
+    image: postgres:15
+    volumes:
+      - order_db-data:/var/lib/postgresql/data
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+volumes:
+  user_db-data:
+  menu_db-data:
+  order_db-data:
+
+networks:
+  app-network:
+    driver: bridge

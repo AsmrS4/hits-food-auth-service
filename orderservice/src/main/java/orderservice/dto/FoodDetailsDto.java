@@ -1,6 +1,7 @@
 package orderservice.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import orderservice.data.Ingredient;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class FoodDetailsDto {
     UUID id;
     String name;

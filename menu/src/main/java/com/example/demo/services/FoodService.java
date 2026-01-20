@@ -51,21 +51,49 @@ public class FoodService {
                             .noneMatch(filter.getExcludeIngredients()::contains))
                     .toList();
         }
-        if (filter.getMinPrice() != null) {
-            foods = foods.stream()
-                    .filter(f -> f.getPrice() >= filter.getMinPrice())
-                    .toList();
-        }
-        if (filter.getMaxPrice() != null) {
-            foods = foods.stream()
-                    .filter(f -> f.getPrice() <= filter.getMaxPrice())
-                    .toList();
+        if (features.isBugIgnoreOnePriceBound()) {
+            if (filter.getMinPrice() != null) {
+                foods = foods.stream()
+                        .filter(f -> f.getPrice() >= filter.getMinPrice())
+                        .toList();
+            }
+        } else {
+            if (filter.getMinPrice() != null) {
+                foods = foods.stream()
+                        .filter(f -> f.getPrice() >= filter.getMinPrice())
+                        .toList();
+            }
+            if (filter.getMaxPrice() != null) {
+                foods = foods.stream()
+                        .filter(f -> f.getPrice() <= filter.getMaxPrice())
+                        .toList();
+            }
         }
         if (filter.getSearch() != null && !filter.getSearch().isBlank()) {
-            String searchLower = filter.getSearch().toLowerCase();
-            foods = foods.stream()
-                    .filter(f -> f.getName().toLowerCase().contains(searchLower))
-                    .toList();
+            String search = filter.getSearch();
+
+            if (features.isBugSearchExactNameOnly()) {
+                if (features.isBugNameSearchCaseSensitive()) {
+                    foods = foods.stream()
+                            .filter(f -> f.getName().equals(search))
+                            .toList();
+                } else {
+                    foods = foods.stream()
+                            .filter(f -> f.getName().equalsIgnoreCase(search))
+                            .toList();
+                }
+            } else {
+                if (features.isBugNameSearchCaseSensitive()) {
+                    foods = foods.stream()
+                            .filter(f -> f.getName().contains(search))
+                            .toList();
+                } else {
+                    String searchLower = search.toLowerCase();
+                    foods = foods.stream()
+                            .filter(f -> f.getName().toLowerCase().contains(searchLower))
+                            .toList();
+                }
+            }
         }
         if ("price".equalsIgnoreCase(filter.getSortBy())) {
             if (features.isBugWrongPriceSorting()) {
@@ -106,6 +134,9 @@ public class FoodService {
         FoodDetailsDto foodDetailsDto = foodRepository.findById(id)
                 .map(foodMapper::toDetailsDto)
                 .orElseThrow(() -> new UsernameNotFoundException("Food not found"));
+        if (features.isBugDropFoodPhotosOnRead()) {
+            foodDetailsDto.setPhotos(new ArrayList<>());
+        }
         double rateAmount = ratingService.countRatingAmountForConcreteFood(id);
         boolean couldRate = ratingService.couldRateConcreteFood(id);
         boolean hasRate = ratingService.hasRateFromConcreteUser(id);
@@ -114,6 +145,9 @@ public class FoodService {
             userRating = 5.0;
         }
         foodDetailsDto.setRate(rateAmount);
+        if (features.isBugDistortFoodPriceOnDetails()) {
+            foodDetailsDto.setPrice(foodDetailsDto.getPrice() * 0.9);
+        }
         return FoodDetailsResponse.builder()
                 .foodDetails(foodDetailsDto)
                 .couldRate(couldRate)
