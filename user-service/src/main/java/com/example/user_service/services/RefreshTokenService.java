@@ -1,9 +1,10 @@
 package com.example.user_service.services;
 
 import com.example.common_module.errors.CustomJwtException;
-import com.example.user_service.config.UserBugToggles;
 import com.example.user_service.domain.entities.Token;
 import com.example.user_service.repository.TokenRepository;
+import com.example.user_service.utils.FeatureFlagConstants;
+import com.example.user_service.utils.FeatureFlagsManager;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.security.SignatureException;
@@ -26,7 +27,7 @@ public class RefreshTokenService {
     private String SECRET_KEY;
     @Value("${jwt.refresh-lifetime}")
     private Duration LIFE_TIME;
-    private final UserBugToggles userBugToggles;
+    private final FeatureFlagsManager featureFlagsManager;
     private final TokenRepository tokenRepository;
 
     public String createNewRefresh(UserDetails userDetails) {
@@ -61,7 +62,7 @@ public class RefreshTokenService {
     private String generateRefreshToken(UserDetails userDetails) {
         Date issuedDate = new Date();
         Date expiredDate;
-        if(userBugToggles.isEnableExpiredAccessToken()) {
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_EXPIRED_ACCESS_TOKEN)) {
             expiredDate = new Date(issuedDate.getTime() - LIFE_TIME.toMillis());
         } else {
             expiredDate = new Date(issuedDate.getTime() + LIFE_TIME.toMillis());
@@ -88,6 +89,9 @@ public class RefreshTokenService {
                 .build();
         if(prevToken!=null) {
             deletePrevRefreshToken(prevToken);
+        }
+        if(featureFlagsManager.isEnabled(FeatureFlagConstants.ENABLE_SAVE_REFRESH_BUG)) {
+            return;
         }
         tokenRepository.save(token);
     }
