@@ -71,6 +71,16 @@ services:
     networks:
       - app-network
 
+  log-service:
+    image: log-image:latest
+    container_name: log-service
+    env_file:
+      - .env
+    ports:
+      - '8100:8100'
+    networks:
+      - app-network
+
   menu-service:
     image: menu-image:latest
     container_name: menu-service

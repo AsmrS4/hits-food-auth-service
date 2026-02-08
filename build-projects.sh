@@ -215,6 +215,9 @@ docker build -f menu/Dockerfile -t menu-image:latest .
 echo -e "\n${YELLOW}Сборка order-image${NC}"
 docker build -f orderservice/Dockerfile -t order-image:latest .
 
+echo -e "\n${YELLOW}Сборка log-image${NC}"
+docker build -f log-service/Dockerfile -t log-image:latest .
+
 # 4. Запуск docker-compose
 echo -e "\n${GREEN}4. Запуск docker-compose${NC}"
 
