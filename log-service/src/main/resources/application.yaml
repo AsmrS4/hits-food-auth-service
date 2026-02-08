@@ -1,0 +1,23 @@
+server:
+  port: 8100
+spring:
+  application:
+    name: log-service
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+    servlet:
+      path: /
+  file:
+    saving-dir: ./files
+logging:
+  level:
+    org.springframework.security: trace
+    org.apache.http: DEBUG
+    com.netflix.discovery: OFF
+    org.springframework.cloud.netflix.eureka: OFF
+    org.springframework.cloud.netflix.eureka.server: OFF
+    com.netflix.eureka: OFF
+
+settings:
+  strategy: LOCAL

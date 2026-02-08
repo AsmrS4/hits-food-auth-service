@@ -64,6 +64,11 @@ url:
 logging:
   level:
     org.springframework.security: trace
+    org.apache.http: DEBUG
+    com.netflix.discovery: OFF
+    org.springframework.cloud.netflix.eureka: OFF
+    org.springframework.cloud.netflix.eureka.server: OFF
+    com.netflix.eureka: OFF
 
 app:
   file-storage:
