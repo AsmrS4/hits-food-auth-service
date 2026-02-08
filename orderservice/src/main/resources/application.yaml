@@ -28,9 +28,15 @@ spring:
     clean-on-validation-error: false
     out-of-order: false
     table: flyway_schema_history
+
 logging:
   level:
     org.springframework.security: trace
+    org.apache.http: DEBUG
+    com.netflix.discovery: OFF
+    org.springframework.cloud.netflix.eureka: OFF
+    org.springframework.cloud.netflix.eureka.server: OFF
+    com.netflix.eureka: OFF
 
 url:
 #  user-service-url: http://localhost:8910

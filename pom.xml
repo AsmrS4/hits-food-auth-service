@@ -24,6 +24,7 @@
         <module>menu</module>
         <module>orderservice</module>
         <module>gateway</module>
+        <module>log-service</module>
     </modules>
 
     <properties>

@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="config-service" />
         <module name="common-module" />
+        <module name="log-service" />
         <module name="user-service" />
         <module name="gateway" />
         <module name="discovery-service" />
@@ -52,6 +53,7 @@
       <module name="config-service" options="-parameters" />
       <module name="discovery-service" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="log-service" options="-parameters" />
       <module name="menu" options="-parameters" />
       <module name="menu-service" options="-parameters" />
       <module name="orders-service" options="-parameters" />
