@@ -4,7 +4,6 @@ import com.example.log_service.api.dto.LogBackendRequest;
 import com.example.log_service.api.dto.LogFrontendRequest;
 import com.example.log_service.core.service.LogService;
 import com.example.log_service.core.utils.LogSavingFactory;
-import com.example.log_service.core.utils.LogSavingStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

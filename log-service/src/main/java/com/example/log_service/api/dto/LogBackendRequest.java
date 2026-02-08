@@ -2,6 +2,7 @@ package com.example.log_service.api.dto;
 
 import com.example.log_service.core.enums.HttpMethod;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +22,10 @@ public class LogBackendRequest{
     @NotBlank(message = "Endpoint name is required")
     private String endpoint;
     @NotBlank(message = "Http status is required")
-    private HttpStatus status;
-    @NotBlank(message = "User ID is required")
+    private String status;
+    @NotNull(message = "User ID is required")
     private UUID userId;
-    @NotBlank(message = "TimeStamp is required")
+    @NotNull(message = "TimeStamp is required")
     private LocalDateTime timestamp;
 
     @Override

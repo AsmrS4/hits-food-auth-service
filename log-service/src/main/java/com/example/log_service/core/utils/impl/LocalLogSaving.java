@@ -2,10 +2,8 @@ package com.example.log_service.core.utils.impl;
 
 import com.example.log_service.api.dto.LogBackendRequest;
 import com.example.log_service.api.dto.LogFrontendRequest;
-import com.example.log_service.api.mapper.LogMapper;
 import com.example.log_service.core.utils.LogSavingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
@@ -18,23 +16,23 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @Component
+@Slf4j
 public class LocalLogSaving implements LogSavingStrategy {
-    @Value("${settings.saving-dir:./files}")
-    private String savingDir;
-    @Autowired
-    private LogMapper logMapper;
+    private final String SAVING_DIR = "./files";
+    private final String CLIENT_FILENAME_PREFIX = "frontend";
 
     @Override
     public void saveBackendLog(LogBackendRequest rawLog) {
         Path storagePath = getStoragePath();
+        log.info("STORAGE PATH: " + storagePath);
         if(storagePath != null) {
             File file = getStorageFile(rawLog.getServiceName());
             if(file != null) {
-                try(BufferedWriter writer = new BufferedWriter(new FileWriter(file.getName(), true))) {
+                try(BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath(), true))) {
                     String stringLog = rawLog.toString();
-                    writer.write(stringLog);
-                    writer.flush();
+                    writeLog(writer, stringLog);
                 } catch (IOException ex) {
+                    log.error("RECEIVED IO EXCEPTION: " + ex.getMessage() );
                     ex.printStackTrace();
                 }
             }
@@ -45,12 +43,12 @@ public class LocalLogSaving implements LogSavingStrategy {
     public void saveFrontendLogs(List<LogFrontendRequest> rawLogs) {
         Path storagePath = getStoragePath();
         if(storagePath != null) {
-            File file = getStorageFile("frontend");
+            File file = getStorageFile(CLIENT_FILENAME_PREFIX);
             if(file != null) {
-                try(BufferedWriter writer = new BufferedWriter(new FileWriter(file.getName(), true))) {
+                try(BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath(), true))) {
                     for(var log: rawLogs) {
                         String stringLog = log.toString();
-                        writer.write(stringLog);
+                        writeLog(writer, stringLog);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -59,23 +57,30 @@ public class LocalLogSaving implements LogSavingStrategy {
         }
     }
 
+    private void writeLog(BufferedWriter writer, String log) throws IOException {
+        writer.write(log);
+        writer.newLine();
+        writer.flush();
+    }
+
+
     private Path getStoragePath(){
-        Path storagePath = Paths.get(savingDir);
         try {
+            Path storagePath = Paths.get(SAVING_DIR);
             if(!Files.exists(storagePath)) {
                 Files.createDirectories(storagePath);
             }
             return storagePath;
         } catch (IOException ex) {
             System.out.println("Произошла ошибка");
-            ex.printStackTrace();
+            log.error("RECEIVED EX: " + ex.getMessage());
             return null;
         }
     }
 
     private File getStorageFile(String serviceName) {
         try {
-            File storageFile = new File(savingDir,serviceName + "_logs.txt");
+            File storageFile = new File(SAVING_DIR,serviceName + "_logs.txt");
             if (storageFile.createNewFile()) {
                 System.out.println("Файл создан: " + storageFile.getName());
             } else {
