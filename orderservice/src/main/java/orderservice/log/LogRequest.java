@@ -21,7 +21,7 @@ public class LogRequest {
         return UUID.fromString(userId);
     }
 
-    public void logRequest(HttpMethod method, String endpoint, String status){
+    public void logRequest(String method, String endpoint, int status){
         LogBackendRequest logBackendRequest = new LogBackendRequest();
         logBackendRequest.setServiceName("order-service");
         logBackendRequest.setMethod(method);
