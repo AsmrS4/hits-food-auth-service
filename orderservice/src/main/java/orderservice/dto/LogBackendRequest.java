@@ -1,4 +1,4 @@
-package com.example.log_service.api.dto;
+package orderservice.dto;
 
 import com.example.log_service.core.enums.HttpMethod;
 import jakarta.validation.constraints.NotBlank;
@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

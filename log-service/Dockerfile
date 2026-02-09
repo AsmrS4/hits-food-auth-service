@@ -3,9 +3,9 @@ FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /build
 
 COPY pom.xml .
-COPY src ./src
+COPY log-service ./log-service
 
-RUN mvn clean package -DskipTests
+RUN cd log-service && mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app

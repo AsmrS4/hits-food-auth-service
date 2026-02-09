@@ -41,6 +41,7 @@ logging:
 url:
 #  user-service-url: http://localhost:8910
 #  menu-service-url: http://localhost:8080
+  log-service-url: http://log-service:8100
   user-service-url: http://user-service:8910
   menu-service-url: http://menu-service:8080
 
