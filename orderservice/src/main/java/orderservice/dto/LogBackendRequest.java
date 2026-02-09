@@ -13,15 +13,15 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LogBackendRequest {
+public class LogBackendRequest{
     @NotBlank(message = "Service name is required")
     private String serviceName;
     @NotBlank(message = "Http method name is required")
-    private HttpMethod method;
+    private String method;
     @NotBlank(message = "Endpoint name is required")
     private String endpoint;
     @NotBlank(message = "Http status is required")
-    private String status;
+    private int status;
     @NotNull(message = "User ID is required")
     private UUID userId;
     @NotNull(message = "TimeStamp is required")
@@ -29,7 +29,7 @@ public class LogBackendRequest {
 
     @Override
     public String toString() {
-        return "{ " + timestamp + " } " + "{ "  + serviceName + " } " + "{ " + method + " } "
-                + "{ " + endpoint + " } " + "{ " + status + " }" + "{ " + userId + " }";
+        return "{ " + timestamp + " }" + "{ "  + serviceName + " }" + "{ " + method + " }"
+                + "{ " + endpoint + " }" + "{ " + status + " }" + "{ " + userId + " }";
     }
 }

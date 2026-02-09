@@ -40,7 +40,7 @@ jwt:
 
 url:
   order-service-url: http://order-service:8096
-  log-service-url: http://localhost:8100
+  log-service-url: http://log-service:8100
 
 feature:
   enableSaveEditedUser: ${ENABLE_SAVE_EDITED_USER:true}

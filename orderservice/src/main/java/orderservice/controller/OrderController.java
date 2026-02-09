@@ -56,7 +56,7 @@ public class OrderController {
     private final FeatureToggles featureToggles;
     private final LogRequest logReq;
 
-    public void logRequest(HttpMethod method, String endpoint, String status) {
+    public void logRequest(String method, String endpoint, int status) {
         logReq.logRequest(method, endpoint, status);
     }
 
@@ -128,11 +128,11 @@ public class OrderController {
                 }
                 reservationMealService.create(orderId, meal.getId(), meal.getQuantity());
             }
-            logRequest(HttpMethod.POST, "create", "Ok");
+            logRequest("POST", "create", 200);
             return ResponseEntity.ok(orderDto);
 
         } catch (Exception e) {
-            logRequest(HttpMethod.POST, "create", "Internal server error");
+            logRequest("POST", "create", 500);
             log.error("ORDER CONTROLLER - Error creating order: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
@@ -168,11 +168,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Finding order by ID: {}", orderId);
             OrderResponseDto order = orderService.findByIdForController(orderId);
-            logRequest(HttpMethod.GET, "find-by/{orderId}", "Ok");
+            logRequest("GET", "find-by/{orderId}", 200);
             return ResponseEntity.ok(order);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding order: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "find-by/{orderId}", "Order not found");
+            logRequest("GET", "find-by/{orderId}", 404);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Order not found: " + e.getMessage()));
         }
@@ -183,11 +183,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Finding orders by user ID: {}", userId);
             List<OrderResponseDto> orders = orderService.findByUserId(userId);
-            logRequest(HttpMethod.GET, "find-by-userId/{userId}", "Ok");
+            logRequest("GET", "find-by-userId/{userId}", 200);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding user orders: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "find-by-userId/{userId}", "Error finding orders");
+            logRequest("GET", "find-by-userId/{userId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error finding orders: " + e.getMessage()));
         }
@@ -199,11 +199,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Finding orders by operator ID: {}", operatorId);
             List<OrderResponseDto> orders = orderService.findByOperatorId(operatorId, pageable);
-            logRequest(HttpMethod.GET, "find-by-operator/{operatorId}", "Ok");
+            logRequest("GET", "find-by-operator/{operatorId}", 200);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding operator orders: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "find-by-operator/{operatorId}", "Error finding orders");
+            logRequest("GET", "find-by-operator/{operatorId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error finding orders: " + e.getMessage()));
         }
@@ -214,11 +214,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Finding orders without operator");
             List<OrderResponseDto> orders = orderService.findWithoutOperator(pageable);
-            logRequest(HttpMethod.GET, "find-without-operator", "Ok");
+            logRequest("GET", "find-without-operator", 200);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error finding orders without operator: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "find-without-operator", "Error finding orders");
+            logRequest("GET", "find-without-operator", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error finding orders: " + e.getMessage()));
         }
@@ -229,11 +229,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Changing order status. Order: {}, Status: {}", orderId, status);
             statusService.changeOrderStatus(orderId, status);
-            logRequest(HttpMethod.PUT, "change-order-status/{orderId}", "Ok");
+            logRequest("PUT", "change-order-status/{orderId}", 200);
             return ResponseEntity.ok(Map.of("message", "Order status updated successfully"));
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error changing order status: {}", e.getMessage());
-            logRequest(HttpMethod.PUT, "change-order-status/{orderId}", "Error changing status");
+            logRequest("PUT", "change-order-status/{orderId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error changing status: " + e.getMessage()));
         }
@@ -245,11 +245,11 @@ public class OrderController {
             log.info("ORDER CONTROLLER - Changing operator for order. Order: {}, Operator: {}", orderId, operatorId);
             orderService.changeOperatorId(orderId, operatorId);
             amountService.changeAmount(operatorId);
-            logRequest(HttpMethod.PUT, "change-operator-for-order", "Ok");
+            logRequest("PUT", "change-operator-for-order", 200);
             return ResponseEntity.ok(Map.of("message", "Operator changed successfully"));
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error changing operator: {}", e.getMessage());
-            logRequest(HttpMethod.PUT, "change-operator-for-order", "Error changing operator");
+            logRequest("PUT", "change-operator-for-order", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error changing operator: " + e.getMessage()));
         }
@@ -260,11 +260,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Getting stats for operator: {}", operatorId);
             Long stat = orderService.getStat(operatorId);
-            logRequest(HttpMethod.GET, "stat/{operatorId}", "Ok");
+            logRequest("GET", "stat/{operatorId}", 200);
             return ResponseEntity.ok(stat);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error getting stats: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "stat/{operatorId}", "Error getting stats");
+            logRequest("GET", "stat/{operatorId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error getting stats: " + e.getMessage()));
         }
@@ -287,11 +287,11 @@ public class OrderController {
                     responseStats.add(OrderAmountMapper.mapOrderAmountToDto(operator, stat));
                 }
             }
-            logRequest(HttpMethod.GET, "stat/all", "Ok");
+            logRequest("GET", "stat/all", 200);
             return ResponseEntity.ok(responseStats);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error getting all stats: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "stat/all", "Error getting stats " + e.getMessage());
+            logRequest("GET", "stat/all", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error getting stats: " + e.getMessage()));
         }
@@ -299,7 +299,7 @@ public class OrderController {
 
     @GetMapping("/get-order-amount-by-user")
     public AmountDto getOrderAmountByUser(UUID userId) {
-        logRequest(HttpMethod.GET, "get-order-amount-by-user", "Ok");
+        logRequest("GET", "get-order-amount-by-user", 200);
         return orderService.getOrderAmountByUser(userId);
     }
 
@@ -308,11 +308,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Adding comment to order: {}", orderId);
             orderService.comment(orderId, comment);
-            logRequest(HttpMethod.PUT, "comment/{orderId}", "Ok");
+            logRequest("PUT", "comment/{orderId}", 200);
             return ResponseEntity.ok(Map.of("message", "Comment added successfully"));
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error adding comment: {}", e.getMessage());
-            logRequest(HttpMethod.PUT, "comment/{orderId}", "Error adding comment " + e.getMessage());
+            logRequest("PUT", "comment/{orderId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error adding comment: " + e.getMessage()));
         }
@@ -323,11 +323,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Getting status history for order: {}", orderId);
             List<StatusHistory> history = statusService.getStatusHistory(orderId);
-            logRequest(HttpMethod.GET, "get-status-history", "Ok");
+            logRequest("GET", "get-status-history", 200);
             return ResponseEntity.ok(history);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error getting status history: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "get-status-history", "Error getting history " + e.getMessage());
+            logRequest("GET", "get-status-history", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error getting history: " + e.getMessage()));
         }
@@ -341,11 +341,11 @@ public class OrderController {
                 statusService.changeOrderStatus(orderId, Status.CANCELED);
             }
             orderService.setDeclineReason(orderId, declineReason);
-            logRequest(HttpMethod.PUT, "decline", "Ok");
+            logRequest("PUT", "decline", 200);
             return ResponseEntity.ok(Map.of("message", "Order declined successfully"));
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error declining order: {}", e.getMessage());
-            logRequest(HttpMethod.PUT, "decline", "Error declining order " + e.getMessage());
+            logRequest("PUT", "decline", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error declining order: " + e.getMessage()));
         }
@@ -354,14 +354,14 @@ public class OrderController {
     @PutMapping("/add-dish/{orderId}/{dishId}")
     public ResponseEntity<?> addDishToOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) throws UnavailableException {
         editOrderService.addDish(dishId, orderId);
-        logRequest(HttpMethod.PUT, "add-dish/{orderId}/{dishId}", "Ok");
+        logRequest("PUT", "add-dish/{orderId}/{dishId}", 200);
         return ResponseEntity.ok(Map.of("message", "Dish added successfully"));
     }
 
     @DeleteMapping("/delete-dish/{orderId}/{dishId}")
     public ResponseEntity<?> deleteDishFromOrder(@PathVariable UUID orderId, @PathVariable UUID dishId) throws UnavailableException {
         editOrderService.deleteDish(dishId, orderId);
-        logRequest(HttpMethod.DELETE, "delete-dish/{orderId}/{dishId}", "Ok");
+        logRequest("DELETE", "delete-dish/{orderId}/{dishId}", 200);
         return ResponseEntity.ok(Map.of("message", "Dish deleted successfully"));
     }
 
@@ -372,11 +372,11 @@ public class OrderController {
             log.info("ORDER CONTROLLER - Changing dish quantity. Order: {}, Dish: {}, Amount: {}",
                     orderId, dishId, amount);
             editOrderService.changeDishAmount(dishId, orderId, amount);
-            logRequest(HttpMethod.PUT, "change/quantity/{orderId}/{dishId}", "Ok");
+            logRequest("PUT", "change/quantity/{orderId}/{dishId}", 200);
             return ResponseEntity.ok(Map.of("message", "Dish quantity updated successfully"));
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error changing dish quantity: {}", e.getMessage());
-            logRequest(HttpMethod.PUT, "change/quantity/{orderId}/{dishId}", "Error changing quantity: " + e.getMessage());
+            logRequest("PUT", "change/quantity/{orderId}/{dishId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error changing quantity: " + e.getMessage()));
         }
@@ -390,11 +390,11 @@ public class OrderController {
             log.info("ORDER CONTROLLER - Getting orders with filters. Status: {}, Operator: {}", status, operatorName);
             OrderFilter orderFilter = new OrderFilter(operatorName, status);
             List<OrderResponseDto> orders = filterService.findAllWithFilters(orderFilter, pageable);
-            logRequest(HttpMethod.GET, "get-with-filters", "Ok");
+            logRequest("GET", "get-with-filters", 200);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error filtering orders: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "get-with-filters", "Error filtering orders: " + e.getMessage());
+            logRequest("GET", "get-with-filters", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error filtering orders: " + e.getMessage()));
         }
@@ -406,11 +406,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Saving operator: {}", dto.getFullName());
             operatorService.saveOperator(dto);
-            logRequest(HttpMethod.POST, "save-operator", "Ok");
+            logRequest("POST", "save-operator", 200);
             return ResponseEntity.ok(Map.of("message", "Operator saved successfully"));
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error saving operator: {}", e.getMessage());
-            logRequest(HttpMethod.POST, "save-operator", "Error saving operator: " + e.getMessage());
+            logRequest("POST", "save-operator", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error saving operator: " + e.getMessage()));
         }
@@ -422,11 +422,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Deleting operator: {}", operatorId);
             operatorService.deleteOperator(operatorId);
-            logRequest(HttpMethod.DELETE, "delete-operator/{operatorId}", "Ok");
+            logRequest("DELETE", "delete-operator/{operatorId}", 200);
             return ResponseEntity.ok(Map.of("message", "Operator deleted successfully"));
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error deleting operator: {}", e.getMessage());
-            logRequest(HttpMethod.DELETE, "delete-operator/{operatorId}", "Error deleting operator: " + e.getMessage());
+            logRequest("DELETE", "delete-operator/{operatorId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error deleting operator: " + e.getMessage()));
         }
@@ -437,11 +437,11 @@ public class OrderController {
         try {
             log.info("ORDER CONTROLLER - Checking if food was ordered: {}", foodId);
             boolean hasOrdered = orderService.hasOrdered(foodId);
-            logRequest(HttpMethod.GET, "check-has-ordered/{foodId}", "Ok");
+            logRequest("GET", "check-has-ordered/{foodId}", 200);
             return ResponseEntity.ok(hasOrdered);
         } catch (Exception e) {
             log.error("ORDER CONTROLLER - Error checking ordered food: {}", e.getMessage());
-            logRequest(HttpMethod.GET, "check-has-ordered/{foodId}", "Error checking ordered food: " + e.getMessage());
+            logRequest("GET", "check-has-ordered/{foodId}", 404);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error checking ordered food: " + e.getMessage()));
         }
