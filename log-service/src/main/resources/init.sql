@@ -1,0 +1,7 @@
+CREATE TABLE files
+(
+    id SERIAL PRIMARY KEY,
+    service_name VARCHAR(64) NOT NULL UNIQUE,
+    storage_path TEXT NOT NULL,
+    create_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

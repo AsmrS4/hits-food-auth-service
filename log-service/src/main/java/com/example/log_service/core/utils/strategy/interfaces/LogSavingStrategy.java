@@ -1,4 +1,4 @@
-package com.example.log_service.core.utils;
+package com.example.log_service.core.utils.strategy.interfaces;
 
 import com.example.log_service.api.dto.LogBackendRequest;
 import com.example.log_service.api.dto.LogFrontendRequest;
