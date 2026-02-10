@@ -66,6 +66,7 @@ services:
       - FEATURE_ENABLE_SET_CLIENT_ROLE_TO_OPERATOR_BUG=${ENABLE_SET_CLIENT_ROLE_TO_OPERATOR_BUG:-false}
       - FEATURE_ENABLE_OK_STATUS_BUG=${ENABLE_OK_STATUS_BUG:-false}
       - FEATURE_ENABLE_SAVE_REFRESH_BUG=${ENABLE_SAVE_REFRESH_BUG:-false}
+      - URL_LOG_SERVICE_URL=http://log-service:8100
     depends_on:
       - user_db
     networks:
@@ -74,6 +75,12 @@ services:
   log-service:
     image: log-image:latest
     container_name: log-service
+    user: "root"
+    environment:
+      - SPRING_FILE_SAVING_DIR=/app/files
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://files_db:5432/files_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     env_file:
       - .env
     ports:
@@ -227,9 +234,9 @@ services:
     image: postgres:15
     container_name: files_db
     environment:
-      POSTGRES_DB: files_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB=files_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
       - files_db_data:/var/lib/postgresql/data
       - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
