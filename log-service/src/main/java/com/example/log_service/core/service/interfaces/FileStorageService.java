@@ -8,4 +8,5 @@ import java.io.File;
 public interface FileStorageService {
     void saveLog(String name, File file);
     Resource findFileByName(String fileName) throws FileNotFoundException;
+    boolean existsByServiceName(String serviceName);
 }

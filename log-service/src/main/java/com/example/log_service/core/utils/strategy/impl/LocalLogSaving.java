@@ -4,7 +4,6 @@ import com.example.log_service.api.dto.LogBackendRequest;
 import com.example.log_service.api.dto.LogFrontendRequest;
 import com.example.log_service.core.service.interfaces.FileStorageService;
 import com.example.log_service.core.utils.strategy.interfaces.LogSavingStrategy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -30,11 +29,11 @@ public class LocalLogSaving implements LogSavingStrategy {
 
     @Override
     public void saveBackendLog(LogBackendRequest rawLog) {
-        Path storagePath = getStoragePath();
+        Path storagePath = getStorageDirectory();
         log.info("STORAGE PATH: " + storagePath);
         if(storagePath != null) {
             File file = getStorageFile(rawLog.getServiceName());
-            if(file != null) {
+            if(file != null && file.exists()) {
                 try(BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath(), true))) {
                     String stringLog = rawLog.toString();
                     writeLog(writer, stringLog);
@@ -48,7 +47,7 @@ public class LocalLogSaving implements LogSavingStrategy {
 
     @Override
     public void saveFrontendLogs(List<LogFrontendRequest> rawLogs) {
-        Path storagePath = getStoragePath();
+        Path storagePath = getStorageDirectory();
         if(storagePath != null) {
             File file = getStorageFile(CLIENT_FILENAME_PREFIX);
             if(file != null) {
@@ -70,16 +69,14 @@ public class LocalLogSaving implements LogSavingStrategy {
         writer.flush();
     }
 
-
-    private Path getStoragePath(){
+    private Path getStorageDirectory(){
         try {
-            Path storagePath = Paths.get(SAVING_DIR);
-            if(!Files.exists(storagePath)) {
-                Files.createDirectories(storagePath);
+            Path storageDirectoryPath = Paths.get(SAVING_DIR);
+            if(!Files.exists(storageDirectoryPath)) {
+                Files.createDirectories(storageDirectoryPath);
             }
-            return storagePath;
+            return storageDirectoryPath;
         } catch (IOException ex) {
-            System.out.println("Произошла ошибка");
             log.error("RECEIVED EX: " + ex.getMessage());
             return null;
         }
@@ -88,15 +85,10 @@ public class LocalLogSaving implements LogSavingStrategy {
     private File getStorageFile(String serviceName) {
         try {
             File storageFile = new File(SAVING_DIR,serviceName + "_logs.txt");
-            if (storageFile.createNewFile()) {
+            if (storageFile.createNewFile() && !fileStorageService.existsByServiceName(serviceName))
                 fileStorageService.saveLog(serviceName, storageFile);
-                System.out.println("Файл создан: " + storageFile.getName());
-            } else {
-                System.out.println("Файл уже существует.");
-            }
             return storageFile;
         } catch (IOException e) {
-            System.out.println("Произошла ошибка");
             e.printStackTrace();
             return null;
         }

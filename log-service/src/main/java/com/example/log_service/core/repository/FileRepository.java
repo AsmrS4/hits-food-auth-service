@@ -12,4 +12,5 @@ public interface FileRepository extends JpaRepository<FileEntity, Long> {
     Optional<FileEntity> findByServiceName(String serviceName);
     @Query("SELECT fe FROM FileEntity fe WHERE fe.serviceName LIKE %:serviceName%")
     List<FileEntity> findLikeServiceName(@Param("serviceName") String serviceName);
+    boolean existsByServiceName(String serviceName);
 }

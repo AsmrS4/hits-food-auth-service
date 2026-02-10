@@ -35,4 +35,9 @@ public class FileStorageImpl implements FileStorageService {
             throw new FileNotFoundException("Файл с логами не найден");
         }
     }
+
+    @Override
+    public boolean existsByServiceName(String serviceName) {
+        return repository.existsByServiceName(serviceName);
+    }
 }
