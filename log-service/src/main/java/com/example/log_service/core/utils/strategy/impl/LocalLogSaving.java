@@ -1,8 +1,10 @@
-package com.example.log_service.core.utils.impl;
+package com.example.log_service.core.utils.strategy.impl;
 
 import com.example.log_service.api.dto.LogBackendRequest;
 import com.example.log_service.api.dto.LogFrontendRequest;
-import com.example.log_service.core.utils.LogSavingStrategy;
+import com.example.log_service.core.service.interfaces.FileStorageService;
+import com.example.log_service.core.utils.strategy.interfaces.LogSavingStrategy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,11 @@ import java.util.List;
 public class LocalLogSaving implements LogSavingStrategy {
     private final String SAVING_DIR = "./files";
     private final String CLIENT_FILENAME_PREFIX = "frontend";
+    private final FileStorageService fileStorageService;
+
+    public LocalLogSaving(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
+    }
 
     @Override
     public void saveBackendLog(LogBackendRequest rawLog) {
@@ -82,6 +89,7 @@ public class LocalLogSaving implements LogSavingStrategy {
         try {
             File storageFile = new File(SAVING_DIR,serviceName + "_logs.txt");
             if (storageFile.createNewFile()) {
+                fileStorageService.saveLog(serviceName, storageFile);
                 System.out.println("Файл создан: " + storageFile.getName());
             } else {
                 System.out.println("Файл уже существует.");

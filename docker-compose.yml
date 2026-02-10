@@ -80,6 +80,8 @@ services:
       - '8100:8100'
     networks:
       - app-network
+    depends_on:
+      - files_db
 
   menu-service:
     image: menu-image:latest
@@ -221,11 +223,28 @@ services:
     networks:
       - app-network
 
+  files_db:
+    image: postgres:15
+    container_name: files_db
+    environment:
+      POSTGRES_DB: files_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - files_db_data:/var/lib/postgresql/data
+      - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5436:5432"
+    networks:
+      - app-network
+    restart: unless-stopped
+
 volumes:
   user_db-data:
   menu_db-data:
   order_db-data:
   cart_data:
+  files_db_data:
 
 networks:
   app-network:
