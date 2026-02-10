@@ -1,9 +1,11 @@
-package com.example.log_service.core.utils.impl;
+package com.example.log_service.core.utils.strategy.impl;
 
 import com.example.log_service.api.dto.LogBackendRequest;
 import com.example.log_service.api.dto.LogFrontendRequest;
-import com.example.log_service.core.utils.LogSavingStrategy;
+import com.example.log_service.core.service.interfaces.FileStorageService;
+import com.example.log_service.core.utils.strategy.interfaces.LogSavingStrategy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
@@ -20,14 +22,19 @@ import java.util.List;
 public class LocalLogSaving implements LogSavingStrategy {
     private final String SAVING_DIR = "./files";
     private final String CLIENT_FILENAME_PREFIX = "frontend";
+    private final FileStorageService fileStorageService;
+
+    public LocalLogSaving(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
+    }
 
     @Override
     public void saveBackendLog(LogBackendRequest rawLog) {
-        Path storagePath = getStoragePath();
+        Path storagePath = getStorageDirectory();
         log.info("STORAGE PATH: " + storagePath);
         if(storagePath != null) {
             File file = getStorageFile(rawLog.getServiceName());
-            if(file != null) {
+            if(file != null && file.exists()) {
                 try(BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath(), true))) {
                     String stringLog = rawLog.toString();
                     writeLog(writer, stringLog);
@@ -41,7 +48,7 @@ public class LocalLogSaving implements LogSavingStrategy {
 
     @Override
     public void saveFrontendLogs(List<LogFrontendRequest> rawLogs) {
-        Path storagePath = getStoragePath();
+        Path storagePath = getStorageDirectory();
         if(storagePath != null) {
             File file = getStorageFile(CLIENT_FILENAME_PREFIX);
             if(file != null) {
@@ -63,16 +70,14 @@ public class LocalLogSaving implements LogSavingStrategy {
         writer.flush();
     }
 
-
-    private Path getStoragePath(){
+    private Path getStorageDirectory(){
         try {
-            Path storagePath = Paths.get(SAVING_DIR);
-            if(!Files.exists(storagePath)) {
-                Files.createDirectories(storagePath);
+            Path storageDirectoryPath = Paths.get(SAVING_DIR);
+            if(!Files.exists(storageDirectoryPath)) {
+                Files.createDirectories(storageDirectoryPath);
             }
-            return storagePath;
+            return storageDirectoryPath;
         } catch (IOException ex) {
-            System.out.println("Произошла ошибка");
             log.error("RECEIVED EX: " + ex.getMessage());
             return null;
         }
@@ -81,14 +86,10 @@ public class LocalLogSaving implements LogSavingStrategy {
     private File getStorageFile(String serviceName) {
         try {
             File storageFile = new File(SAVING_DIR,serviceName + "_logs.txt");
-            if (storageFile.createNewFile()) {
-                System.out.println("Файл создан: " + storageFile.getName());
-            } else {
-                System.out.println("Файл уже существует.");
-            }
+            if (storageFile.createNewFile() && !fileStorageService.existsByServiceName(serviceName))
+                fileStorageService.saveLog(serviceName, storageFile);
             return storageFile;
         } catch (IOException e) {
-            System.out.println("Произошла ошибка");
             e.printStackTrace();
             return null;
         }
