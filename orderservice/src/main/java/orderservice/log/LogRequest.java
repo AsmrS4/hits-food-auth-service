@@ -1,18 +1,23 @@
 package orderservice.log;
 
-import com.example.log_service.core.enums.HttpMethod;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import orderservice.client.LogClient;
 import orderservice.dto.LogBackendRequest;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class LogRequest {
+@Slf4j
+public class LogRequest implements HandlerInterceptor {
 
     private final LogClient logClient;
 
@@ -21,15 +26,31 @@ public class LogRequest {
         return UUID.fromString(userId);
     }
 
-    public void logRequest(String method, String endpoint, int status){
-        LogBackendRequest logBackendRequest = new LogBackendRequest();
-        logBackendRequest.setServiceName("order-service");
-        logBackendRequest.setMethod(method);
-        logBackendRequest.setUserId(getUserIdFromContext());
-        logBackendRequest.setEndpoint(endpoint);
-        logBackendRequest.setStatus(status);
-        logBackendRequest.setTimestamp(LocalDateTime.now());
-        logClient.sendLogs(logBackendRequest);
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
+        logRequest(request, response);
+    }
+
+    private LogBackendRequest createRequestLogBody(HttpServletRequest request, HttpServletResponse response) {
+        LogBackendRequest logRequest = new LogBackendRequest();
+        logRequest.setEndpoint(request.getRequestURI());
+        logRequest.setMethod(request.getMethod());
+        logRequest.setServiceName("order-service");
+        logRequest.setTimestamp(LocalDateTime.now());
+        logRequest.setUserId(getUserIdFromContext());
+        logRequest.setStatus(response.getStatus());
+        return logRequest;
+    }
+
+    public void logRequest(HttpServletRequest request, HttpServletResponse response){
+        LogBackendRequest logBackendRequest = createRequestLogBody(request, response);
+        try {
+            logClient.sendLogs(logBackendRequest);
+            log.info("send successfully");
+        } catch (Exception e) {
+            log.error("Couldn't save request. Log service is unavailable");
+            log.error("Ex: " + e.getMessage());
+        }
     }
 
 }
