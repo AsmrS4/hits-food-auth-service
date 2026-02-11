@@ -11,8 +11,7 @@ spring:
     config:
       enabled: false
   datasource:
-#    url: jdbc:postgresql://localhost:5432/foodservice - поменять для локального запуска
-    url: jdbc:postgresql://menu_db:5432/foodservice
+    url: jdbc:postgresql://localhost:5433/foodservice
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -58,8 +57,8 @@ jwt:
   lifetime: 30m
 
 url:
-#  order-service-url: http://localhost:8096  - поменять для локального запуска и пересобрать образ
-  order-service-url: http://order-service:8096
+  order-service-url: http://localhost:8096
+  log-service-url: http://localhost:8100
 
 logging:
   level:

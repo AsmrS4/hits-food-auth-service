@@ -125,6 +125,8 @@ services:
       - FEATURE_BUG_NAME_SEARCH_CASE_SENSITIVE=${BUG_NAME_SEARCH_CASE_SENSITIVE:-false}
       - FEATURE_BUG_DISTORT_FOOD_PRICE_ON_DETAILS=${BUG_DISTORT_FOOD_PRICE_ON_DETAILS:-false}
       - FEATURE_BUG_SEARCH_EXACT_NAME_ONLY=${BUG_SEARCH_EXACT_NAME_ONLY:-false}
+      - URL_LOG_SERVICE_URL=http://log-service:8100
+      - URL_ORDER_SERVICE_URL=http://order-service:8096
     depends_on:
       - menu_db
     networks:
