@@ -1,5 +1,6 @@
-package com.example.user_service.config;
+package orderservice.configuration;
 
+import orderservice.log.LogRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -7,13 +8,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    private final RequestLoggingInterceptor requestLoggingInterceptor;
+    private final LogRequest logRequest;
     @Lazy
-    public WebConfig(RequestLoggingInterceptor interceptor) {
-        requestLoggingInterceptor = interceptor;
+    public WebConfig(LogRequest logRequest) {
+        this.logRequest = logRequest;
     }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(requestLoggingInterceptor).addPathPatterns("/api/**");
+        registry.addInterceptor(logRequest).addPathPatterns("/order/**");
     }
 }

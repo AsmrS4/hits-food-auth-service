@@ -14,6 +14,11 @@ services:
       - VITE_TOTAL_COST_NOT_UPDATE=${TOTAL_COST_NOT_UPDATE:-false}
       - VITE_RESETTING_SORTS=${RESETTING_SORTS:-false}
       - VITE_DISH_COUNT_NOT_UPDATE=${DISH_COUNT_NOT_UPDATE:-false}
+      - VITE_ADD_INACCESSIBLE_DISH=${ADD_INACCESSIBLE_DISH:-false}
+      - VITE_CAN_ALWAYS_ADD_RATING=${CAN_ALWAYS_ADD_RATING:-false}
+      - VITE_ONLY_ONE_DISH=${ONLY_ONE_DISH:-false}
+      - VITE_NO_NORMALIZATION_PHONE=${NO_NORMALIZATION_PHONE:-false}
+      - VITE_NO_VALIDATION_ORDER=${NO_VALIDATION_ORDER:-false}
     ports:
       - '4173:4173'
     networks:
@@ -33,7 +38,12 @@ services:
       - VITE_PHOTO_NOT_DELETE=${PHOTO_NOT_DELETE:-false}
       - VITE_FOR_NO_REASON=${FOR_NO_REASON:-false}
       - VITE_ERROR_ADD_NEW_DISH_INTO_ORDER=${ERROR_ADD_NEW_DISH_INTO_ORDER:-false}
-      - VITE_ALWAYS_SUCCESS_ABOUT_US=${ALWAYS_SUCCESS_ABOUT_US:-false}
+      - VITE_ALWAYS_SAVE_ABOUT_US=${ALWAYS_SAVE_ABOUT_US:-false}
+      - VITE_MAKE_ANY_USER_ORDER_OPERATOR=${MAKE_ANY_USER_ORDER_OPERATOR:-false}
+      - VITE_NO_REFETCH_EDIT_STATUS=${NO_REFETCH_EDIT_STATUS:-false}
+      - VITE_NO_OPEN_ERROR_DELETE_DISH=${NO_OPEN_ERROR_DELETE_DISH:-false}
+      - VITE_NO_REFETCH_DELETE=${NO_REFETCH_DELETE:-false}
+      - VITE_NO_NORMALIZATION_PHONE=${NO_NORMALIZATION_PHONE:-false}
     ports:
       - '4175:4175'
     networks:
@@ -66,6 +76,7 @@ services:
       - FEATURE_ENABLE_SET_CLIENT_ROLE_TO_OPERATOR_BUG=${ENABLE_SET_CLIENT_ROLE_TO_OPERATOR_BUG:-false}
       - FEATURE_ENABLE_OK_STATUS_BUG=${ENABLE_OK_STATUS_BUG:-false}
       - FEATURE_ENABLE_SAVE_REFRESH_BUG=${ENABLE_SAVE_REFRESH_BUG:-false}
+      - URL_LOG_SERVICE_URL=http://log-service:8100
     depends_on:
       - user_db
     networks:
@@ -74,12 +85,20 @@ services:
   log-service:
     image: log-image:latest
     container_name: log-service
+    user: "root"
+    environment:
+      - SPRING_FILE_SAVING_DIR=/app/files
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://files_db:5432/files_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     env_file:
       - .env
     ports:
       - '8100:8100'
     networks:
       - app-network
+    depends_on:
+      - files_db
 
   menu-service:
     image: menu-image:latest
@@ -130,6 +149,9 @@ services:
       - FEATURE_BUG_CANT_GET_DISH_INFORMATION=${BUG_CANT_GET_DISH_INFORMATION:-false}
       - FEATURE_BUG_ERROR_STATUS_CHANGE_WHEN_DECLINE_ORDER=${BUG_ERROR_STATUS_CHANGE_WHEN_DECLINE_ORDER:-false}
       - FEATURE_BUG_NOT_INCREASE_DISH_AMOUNT_AFTER_ADD=${BUG_NOT_INCREASE_DISH_AMOUNT_AFTER_ADD:-false}
+      - URL_LOG_SERVICE_URL=http://log-service:8100
+      - URL_USER_SERVICE_URL=http://log-service:8910
+      - URL_MENU_SERVICE_URL=http://log-service:8080
     depends_on:
       - order_db
     networks:
@@ -221,11 +243,28 @@ services:
     networks:
       - app-network
 
+  files_db:
+    image: postgres:15
+    container_name: files_db
+    environment:
+      - POSTGRES_DB=files_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - files_db_data:/var/lib/postgresql/data
+      - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5436:5432"
+    networks:
+      - app-network
+    restart: unless-stopped
+
 volumes:
   user_db-data:
   menu_db-data:
   order_db-data:
   cart_data:
+  files_db_data:
 
 networks:
   app-network:

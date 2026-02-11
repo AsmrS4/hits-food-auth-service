@@ -1,20 +1,25 @@
 server:
   port: 8100
+
 spring:
   application:
     name: log-service
-  web:
-    cors:
-      allowed-origins: "*"
-      allowed-methods: "GET,POST,PUT,DELETE"
-      allowed-headers: "*"
-
+  datasource:
+    url: jdbc:postgresql://localhost:5436/files_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
   mvc:
     throw-exception-if-no-handler-found: true
     servlet:
       path: /
   file:
     saving-dir: ./files
+
 logging:
   level:
     org.springframework.security: trace
