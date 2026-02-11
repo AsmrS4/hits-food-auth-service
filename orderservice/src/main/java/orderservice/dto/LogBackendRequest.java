@@ -1,6 +1,5 @@
 package orderservice.dto;
 
-import com.example.log_service.core.enums.HttpMethod;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

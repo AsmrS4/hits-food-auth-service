@@ -6,7 +6,7 @@ spring:
     name: order-service
   datasource:
 #    url: jdbc:postgresql://localhost:5432/mydatabase
-    url: jdbc:postgresql://order_db:5432/mydatabase
+    url: jdbc:postgresql://localhost:5434/mydatabase
     username: postgres
     password: postgres
   jpa:
@@ -39,11 +39,9 @@ logging:
     com.netflix.eureka: OFF
 
 url:
-#  user-service-url: http://localhost:8910
-#  menu-service-url: http://localhost:8080
-  log-service-url: http://log-service:8100
-  user-service-url: http://user-service:8910
-  menu-service-url: http://menu-service:8080
+  log-service-url: http://localhost:8100
+  user-service-url: http://localhost:8910
+  menu-service-url: http://localhost:8080
 
 feature:
   bugWrongStatisticCounter: false
