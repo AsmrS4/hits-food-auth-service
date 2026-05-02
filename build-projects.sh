@@ -77,14 +77,35 @@ create_env_if_missing() {
         # Создаем только ваши флаги + минимальные настройки
         cat > "$env_file" << 'EOF'
 # Feature flags - все false по умолчанию
-DISH_NOT_FOUND="false"
+# front-client
 RESETTING_SORTS="false"
-TOTAL_COST_NOT_UPDATE="false"
 DISH_COUNT_NOT_UPDATE="false"
+ADD_INACCESSIBLE_DISH="false"
+CAN_ALWAYS_ADD_RATING="false"
+ONLY_ONE_DISH="false"
+MODAL_IS_ALWAYS_OPEN="false"
+MIXED_BUTTONS_ADDING_REMOVING_DISHES="false"
+NO_VALIDATION_ORDER="true"
+
+# front-operator
 PHOTO_NOT_DELETE="false"
 FOR_NO_REASON="false"
 ERROR_ADD_NEW_DISH_INTO_ORDER="false"
-ALWAYS_SUCCESS_ABOUT_US="false"
+APPOINT_RESPONSIBLE_OPERATOR="false"
+ALWAYS_SAVE_ABOUT_US="false"
+ALWAYS_NOT_SAVE_ABOUT_US="false"
+MIXED_BUTTONS_AVAILABLE_DISHES="false"
+NOT_CHANGE_ORDER_STATUS="false"
+CHANGE_ORDER_STATUS_IN_HISTORY="false"
+MAKE_ANY_USER_ORDER_OPERATOR="false"
+NO_REFETCH_EDIT_STATUS="true"
+NO_OPEN_ERROR_DELETE_DISH="true"
+NO_REFETCH_DELETE="true"
+
+# front
+DISH_NOT_FOUND="false"
+NO_NORMALIZATION_PHONE="true"
+TOTAL_COST_NOT_UPDATE="false"
 
 # user-service
 ENABLE_REFRESH_SESSION="true"
